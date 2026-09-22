@@ -3,7 +3,6 @@ package com.baltajmn.line
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -17,10 +16,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import com.baltajmn.line.data.LineRepository
 import com.baltajmn.line.data.today
-import com.baltajmn.line.i18n.S
 import com.baltajmn.line.ui.DaySheet
-import com.baltajmn.line.ui.Glyph
-import com.baltajmn.line.ui.GlyphButton
+import com.baltajmn.line.ui.SettingsScreen
 import com.baltajmn.line.ui.TodayScreen
 import com.baltajmn.line.ui.YearScreen
 import com.baltajmn.line.ui.theme.LineTheme
@@ -61,9 +58,7 @@ fun App() {
                     onBack = { screen = Screen.Today },
                     onOpenDay = { openDay = it },
                 )
-                // ponytail: Settings arrives with #12; until then, only the way back.
-                Screen.Settings ->
-                    GlyphButton(Glyph.BACK, S.a11yBack, { screen = Screen.Today }, Modifier.safeDrawingPadding())
+                Screen.Settings -> SettingsScreen(onBack = { screen = Screen.Today })
             }
             openDay?.let { DaySheet(it, day, closeDay) }
 
