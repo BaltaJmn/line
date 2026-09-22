@@ -1,6 +1,7 @@
 package com.baltajmn.line
 
 import com.baltajmn.line.model.Echoes
+import com.baltajmn.line.model.Edit
 import com.baltajmn.line.model.JournalFile
 import com.baltajmn.line.model.JournalJson
 import com.baltajmn.line.model.LineEntry
@@ -171,38 +172,60 @@ class ModelTest {
     @Test
     fun pastingIntoAnEmptyFieldKeepsTheFirst280() {
         val pasted = "x".repeat(300)
-        assertEquals(280, limitEdit("", pasted).length)
+        assertEquals(Edit("x".repeat(280), 280), limitEdit("", pasted, pasted.length))
     }
 
     @Test
     fun pastingInTheMiddleKeepsTheEnd() {
         val old = "a".repeat(100) + "z".repeat(179)
         val new = "a".repeat(100) + "INSERTED" + "z".repeat(179)
-        assertEquals("a".repeat(100) + "I" + "z".repeat(179), limitEdit(old, new))
+        assertEquals(Edit("a".repeat(100) + "I" + "z".repeat(179), 101), limitEdit(old, new, 108))
     }
 
     @Test
     fun neverLeavesHalfAPair() {
         val full = "a".repeat(280)
-        assertEquals(full, limitEdit(full, full.substring(0, 140) + SMILE + full.substring(140)))
+        assertEquals(full, limitEdit(full, full.substring(0, 140) + SMILE + full.substring(140), 142).text)
 
         val almost = "a".repeat(279)
         val withTwo = almost.substring(0, 10) + SMILE + SMILE + almost.substring(10)
-        val result = limitEdit(almost, withTwo)
+        val result = limitEdit(almost, withTwo, 14).text
         assertFalse(hasLoneSurrogate(result))
         assertEquals(280, result.codePointCount())
 
         // The typed emoji equals the one already at the end, so prefix and suffix both claim it.
         val before = "a".repeat(279) + SMILE
         val after = before + SMILE
-        assertEquals(before, limitEdit(before, after))
+        assertEquals(before, limitEdit(before, after, after.length).text)
+    }
+
+    @Test
+    fun aPasteThatStartsLikeTheNextWordKeepsThatWord() {
+        val head = "a".repeat(266) + "went "
+        val old = head + "home"
+        val new = head + "happy " + "home"
+        assertEquals(Edit(head + "happy" + "home", head.length + 5), limitEdit(old, new, new.length - 4))
+
+        val start = "a".repeat(260)
+        val tail = "home sweet home"
+        val pasted = start + "home is where" + tail
+        assertEquals(start + "home " + tail, limitEdit(start + tail, pasted, pasted.length - tail.length).text)
+    }
+
+    @Test
+    fun theCutNeverSplitsACharacterInTwo() {
+        val heart = "${0x2764.toChar()}${0xFE0F.toChar()}"
+        val almost = "a".repeat(279)
+        assertEquals(almost, limitEdit(almost, almost + heart, almost.length + 2).text)
+        val accent = "e${0x301.toChar()}"
+        assertEquals(almost, limitEdit(almost, almost + accent, almost.length + 2).text)
     }
 
     @Test
     fun anOverlongTextCanShrinkButNotGrow() {
         val long = "y".repeat(300)
-        assertEquals(long.dropLast(1), limitEdit(long, long.dropLast(1)))
-        assertEquals(long, limitEdit(long, long + "more"))
+        assertEquals(long.dropLast(1), limitEdit(long, long.dropLast(1), 299).text)
+        assertEquals(long, limitEdit(long, long + "more", 304).text)
     }
 
     // 11. Milestones
@@ -223,6 +246,12 @@ class ModelTest {
     @Test
     fun anniversaryShowsEvenWithTodayBlank() {
         assertEquals(Milestone.Anniversary, milestone(journal("2026-01-17", "2026-05-01"), date("2027-01-17")))
+    }
+
+    @Test
+    fun aDiaryStartedOnALeapDayTurnsOneOnThe28th() {
+        assertEquals(Milestone.Anniversary, milestone(journal("2028-02-29"), date("2029-02-28")))
+        assertNull(milestone(journal("2028-02-29"), date("2029-03-01")))
     }
 
     @Test
@@ -274,5 +303,6 @@ class ModelTest {
         assertEquals("ano", fold("AÑO"))
         assertEquals("strasse", fold("Straße"))
         assertEquals("coeur", fold("cœur"))
+        assertEquals("cafe", fold("Cafe${0x301.toChar()}"))
     }
 }

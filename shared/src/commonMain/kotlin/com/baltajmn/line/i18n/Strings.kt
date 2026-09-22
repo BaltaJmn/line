@@ -98,13 +98,7 @@ object S {
         "Il y a une semaine",
     )
     val echoMonth = t("A month ago", "Hace un mes", "Há um mês", "Vor einem Monat", "Il y a un mois")
-    val milestoneFirst = t(
-        "Your first line. In a year it'll come back.",
-        "Tu primera línea. Dentro de un año volverá.",
-        "Sua primeira linha. Daqui a um ano ela volta.",
-        "Deine erste Zeile. In einem Jahr kommt sie wieder.",
-        "Ta première ligne. Dans un an, elle reviendra.",
-    )
+    val milestoneFirst = t("Your first line.", "Tu primera línea.", "Sua primeira linha.", "Deine erste Zeile.", "Ta première ligne.")
     val milestoneThirty = t(
         "Your 30th line.",
         "Tu línea número 30.",

@@ -156,7 +156,7 @@ Todo en una `Column` con `verticalScroll` e `imePadding()`, margen lateral 24.
 - **Cabecera**: a la izquierda, un círculo de 8 dp del color de la portada y, a 8, la fecha larga
   (`longDate`, estilo `DateLine`); a la derecha `GlyphButton(YEAR)` y `GlyphButton(SETTINGS)`.
 - **Hito**: 8 debajo de la cabecera. Círculo de 8 del color de la portada y el texto (`Body`). Solo
-  uno (`docs/tecnico.md` 6.3). Claves: `milestoneFirst` (Tu primera línea. Dentro de un año volverá.),
+  uno (`docs/tecnico.md` 6.3). Claves: `milestoneFirst` (Tu primera línea.), sin plazo porque la vuelta ya la dice `returnsOn` debajo, también un 29 de febrero;
   `milestoneThirty` (Tu línea número 30.), `milestoneHundred` (Cien líneas.), `milestoneAnniversary`
   (Hoy hace un año que empezaste este diario.), `milestoneThreeYears` (Hoy tienes tres años en la
   misma página.).

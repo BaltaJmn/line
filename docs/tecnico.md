@@ -407,6 +407,9 @@ Se compara la hora local, no se restan tres horas a un instante: el cambio de ho
 en toda la app es `logicalDate(Clock.System.now(), TimeZone.currentSystemDefault())`, recalculado al
 volver a primer plano y cada vez que se pinta Hoy.
 
+Donde el reloj retrasa cruzando las 03:00 (hoy solo `Pacific/Chatham`, que pasa de 03:45 a 02:45), el
+día anterior vuelve durante 15 minutos una vez al año. Se acepta: no se guarda nada contra ello.
+
 ### 6.2 Años anteriores, ecos y vuelta de la página
 
 ```kotlin
@@ -488,35 +491,51 @@ fun threeYearsDate(j: Journal): LocalDate? {
 Una entrada `late` sí cuenta para los hitos de recuento: son líneas del diario. No cuenta para la
 racha.
 
+Un diario empezado un 29 de febrero cumple el año el 28 de febrero siguiente: 365 días después, que es
+lo que da `plus` al no existir el 29. A propósito, y con test (11).
+
 ### 6.4 Texto: puntos de código, tope y plegado
 
 ```kotlin
 fun String.codePointCount(): Int  // cuenta pares suplentes como uno
 
-// Los primeros n puntos de código, sin partir nunca una pareja suplente.
+// Los primeros n puntos de código, sin partir nunca una pareja suplente ni parar justo antes de un
+// punto que prolonga el anterior: marca combinante U+0300 a U+036F, VS16, ZWJ o tono de piel.
 fun String.clampCodePoints(n: Int): String
 
+data class Edit(val text: String, val cursor: Int)
+
 // La edición que el campo acepta. old es el texto antes de la pulsación, new el que propone el
-// teclado o el pegado.
-fun limitEdit(old: String, new: String, limit: Int = LINE_LIMIT): String {
+// teclado o el pegado y cursor dónde deja el teclado el cursor en new (selection.end).
+fun limitEdit(old: String, new: String, cursor: Int, limit: Int = LINE_LIMIT): Edit {
     val allowed = maxOf(limit, old.codePointCount())
-    if (new.codePointCount() <= allowed) return new
-    var p = new.commonPrefixWith(old).length
-    var q = new.commonSuffixWith(old).length
-    q = minOf(q, new.length - p, old.length - p)   // que prefijo y sufijo no se solapen en ninguno
+    if (new.codePointCount() <= allowed) return Edit(new, cursor)
+    // lo insertado acaba en el cursor: lo que va detrás ya estaba
+    if (old.endsWith(new.substring(cursor))) {
+        q = new.length - cursor
+        p = minOf(new.commonPrefixWith(old).length, cursor, old.length - q)
+    } else {                                        // cursor que no cuadra: el prefijo más largo
+        p = new.commonPrefixWith(old).length
+        q = minOf(new.commonSuffixWith(old).length, new.length - p, old.length - p)
+    }
     // no partir parejas en los bordes
     if (p > 0 && new[p - 1].isHighSurrogate()) p--
     if (q > 0 && new[new.length - q].isLowSurrogate()) q--
-    val inserted = new.substring(p, new.length - q)
-    val base = new.substring(0, p) + new.substring(new.length - q)
-    val room = (allowed - base.codePointCount()).coerceAtLeast(0)
-    return new.substring(0, p) + inserted.clampCodePoints(room) + new.substring(new.length - q)
+    val room = (allowed - (new[0, p) + new[new.length - q, end)).codePointCount()).coerceAtLeast(0)
+    val kept = new.substring(p, new.length - q).clampCodePoints(room)
+    return Edit(new[0, p) + kept + new[new.length - q, end), p + kept.length)
 }
 ```
 
 Con `limitEdit` solo se recorta lo que se acaba de insertar, nunca el texto que ya había: pegar en
-medio de una línea llena no le corta el final. El cursor queda al final de lo insertado. Un texto que
-ya pasaba de 280 (importado o dictado) se puede acortar pero no alargar.
+medio de una línea llena no le corta el final. El cursor se ancla porque sin él no hay regla buena:
+adivinar lo insertado por el prefijo común se come la letra siguiente cuando lo pegado empieza por
+ella. El cursor queda al final de lo insertado. Un texto que ya pasaba de 280 (importado o dictado)
+se puede acortar pero no alargar.
+
+Un emoji de un solo punto de código cuenta uno. Los compuestos (corazón con VS16, tono de piel,
+familias, banderas) cuentan sus partes; el corte no los deja a medias, salvo una bandera partida justo
+en el borde, que pierde su segunda letra.
 
 ```kotlin
 fun fold(s: String): String  // minúsculas y sin diacríticos
@@ -537,6 +556,7 @@ Tabla de plegado, tras `lowercase()`:
 | ß | ss |
 | œ | oe |
 | æ | ae |
+| marcas combinantes U+0300 a U+036F (acentos descompuestos, NFD) | se quitan |
 
 ### 6.5 Búsqueda
 
@@ -1144,8 +1164,9 @@ Fechas siempre fijas y pasadas como parámetro.
    las 10:00 con hoy escrito, mañana; a las 22:00, mañana; son 60; con `lockOn` ninguna lleva cuerpo;
    el 2028-02-29 no lleva recuerdo; con la hora a las 01:30, el día lógico del aviso es el anterior.
 8. **Tope de 280**: un emoji (`\uD83D\uDE42`) cuenta 1; pegar 300 caracteres en un campo vacío deja 280; pegar en medio de
-   una línea de 279 inserta 1 punto de código y conserva el final; nunca queda media pareja suplente;
-   un texto de 300 se puede acortar y no alargar.
+   una línea de 279 inserta 1 punto de código y conserva el final; pegar "happy " tras "went " en
+   "went home" al borde conserva la "h" de "home"; nunca queda media pareja suplente ni un corazón sin
+   su VS16; un texto de 300 se puede acortar y no alargar.
 9. **Estado de los widgets**: `widgetState` con recuerdos hoy y mañana; `widgetView` con la fecha de
    ayer da `written = false` y `memory = memoryNext`; con la de anteayer, `memory = false`; al cambiar
    de año, `days` vacío. En v1.1: con `lockOn`, `line` es nulo aunque el widget esté colocado.
@@ -1153,12 +1174,12 @@ Fechas siempre fijas y pasadas como parámetro.
     textos distintos quedan los dos con `\n`; foto del dispositivo gana; contadores `added`, `joined`
     y `same` correctos; ninguna fecha del dispositivo se pierde.
 11. **Hitos**: primera línea, 30 y 100 solo con hoy escrito y el recuento exacto; aniversario aunque
-    hoy no esté escrito; tres años el primer día que un mm-dd junta tres años, y no el siguiente;
+    hoy no esté escrito, y el de un diario empezado el 29 de febrero cae el 28; tres años el primer día que un mm-dd junta tres años, y no el siguiente;
     prioridad cuando coinciden.
 12. **Ecos y vuelta**: sin años anteriores, hace una semana y hace un mes (2027-03-31 da 2027-02-28);
     con años anteriores, sin ecos; `nextReturn(2028-02-29)` es 2032-02-29.
 13. **Plegado y búsqueda**: `"cafe"` encuentra `"Café"`, `"ano"` encuentra `"año"`, `"strasse"` encuentra
-    `"Straße"`; resultados de todos los años, más reciente primero.
+    `"Straße"` y `"cafe"` encuentra un `"Café"` descompuesto; resultados de todos los años, más reciente primero.
 14. **Siguiente disparo de Android**: `nextFire` a las 20:59 con hoy sin escribir es hoy a las 21:00; con
     hoy escrito, mañana; a las 21:00 en punto, mañana.
 15. **Importación**: un JSON sin `entries` se rechaza con `importNotBackup`; `version: 99` con

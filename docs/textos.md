@@ -64,7 +64,7 @@ Todos los textos de la app en los cinco idiomas. De aquí salen `i18n/Strings.kt
 | `echoLabel` | label, fecha | A week ago, January 10 | Hace una semana, 10 de enero | Há uma semana, 10 de janeiro | Vor einer Woche, 10. Januar | Il y a une semaine, 10 janvier |
 | `dayNumber` | n | Day 12 of your diary. | Día 12 de tu diario. | Dia 12 do seu diário. | Tag 12 deines Tagebuchs. | Jour 12 de ton journal. |
 | `returnsOn` | fecha | This page will come back on January 17, 2028. | Esta página volverá el 17 de enero de 2028. | Esta página vai voltar em 17 de janeiro de 2028. | Diese Seite kommt am 17. Januar 2028 wieder. | Cette page reviendra le 17 janvier 2028. |
-| `milestoneFirst` | | Your first line. In a year it'll come back. | Tu primera línea. Dentro de un año volverá. | Sua primeira linha. Daqui a um ano ela volta. | Deine erste Zeile. In einem Jahr kommt sie wieder. | Ta première ligne. Dans un an, elle reviendra. |
+| `milestoneFirst` | | Your first line. | Tu primera línea. | Sua primeira linha. | Deine erste Zeile. | Ta première ligne. |
 | `milestoneThirty` | | Your 30th line. | Tu línea número 30. | Sua linha número 30. | Deine 30. Zeile. | Ta 30e ligne. |
 | `milestoneHundred` | | One hundred lines. | Cien líneas. | Cem linhas. | Hundert Zeilen. | Cent lignes. |
 | `milestoneAnniversary` | | A year ago today, you started this diary. | Hoy hace un año que empezaste este diario. | Hoje faz um ano que você começou este diário. | Heute vor einem Jahr hast du dieses Tagebuch begonnen. | Il y a un an aujourd'hui, tu as commencé ce journal. |
