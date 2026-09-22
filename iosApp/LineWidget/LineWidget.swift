@@ -145,8 +145,15 @@ private struct TodayView: View {
         // SwiftUI redacts the text on its own when the user asks for it, and it stays redacted even
         // though there is nothing here to hide.
         content
-            .widgetURL(URL(string: "com.baltajmn.line://today"))
+            .widgetURL(destination)
             .containerBackground(for: .widget) { background }
+    }
+
+    /// A locked accessory sells Pro instead of opening a screen that would look the same.
+    private var destination: URL? {
+        let accessory = family == .accessoryCircular || family == .accessoryRectangular
+        let locked = accessory && entry.state?.pro != true
+        return URL(string: locked ? "com.baltajmn.line://pro" : "com.baltajmn.line://today")
     }
 
     @ViewBuilder private var background: some View {
