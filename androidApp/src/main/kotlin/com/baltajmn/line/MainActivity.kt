@@ -7,12 +7,14 @@ import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.FragmentActivity
 import java.lang.ref.WeakReference
 import com.baltajmn.line.data.AndroidContext
 import com.baltajmn.line.data.FilePicker
 import com.baltajmn.line.data.Lock
+import com.baltajmn.line.data.PhotoPicker
 import com.baltajmn.line.data.Reminder
 import com.baltajmn.line.data.Route
 
@@ -30,6 +32,9 @@ class MainActivity : FragmentActivity() {
     private val openBackup =
         registerForActivityResult(ActivityResultContracts.OpenDocument(), FilePicker::onPicked)
 
+    private val pickPhoto =
+        registerForActivityResult(ActivityResultContracts.PickVisualMedia(), PhotoPicker::onPicked)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
@@ -43,6 +48,10 @@ class MainActivity : FragmentActivity() {
         Lock.host = WeakReference(this)
         FilePicker.createDocument = { name -> createBackup.launch(name) }
         FilePicker.openDocument = { openBackup.launch(arrayOf("application/zip", "application/json", "*/*")) }
+        // The photo picker asks for no permission: the user hands over one image and nothing else.
+        PhotoPicker.pickImage = {
+            pickPhoto.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        }
         Route.pending = intent?.getStringExtra("screen")
         setContent { App() }
     }
@@ -59,6 +68,7 @@ class MainActivity : FragmentActivity() {
     override fun onDestroy() {
         FilePicker.createDocument = null
         FilePicker.openDocument = null
+        PhotoPicker.pickImage = null
         Reminder.onNeedsPermission = null
         Lock.host = null
         super.onDestroy()

@@ -30,7 +30,7 @@ El árbol completo del código, fichero a fichero y con el origen de cada uno, e
 | `shared/src/androidMain/.../line/data` | `AndroidContext.kt`, `Storage.android.kt` (`filesDir`, temporal con `fsync` y renombrado) |
 | `shared/src/iosMain/.../line/data` | `Storage.ios.kt` (Application Support, escritura atómica con protección hasta el primer desbloqueo) |
 | `shared/src/commonMain/.../line/ui/theme` | `Theme.kt`: `LineTheme`, paleta de la familia sin rojo, `Cover`, `Styles` con Literata para el texto del usuario |
-| `shared/src/commonMain/.../line/ui` | `Icons.kt`: los diez `Glyph` pintados con `Canvas`, `GlyphButton` de 48 |
+| `shared/src/commonMain/.../line/ui` | `Icons.kt` (los diez `Glyph` pintados con `Canvas`), `LineField.kt`, `Photo.kt` (foto 4:3 y boton del selector), `TodayScreen.kt`, `YearScreen.kt`, `YearGrid.kt`, `DaySheet.kt`, `SettingsScreen.kt`, `LockScreen.kt` |
 | `shared/src/commonMain/composeResources` | `font/literata_regular.ttf`, `files/OFL.txt` (su licencia) |
 | `shared/src/commonMain/.../line/i18n` | `Strings.kt`: tabla `S` con los cinco idiomas, fechas escritas a mano y plurales |
 | `shared/src/androidMain/.../line/i18n`, `iosMain/.../i18n` | `Strings.android.kt`, `Strings.ios.kt`: idioma del sistema |

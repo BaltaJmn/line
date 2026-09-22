@@ -67,7 +67,8 @@ import kotlinx.datetime.LocalDate
 fun TodayScreen(today: LocalDate, onYear: () -> Unit, onSettings: () -> Unit, onOpenDay: (LocalDate) -> Unit) {
     val journal = LineRepository.journal
     val settings = LineRepository.settings
-    val text = journal[today.isoKey()]?.text.orEmpty()
+    val entry = journal[today.isoKey()]
+    val text = entry?.text.orEmpty()
     var editing by remember { mutableStateOf(false) }
     var exportFailed by remember { mutableStateOf(false) }
 
@@ -123,8 +124,17 @@ fun TodayScreen(today: LocalDate, onYear: () -> Unit, onSettings: () -> Unit, on
                 val days = streak(journal, today)
                 if (days >= STREAK_SHOWN_FROM) Text(S.streakDays(days), style = Styles.light)
                 Spacer(Modifier.weight(1f))
+                if (entry?.photo == null) PhotoButton(today, today)
                 val count = text.codePointCount()
-                if (count >= COUNTER_FROM) Text(S.counter(count, LINE_LIMIT), style = Styles.light)
+                if (count >= COUNTER_FROM) {
+                    Spacer(Modifier.width(8.dp))
+                    Text(S.counter(count, LINE_LIMIT), style = Styles.light)
+                }
+            }
+
+            entry?.photo?.let {
+                Spacer(Modifier.height(12.dp))
+                DayPhoto(it) { onOpenDay(today) }
             }
 
             TodayNotice(editing, today) { exportFailed = true }
@@ -148,15 +158,17 @@ private fun Memories(journal: Journal, today: LocalDate, onOpenDay: (LocalDate) 
     Spacer(Modifier.height(32.dp))
     past.forEachIndexed { i, (date, entry) ->
         if (i > 0) Spacer(Modifier.height(24.dp))
-        Memory(S.pastYearLabel(date.year, today.year - date.year), entry.text) { onOpenDay(date) }
+        Memory(S.pastYearLabel(date.year, today.year - date.year), entry.text, entry.photo) { onOpenDay(date) }
     }
     if (past.isNotEmpty()) return
 
     val echo = echoes(journal, today)
-    echo?.week?.let { (date, entry) -> Memory(S.echoLabel(S.echoWeek, date), entry.text) { onOpenDay(date) } }
+    echo?.week?.let { (date, entry) ->
+        Memory(S.echoLabel(S.echoWeek, date), entry.text, entry.photo) { onOpenDay(date) }
+    }
     echo?.month?.let { (date, entry) ->
         if (echo.week != null) Spacer(Modifier.height(24.dp))
-        Memory(S.echoLabel(S.echoMonth, date), entry.text) { onOpenDay(date) }
+        Memory(S.echoLabel(S.echoMonth, date), entry.text, entry.photo) { onOpenDay(date) }
     }
     if (echo?.week != null || echo?.month != null) Spacer(Modifier.height(24.dp))
     Text(S.dayNumber(dayNumber(journal, today)), style = Styles.secondary)
@@ -165,7 +177,7 @@ private fun Memories(journal: Journal, today: LocalDate, onOpenDay: (LocalDate) 
 
 /** A label and the line it belongs to, whole: a memory is never cut short. */
 @Composable
-private fun Memory(label: String, text: String, onOpen: () -> Unit) {
+private fun Memory(label: String, text: String, photo: String?, onOpen: () -> Unit) {
     Column(
         Modifier.fillMaxWidth()
             .clickable(role = Role.Button, onClick = onOpen)
@@ -174,6 +186,10 @@ private fun Memory(label: String, text: String, onOpen: () -> Unit) {
         Text(label.uppercase(), style = Styles.eyebrow)
         Spacer(Modifier.height(8.dp))
         Text(text, style = Styles.userMedium)
+        photo?.let {
+            Spacer(Modifier.height(12.dp))
+            DayPhoto(it)
+        }
     }
 }
 

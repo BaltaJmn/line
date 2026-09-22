@@ -30,6 +30,9 @@ import kotlinx.datetime.toLocalDateTime
 
 const val SAVE_DEBOUNCE_MS = 800L
 
+/** Entries with a photo before Pro is asked for. A knob to measure, not a wall. */
+const val FREE_PHOTO_LIMIT = 3
+
 /** A month of writing with no backup is when the question earns the interruption, once. */
 const val BACKUP_NOTICE_AFTER_DAYS = 30
 
@@ -127,6 +130,49 @@ object LineRepository {
     fun setText(date: LocalDate, text: String, today: LocalDate) {
         val next = journal.withText(date, text, today) ?: return
         edit { it.copy(entries = next) }
+    }
+
+    /**
+     * A date with no photo yet needs room under the free limit; replacing the one it already has
+     * never does. Three is a knob to measure, not a wall (docs/tecnico.md 6.13).
+     */
+    fun canAddPhoto(date: LocalDate): Boolean =
+        settings.pro || entryOn(date)?.photo != null ||
+            journal.values.count { it.photo != null } < FREE_PHOTO_LIMIT
+
+    /**
+     * Stores the picked JPEG under a name nobody used before, or takes the photo off the day. The
+     * new name is what keeps a cached image from being served for a photo that was replaced; the
+     * file left behind goes when the save lands, with the ones no entry names any more.
+     */
+    fun setPhoto(date: LocalDate, bytes: ByteArray?, today: LocalDate) {
+        if (date > today) return
+        val key = date.isoKey()
+        val old = journal[key]
+        if (bytes == null) {
+            val entry = old ?: return
+            old.photo?.let(Photos::forget)
+            val next = entry.copy(photo = null)
+            edit { it.copy(entries = if (next.text.isBlank()) it.entries - key else it.entries + (key to next)) }
+            return
+        }
+        scope.launch {
+            val taken = journal.values.mapNotNull { it.photo }.toSet()
+            val name = withContext(Dispatchers.IO) {
+                val free = freePhotoName(taken + Storage.listPhotos())
+                if (runCatching { Storage.writePhoto(free, bytes) }.isSuccess) free else null
+            }
+            if (name == null) {
+                saveFailed = true
+                return@launch
+            }
+            old?.photo?.let(Photos::forget)
+            edit { file ->
+                // The day may have been written or deleted while the file was being saved.
+                val entry = file.entries[key] ?: LineEntry(late = date < today)
+                file.copy(entries = file.entries + (key to entry.copy(photo = name)))
+            }
+        }
     }
 
     /** Asked once, a month in, and never again after a backup or after being waved away. */

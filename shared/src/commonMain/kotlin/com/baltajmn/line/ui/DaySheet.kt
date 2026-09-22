@@ -34,6 +34,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import com.baltajmn.line.data.LineRepository
+import com.baltajmn.line.data.PhotoPicker
 import com.baltajmn.line.i18n.S
 import com.baltajmn.line.model.COUNTER_FROM
 import com.baltajmn.line.model.LINE_LIMIT
@@ -52,7 +53,8 @@ import kotlinx.datetime.LocalDate
 fun DaySheet(date: LocalDate, today: LocalDate, onClose: () -> Unit) {
     val journal = LineRepository.journal
     val settings = LineRepository.settings
-    val text = journal[date.isoKey()]?.text.orEmpty()
+    val entry = journal[date.isoKey()]
+    val text = entry?.text.orEmpty()
     var confirmDelete by remember { mutableStateOf(false) }
 
     Column(
@@ -100,8 +102,28 @@ fun DaySheet(date: LocalDate, today: LocalDate, onClose: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.End,
             ) {
+                if (entry?.photo == null) PhotoButton(date, today)
                 val count = text.codePointCount()
-                if (count >= COUNTER_FROM) Text(S.counter(count, LINE_LIMIT), style = Styles.light)
+                if (count >= COUNTER_FROM) {
+                    Spacer(Modifier.width(8.dp))
+                    Text(S.counter(count, LINE_LIMIT), style = Styles.light)
+                }
+            }
+
+            entry?.photo?.let {
+                DayPhoto(it)
+                Row(
+                    Modifier.fillMaxWidth().padding(top = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                ) {
+                    TextAction(
+                        S.changePhoto,
+                        onClick = {
+                            PhotoPicker.pick { bytes -> bytes?.let { b -> LineRepository.setPhoto(date, b, today) } }
+                        },
+                    )
+                    TextAction(S.removePhoto, onClick = { LineRepository.setPhoto(date, null, today) })
+                }
             }
             Spacer(Modifier.height(32.dp))
         }

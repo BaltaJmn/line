@@ -110,6 +110,7 @@ cae a la firma de debug, igual que la familia.
 | `ui/theme/Theme.kt` | `LineTheme`, colores, `enum class Cover`, `SoftShapes`, `Styles` (los diez estilos de `docs/pantallas.md` 1.2), `MAX_CONTENT_WIDTH` | A `MoodTraker/.../ui/theme/Theme.kt` |
 | `ui/Icons.kt` | `Glyph`, `GlyphButton`, `GlyphIcon` | A `MoodTraker/.../ui/Icons.kt` |
 | `ui/LineField.kt` | el campo de una línea: Literata, tope, contador, `ImeAction.Done` | N |
+| `ui/Photo.kt` | `DayPhoto` (4:3 al ancho de la columna) y `PhotoButton` | N |
 | `ui/TodayScreen.kt` | Hoy | N |
 | `ui/YearScreen.kt` | Año con búsqueda | N |
 | `ui/YearGrid.kt` | rejilla 12x31 en `Canvas` | A `HabitTracker/.../ui/YearGrid.kt` |
