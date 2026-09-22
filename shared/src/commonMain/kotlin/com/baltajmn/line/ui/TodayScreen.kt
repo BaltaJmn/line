@@ -1,6 +1,7 @@
 package com.baltajmn.line.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -263,6 +264,19 @@ fun Ask(
         dismissButton = onDismiss?.let { { TextAction(S.cancel, onClick = it) } },
         containerColor = MaterialTheme.colorScheme.surface,
     )
+}
+
+/** A button with a border: 44 high, radius 24, 1 dp of outline (docs/pantallas.md 1.3). */
+@Composable
+fun OutlinedAction(label: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Box(
+        modifier.heightIn(min = 44.dp)
+            .clip(MaterialTheme.shapes.large)
+            .border(1.dp, MaterialTheme.colorScheme.outline, MaterialTheme.shapes.large)
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = 16.dp),
+        contentAlignment = Alignment.Center,
+    ) { Text(label, style = Styles.action) }
 }
 
 /** A text button: 40 high, 16 of side padding, no background. */

@@ -50,7 +50,7 @@ import kotlinx.datetime.LocalDate
  * streak machine, and a day filled in later is marked late rather than refused (pantallas 6).
  */
 @Composable
-fun DaySheet(date: LocalDate, today: LocalDate, onClose: () -> Unit) {
+fun DaySheet(date: LocalDate, today: LocalDate, onClose: () -> Unit, onShare: (LocalDate) -> Unit) {
     val journal = LineRepository.journal
     val settings = LineRepository.settings
     val entry = journal[date.isoKey()]
@@ -68,6 +68,8 @@ fun DaySheet(date: LocalDate, today: LocalDate, onClose: () -> Unit) {
             Row(Modifier.fillMaxWidth().height(56.dp), verticalAlignment = Alignment.CenterVertically) {
                 GlyphButton(Glyph.CLOSE, S.a11yClose, onClose)
                 Spacer(Modifier.weight(1f))
+                // The card of a line is only offered for a day that has one.
+                if (text.isNotBlank()) GlyphButton(Glyph.SHARE, S.a11yShare, { onShare(date) })
                 if (date.isoKey() in journal) {
                     GlyphButton(Glyph.TRASH, S.a11yDelete, { confirmDelete = true })
                 }

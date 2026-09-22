@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Solo la carpeta de la tarjeta recien pintada. El diario no vive aqui. -->
+    <cache-path name="share" path="share/" />
+</paths>

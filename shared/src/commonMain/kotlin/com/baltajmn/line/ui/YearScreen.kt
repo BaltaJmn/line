@@ -42,7 +42,12 @@ import com.baltajmn.line.ui.theme.Styles
 import kotlinx.datetime.LocalDate
 
 @Composable
-fun YearScreen(today: LocalDate, onBack: () -> Unit, onOpenDay: (LocalDate) -> Unit) {
+fun YearScreen(
+    today: LocalDate,
+    onBack: () -> Unit,
+    onOpenDay: (LocalDate) -> Unit,
+    onShare: (Int) -> Unit,
+) {
     val journal = LineRepository.journal
     var year by remember { mutableStateOf(today.year) }
     var query by remember { mutableStateOf("") }
@@ -57,6 +62,11 @@ fun YearScreen(today: LocalDate, onBack: () -> Unit, onOpenDay: (LocalDate) -> U
         Column(Modifier.widthIn(max = MAX_CONTENT_WIDTH).fillMaxWidth().padding(horizontal = 24.dp)) {
             Row(Modifier.fillMaxWidth().height(56.dp), verticalAlignment = Alignment.CenterVertically) {
                 GlyphButton(Glyph.BACK, S.a11yBack, onBack)
+                Spacer(Modifier.weight(1f))
+                // A year with nothing in it has no card worth sharing.
+                if (journal.keys.any { it.startsWith("$year-") }) {
+                    GlyphButton(Glyph.SHARE, S.a11yShare, { onShare(year) })
+                }
             }
 
             Row(

@@ -26,6 +26,8 @@ import com.baltajmn.line.ui.DaySheet
 import com.baltajmn.line.ui.LockScreen
 import com.baltajmn.line.ui.Paywall
 import com.baltajmn.line.ui.ProDialog
+import com.baltajmn.line.ui.ShareScreen
+import com.baltajmn.line.ui.ShareTarget
 import com.baltajmn.line.ui.SettingsScreen
 import com.baltajmn.line.ui.TodayScreen
 import com.baltajmn.line.ui.YearScreen
@@ -55,6 +57,8 @@ fun App() {
     var openDay by remember { mutableStateOf<LocalDate?>(null) }
     var leftAt by remember { mutableStateOf<TimeSource.Monotonic.ValueTimeMark?>(null) }
     var proCheck by remember { mutableStateOf(0) }
+    // The card is an overlay too, opened from the year or from an open day.
+    var sharing by remember { mutableStateOf<ShareTarget?>(null) }
 
     LifecycleEventEffect(Lifecycle.Event.ON_START) {
         // Coming back after 03:00 is a new day, and the widgets are told before they are looked at.
@@ -110,17 +114,23 @@ fun App() {
                     today = day,
                     onBack = { screen = Screen.Today },
                     onOpenDay = { openDay = it },
+                    onShare = { sharing = ShareTarget.Year(it) },
                 )
                 Screen.Settings -> SettingsScreen(onBack = { screen = Screen.Today })
             }
-            openDay?.let { DaySheet(it, day, closeDay) }
+            openDay?.let { DaySheet(it, day, closeDay) { date -> sharing = ShareTarget.Line(date) } }
+            sharing?.let { ShareScreen(it, day) { sharing = null } }
             if (Paywall.open) ProDialog { Paywall.open = false }
 
             // Over everything, including the open day and any dialog under it.
             if (locked) LockScreen { locked = false }
 
-            BackHandler(!locked && (screen != Screen.Today || openDay != null)) {
-                if (openDay != null) closeDay() else screen = Screen.Today
+            BackHandler(!locked && (screen != Screen.Today || openDay != null || sharing != null)) {
+                when {
+                    sharing != null -> sharing = null
+                    openDay != null -> closeDay()
+                    else -> screen = Screen.Today
+                }
             }
         }
     }
