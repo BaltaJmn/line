@@ -23,13 +23,19 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
 const val SAVE_DEBOUNCE_MS = 800L
 
 /** "Today" everywhere in the app: the logical day, which ends at 03:00 local time. */
 @OptIn(ExperimentalTime::class)
 fun today(): LocalDate = logicalDate(Clock.System.now(), TimeZone.currentSystemDefault())
+
+/** Wall clock, which is what the reminder is booked against. */
+@OptIn(ExperimentalTime::class)
+fun nowLocal(): LocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 
 /**
  * Single source of truth. The whole diary is one JSON file; state changes at once on the main
@@ -135,6 +141,9 @@ object LineRepository {
         if (ok) {
             written = snapshot
             saveFailed = false
+            // The window is rebuilt here and not on every keystroke: a saved diary is the only one
+            // the reminder has to agree with.
+            Reminder.sync(askPermission = false)
             val gone = photosOf(previous) - photosOf(snapshot)
             if (gone.isNotEmpty()) withContext(Dispatchers.IO) { gone.forEach(Storage::deletePhoto) }
         } else {

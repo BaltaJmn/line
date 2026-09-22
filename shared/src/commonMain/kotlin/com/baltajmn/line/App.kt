@@ -15,6 +15,7 @@ import androidx.compose.ui.backhandler.BackHandler
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import com.baltajmn.line.data.LineRepository
+import com.baltajmn.line.data.Reminder
 import com.baltajmn.line.data.today
 import com.baltajmn.line.ui.DaySheet
 import com.baltajmn.line.ui.SettingsScreen
@@ -29,7 +30,10 @@ enum class Screen { Today, Year, Settings }
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun App() {
-    remember { LineRepository.load() }
+    remember {
+        LineRepository.load()
+        Reminder.sync(askPermission = false)
+    }
     var day by remember { mutableStateOf(today()) }
     var screen by remember { mutableStateOf(Screen.Today) }
     // Coming back after 03:00 is a new day.

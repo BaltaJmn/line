@@ -690,6 +690,12 @@ fun memorySnippet(j: Journal, day: LocalDate): String? {
 `plusDays` mantiene la hora local: los avisos siguen a las 21:00 tras un cambio de hora. Con una hora
 entre las 00:00 y las 02:59, el día lógico del aviso es el anterior, y eso es lo que se comprueba.
 
+`expect object Reminder { fun sync(askPermission: Boolean) }`. Las dos plataformas leen los ajustes y
+el diario por su cuenta, así que quien llama solo dice que algo ha cambiado. `askPermission` solo es
+cierto en el momento en que se enciende el recordatorio: preguntar al arrancar es de mala educación y
+en Android no se puede desde la composición. `LineRepository` lo llama tras cada guardado bueno, no en
+cada pulsación: el diario guardado es el único con el que el recordatorio tiene que estar de acuerdo.
+
 - **iOS**: `Reminder.sync()` borra todas las peticiones pendientes con prefijo `reminder-` y programa
   `reminderPlan(...)` con `UNCalendarNotificationTrigger(dateMatching = año, mes, día, hora, minuto,
   repeats = false)` y sonido por defecto. Se llama al arrancar, tras cada guardado, al cambiar la hora,

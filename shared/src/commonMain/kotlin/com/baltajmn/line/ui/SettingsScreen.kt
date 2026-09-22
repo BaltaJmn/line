@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import com.baltajmn.line.data.AppInfo
 import com.baltajmn.line.data.LineRepository
 import com.baltajmn.line.data.PRIVACY_URL
+import com.baltajmn.line.data.Reminder
 import com.baltajmn.line.data.SIBLINGS
 import com.baltajmn.line.data.storeUrl
 import com.baltajmn.line.i18n.S
@@ -72,7 +73,6 @@ fun SettingsScreen(onBack: () -> Unit) {
             }
 
             Section(S.sectionReminder) {
-                // ponytail: the permission and the alarm itself are wired in #13 and #14.
                 SettingRow(
                     title = S.reminderRow,
                     subtitle = if (settings.reminderOn) {
@@ -84,6 +84,9 @@ fun SettingsScreen(onBack: () -> Unit) {
                 ) {
                     SoftSwitch(settings.reminderOn) { on ->
                         LineRepository.updateSettings { it.copy(reminderOn = on) }
+                        // Only here is the permission asked: turning it on is the one moment the
+                        // question makes sense.
+                        Reminder.sync(askPermission = on)
                     }
                 }
             }
@@ -91,7 +94,12 @@ fun SettingsScreen(onBack: () -> Unit) {
             Section(S.sectionPrivacy) {
                 // ponytail: turning it on asks to authenticate first from #18; here it only stores.
                 SettingRow(title = S.lockRow, subtitle = S.lockSubtitle) {
-                    SoftSwitch(settings.lockOn) { on -> LineRepository.updateSettings { it.copy(lockOn = on) } }
+                    SoftSwitch(settings.lockOn) { on ->
+                        LineRepository.updateSettings { it.copy(lockOn = on) }
+                        // The lock decides whether a reminder may quote the diary, so the window
+                        // is rebuilt without it.
+                        Reminder.sync(askPermission = false)
+                    }
                 }
             }
 
@@ -147,6 +155,7 @@ fun SettingsScreen(onBack: () -> Unit) {
     if (pickTime) {
         TimeDialog(settings.reminderHour, settings.reminderMinute, onDismiss = { pickTime = false }) { h, m ->
             LineRepository.updateSettings { it.copy(reminderHour = h, reminderMinute = m) }
+            Reminder.sync(askPermission = false)
             pickTime = false
         }
     }
