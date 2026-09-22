@@ -91,6 +91,7 @@ object LineRepository {
             }
         }
         written = file
+        syncWidgets(file.entries, file.settings, today())
     }
 
     fun dismissCorrupt() {
@@ -191,6 +192,9 @@ object LineRepository {
         if (ok) {
             written = snapshot
             saveFailed = false
+            // Cover, Pro and the lock all travel through here, so one call covers every reason the
+            // widgets would be out of date.
+            withContext(Dispatchers.IO) { syncWidgets(snapshot.entries, snapshot.settings, today()) }
             // The window is rebuilt here and not on every keystroke: a saved diary is the only one
             // the reminder has to agree with.
             Reminder.sync(askPermission = false)

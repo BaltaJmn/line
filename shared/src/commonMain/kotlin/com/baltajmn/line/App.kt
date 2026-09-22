@@ -18,6 +18,7 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import com.baltajmn.line.data.LineRepository
 import com.baltajmn.line.data.Lock
 import com.baltajmn.line.data.Reminder
+import com.baltajmn.line.data.syncWidgets
 import com.baltajmn.line.data.today
 import com.baltajmn.line.ui.DaySheet
 import com.baltajmn.line.ui.LockScreen
@@ -48,8 +49,9 @@ fun App() {
     var leftAt by remember { mutableStateOf<TimeSource.Monotonic.ValueTimeMark?>(null) }
 
     LifecycleEventEffect(Lifecycle.Event.ON_START) {
-        // Coming back after 03:00 is a new day.
+        // Coming back after 03:00 is a new day, and the widgets are told before they are looked at.
         day = today()
+        syncWidgets(LineRepository.journal, LineRepository.settings, day)
         // A minute away locks it again; stepping out to a photo or a share sheet does not.
         val away = leftAt?.elapsedNow()
         if (LineRepository.settings.lockOn && away != null && away >= RELOCK_AFTER) locked = true

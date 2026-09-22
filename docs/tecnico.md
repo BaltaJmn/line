@@ -100,8 +100,8 @@ cae a la firma de debug, igual que la familia.
 | `data/FilePicker.kt` | `expect object FilePicker`: elegir fichero para importar y destino para exportar | A `MoodTraker/.../data/FilePicker.kt` |
 | `data/Export.kt` | `journalMarkdown`, `exportZip`, `readBackup` | N |
 | `data/Zip.kt` | `ZipWriter`, `ZipReader`, `crc32` | N |
-| `data/WidgetState.kt` | `WidgetState`, `widgetState(...)`, `widgetView(...)` | N |
-| `data/Widgets.kt` | `expect fun refreshWidgets()`, `expect fun writeWidgetState(json: String)` | A `MoodTraker/.../data/Widgets.kt` |
+| `data/WidgetState.kt` | `WidgetState`, `WidgetJson`, `widgetState(...)`, `widgetView(...)` | N |
+| `data/Widgets.kt` | `expect fun refreshWidgets()`, `expect fun writeWidgetState(json: String)`, `syncWidgets(...)` | A `MoodTraker/.../data/Widgets.kt` |
 | `data/AppInfo.kt` | `PRIVACY_URL`, `SIBLINGS`, `expect object AppInfo` | A `MoodTraker/.../data/AppInfo.kt` |
 | `data/MoodTrakerImport.kt` | v1.1: leer la copia de MoodTraker | N |
 | `billing/Billing.kt` | `expect val revenueCatApiKey`, `object Billing` | C `MoodTraker/.../billing/Billing.kt` |
@@ -254,7 +254,9 @@ val JournalJson = Json {
 ### 4.2 `widget.json`
 
 En el App Group (iOS) y en `filesDir` (Android). Se escribe con `encodeDefaults = true`, porque Swift
-decodifica todos los campos.
+decodifica todos los campos, y con `explicitNulls = false`, así que en v1.0 `line` y `lineNext` no
+llegan a aparecer en el fichero: no hay ni una clave de texto que leer. Los opcionales de Swift
+decodifican igual si faltan.
 
 ```kotlin
 @Serializable
@@ -741,8 +743,10 @@ fun widgetView(st: WidgetState, today: LocalDate): WidgetState = when (st.date) 
 }.let { if (it.year != today.year) it.copy(year = today.year, days = "0".repeat(366)) else it }
 ```
 
-Se escribe tras cada guardado, al cambiar portada, bloqueo o Pro, y al arrancar. Después,
-`refreshWidgets()`.
+Se escribe tras cada guardado, al cambiar portada, bloqueo o Pro, al arrancar y en cada `ON_START`,
+que es donde se recoge el cambio de día de las 03:00. Después, `refreshWidgets()`. Un fallo al
+escribirlo no puede tumbar un guardado: `syncWidgets` se traga el error y el widget se corrige en el
+siguiente.
 
 - Android: `updatePeriodMillis = 10800000` y `widgetView` en `provideGlance`: tras las 03:00 el widget
   se corrige solo antes de las 06:00.

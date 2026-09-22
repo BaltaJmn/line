@@ -12,6 +12,8 @@ import com.baltajmn.line.data.crc32
 import com.baltajmn.line.data.nextFire
 import com.baltajmn.line.data.reminderPlan
 import com.baltajmn.line.data.search
+import com.baltajmn.line.data.widgetState
+import com.baltajmn.line.data.widgetView
 import com.baltajmn.line.data.withText
 import com.baltajmn.line.model.LineEntry
 import com.baltajmn.line.model.Settings
@@ -248,6 +250,43 @@ class DataTest {
                 "\n## 2027-01-17\nMismo dia, sol.\n\n![](photos/p-3f9a1c2e.jpg)\n",
             journalMarkdown(j),
         )
+    }
+
+    // Test 9: what the widgets see, and what they can still get right after 03:00 on their own.
+    @Test
+    fun theWidgetStateIsDerivedAndNeverCarriesText() {
+        val j = mapOf(
+            "2026-01-17" to LineEntry("Primer dia."),
+            "2026-01-18" to LineEntry("Segundo dia."),
+            "2027-01-17" to LineEntry("Hoy."),
+        )
+        val st = widgetState(j, Settings(cover = "clay", pro = true), today)
+        assertEquals("2027-01-17", st.date)
+        assertTrue(st.written)
+        assertTrue(st.memory)
+        assertTrue(st.memoryNext)
+        assertEquals("clay", st.cover)
+        assertTrue(st.pro)
+        assertEquals(366, st.days.length)
+        assertEquals('1', st.days[16])
+        assertEquals('0', st.days[17])
+        // 4.2: no line of the diary reaches the widgets in v1.0.
+        assertNull(st.line)
+        assertNull(st.lineNext)
+
+        // The widget woke up after 03:00 still holding yesterday.
+        val next = widgetView(st, LocalDate.parse("2027-01-18"))
+        assertEquals("2027-01-18", next.date)
+        assertEquals(false, next.written)
+        assertTrue(next.memory)
+
+        // Two days stale: nothing can be assumed about the memory any more.
+        assertEquals(false, widgetView(st, LocalDate.parse("2027-01-19")).memory)
+
+        // A new year empties the grid rather than painting last year's days on it.
+        val newYear = widgetView(st, LocalDate.parse("2028-01-01"))
+        assertEquals(2028, newYear.year)
+        assertEquals("0".repeat(366), newYear.days)
     }
 
     private fun refusal(text: String): ImportProblem? =

@@ -7,4 +7,7 @@ package com.baltajmn.line.data
  */
 object LineBridge {
     fun isLockOn(): Boolean = LineRepository.settings.lockOn
+
+    /** Assigned by iOSApp.swift: WidgetCenter belongs to Swift, and Kotlin only asks. */
+    var reloadWidgets: (() -> Unit)? = null
 }
