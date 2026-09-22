@@ -557,8 +557,10 @@ Lienzo de 1024x1024:
 - Las filas pares (segunda y cuarta) giran cada cápsula 8 grados en sentido horario sobre su centro, y
   las impares 8 en sentido contrario: el zigzag del punto de media, sin dibujar hilo.
 
-Android adaptativo (lienzo de 108 dp): capa de fondo de color `221E17`; capa frontal con las cápsulas
-escaladas al 61 % y centradas (quedan dentro del círculo seguro de 66 dp). Capa `monochrome`: las mismas
+Android adaptativo (lienzo de 108 dp): capa de fondo de color `221E17`; capa frontal con el bloque de
+cápsulas centrado y ajustado a la diagonal del círculo seguro de 66 dp, que son 48,5 x 44,7 dp (el
+91 % de su tamaño natural). El 61 % que decía antes dejaba el bloque en 32 dp dentro de 108: seguro,
+pero diminuto al lado del de las hermanas. Capa `monochrome`: las mismas
 cápsulas en un solo color blanco sobre transparente, sin la crema diferenciada.
 
 Icono de notificación (`ic_notification.xml`, 24x24, blanco sobre transparente): dos filas de dos
