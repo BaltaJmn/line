@@ -76,6 +76,8 @@ fun renderLineCard(
         TextStyle(fontSize = 34.sp, fontWeight = FontWeight.Medium, color = Muted, letterSpacing = 4.sp),
         168f,
         162f,
+        // Up to the right margin; a date that does not fit (Portuguese) takes a second line.
+        maxWidth = 972 - 168,
     )
     scope.line(measurer, text, literata)
     scope.footer(measurer, literata, cover)
@@ -103,8 +105,9 @@ private fun DrawScope.text(
     style: TextStyle,
     x: Float,
     baseline: Float,
+    maxWidth: Int = Constraints.Infinity,
 ): TextLayoutResult {
-    val laid = measurer.measure(value, style)
+    val laid = measurer.measure(value, style, constraints = Constraints(maxWidth = maxWidth))
     drawText(laid, topLeft = Offset(x, baseline - laid.firstBaseline))
     return laid
 }

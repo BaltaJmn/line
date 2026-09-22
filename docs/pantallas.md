@@ -459,6 +459,10 @@ Pago único, sin suscripción.
 Siempre en claro, como las hermanas: fondo `Cream FBF8F3`, tinta `Ink 39352E`, secundario
 `Muted 8B8479`, hueco `Empty EDE7DC`.
 
+Todas las medidas de 10.1 y 10.2 son píxeles de la tarjeta, sea cual sea la pantalla: se dibuja y
+se mide el texto con densidad 1. Un `TextMeasurer` sacado de `rememberTextMeasurer()` trae la
+densidad de la pantalla y pinta cada texto al doble o al triple.
+
 | Elemento | Posición y tamaño |
 |---|---|
 | Año | x 108, línea base y 250; Literata 140 px, `Ink` |
@@ -477,7 +481,7 @@ año (`model/Insights.kt`).
 | Elemento | Posición y tamaño |
 |---|---|
 | Punto de portada | círculo de 36 px, centro x 126, y 150 |
-| Fecha | x 168, base y 162; sistema 34 px Medium, `Muted`, mayúsculas, 4 px de espaciado: `longDateWithYear` |
+| Fecha | x 168, base y 162, hasta x 972; sistema 34 px Medium, `Muted`, mayúsculas, 4 px de espaciado: `longDateWithYear`. La que no cabe (la portuguesa, de 35 letras) parte en una segunda línea, que aún queda por encima del texto |
 | Texto | Literata en `Ink`, caja de x 108 a 972 (864 de ancho) y de y 260 a 1080. Empieza en 64 px con interlineado 1,4; si no cabe, baja de 4 en 4 hasta 36 px; si a 36 no cabe, se corta con `...` |
 | Foto | no se pinta: la tarjeta es de la línea |
 | Pie | el mismo de la tarjeta del año |

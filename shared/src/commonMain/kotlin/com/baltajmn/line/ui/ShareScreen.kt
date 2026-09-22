@@ -23,7 +23,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.platform.LocalFontFamilyResolver
+import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.baltajmn.line.data.LineRepository
 import com.baltajmn.line.i18n.S
@@ -53,7 +56,10 @@ fun ShareScreen(target: ShareTarget, today: LocalDate, onClose: () -> Unit) {
     val journal = LineRepository.journal
     val cover = Cover.of(LineRepository.settings.cover).color
     val literata = Styles.literata
-    val measurer = rememberTextMeasurer()
+    val fonts = LocalFontFamilyResolver.current
+    // Density 1, not the screen's: the card is laid out in pixels, and a measurer from
+    // rememberTextMeasurer() would set every text at two or three times its size.
+    val measurer = remember(fonts) { TextMeasurer(fonts, Density(1f), LayoutDirection.Ltr) }
     var saved by remember { mutableStateOf<String?>(null) }
 
     val card = remember(target, journal, cover) {
