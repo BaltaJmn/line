@@ -5,6 +5,7 @@ import com.baltajmn.line.model.JournalFile
 import com.baltajmn.line.model.JournalJson
 import com.baltajmn.line.model.LineEntry
 import com.baltajmn.line.model.Milestone
+import com.baltajmn.line.model.Settings
 import com.baltajmn.line.model.clampCodePoints
 import com.baltajmn.line.model.codePointCount
 import com.baltajmn.line.model.dayNumber
@@ -84,6 +85,18 @@ class ModelTest {
     fun emptyJournalStillWritesVersionAndEntries() {
         val json = JournalJson.encodeToString(JournalFile.serializer(), JournalFile())
         assertEquals("{\"version\":1,\"entries\":{}}", json)
+    }
+
+    // 5. Migration
+    @Test
+    fun filesWithoutNewFieldsOrWithUnknownOnesStillRead() {
+        val old = """{"version":1,"entries":{"2026-05-01":{"text":"old"}}}"""
+        val future = """{"version":1,"entries":{"2026-05-01":{"text":"old","mood":"m3","tags":["x"]}},"sync":{"on":true}}"""
+        for (json in listOf(old, future)) {
+            val f = JournalJson.decodeFromString(JournalFile.serializer(), json)
+            assertEquals(LineEntry(text = "old"), f.entries["2026-05-01"])
+            assertEquals(Settings(), f.settings)
+        }
     }
 
     // 3. Past years

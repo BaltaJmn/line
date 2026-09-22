@@ -26,7 +26,11 @@ El árbol completo del código, fichero a fichero y con el origen de cada uno, e
 | `shared/build.gradle.kts` | Módulo común: objetivos Android e iOS, framework estático `Shared`, el `-L` de Swift para los tests de iOS |
 | `shared/src/commonMain/kotlin/com/baltajmn/line` | `App.kt` |
 | `shared/src/commonMain/.../line/model` | `Entry.kt` (formato de `entries.json`), `DayClock.kt` (día lógico, años anteriores, ecos), `Insights.kt` (racha, hitos), `Text.kt` (tope de 280, plegado) |
-| `shared/src/commonTest/.../line` | `ModelTest.kt`: tests 1, 3, 4, 8, 11, 12 y el plegado del 13 |
+| `shared/src/commonMain/.../line/data` | `Storage.kt` (expect del almacén), `LineRepository.kt` (fuente única, escritor único con `Mutex` y rebote de 800 ms) |
+| `shared/src/androidMain/.../line/data` | `AndroidContext.kt`, `Storage.android.kt` (`filesDir`, temporal con `fsync` y renombrado) |
+| `shared/src/iosMain/.../line/data` | `Storage.ios.kt` (Application Support, escritura atómica con protección hasta el primer desbloqueo) |
+| `shared/src/commonTest/.../line` | `ModelTest.kt`: tests 1, 3, 4, 5, 8, 11, 12 y el plegado del 13; `DataTest.kt`: crear y editar entradas |
+| `shared/src/androidHostTest/.../line` | `StorageTest.kt`: test 2, carga, reparación, cuarentena y barrido de fotos |
 | `shared/src/iosMain/kotlin/com/baltajmn/line` | `MainViewController.kt` |
 | `androidApp/build.gradle.kts` | `com.baltajmn.line`, firma de release desde `keystore.properties` |
 | `androidApp/src/main` | `MainActivity.kt` (`FragmentActivity`), manifiesto, tema `Theme.Purl`, `locales_config.xml` |
