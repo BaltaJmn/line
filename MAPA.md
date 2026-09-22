@@ -25,6 +25,8 @@ El árbol completo del código, fichero a fichero y con el origen de cada uno, e
 |---|---|
 | `shared/build.gradle.kts` | Módulo común: objetivos Android e iOS, framework estático `Shared`, el `-L` de Swift para los tests de iOS |
 | `shared/src/commonMain/kotlin/com/baltajmn/line` | `App.kt` |
+| `shared/src/commonMain/.../line/model` | `Entry.kt` (formato de `entries.json`), `DayClock.kt` (día lógico, años anteriores, ecos), `Insights.kt` (racha, hitos), `Text.kt` (tope de 280, plegado) |
+| `shared/src/commonTest/.../line` | `ModelTest.kt`: tests 1, 3, 4, 8, 11, 12 y el plegado del 13 |
 | `shared/src/iosMain/kotlin/com/baltajmn/line` | `MainViewController.kt` |
 | `androidApp/build.gradle.kts` | `com.baltajmn.line`, firma de release desde `keystore.properties` |
 | `androidApp/src/main` | `MainActivity.kt` (`FragmentActivity`), manifiesto, tema `Theme.Purl`, `locales_config.xml` |

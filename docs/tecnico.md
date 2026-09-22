@@ -361,7 +361,6 @@ responde con `importIsMoodTraker` (en v1.0) o se desvía a su importación (v1.1
 | `MEMORY_SNIPPET_MAX` | `120` | `data/ReminderPlan.kt` |
 | `BACKUP_NOTICE_AFTER_DAYS` | `30` | `data/LineRepository.kt` |
 | `STREAK_SHOWN_FROM` | `2` | `model/Insights.kt` |
-| `MILESTONE_COUNTS` | `1, 30, 100` | `model/Insights.kt` |
 | `MAX_CONTENT_WIDTH` | `600.dp` | `ui/theme/Theme.kt` |
 | `REMINDER_CHANNEL` | `"line-daily"` | `data/Reminder.android.kt` |
 | `REMINDER_ID_PREFIX` | `"reminder-"` | `data/Reminder.ios.kt` |
@@ -504,7 +503,7 @@ fun limitEdit(old: String, new: String, limit: Int = LINE_LIMIT): String {
     if (new.codePointCount() <= allowed) return new
     var p = new.commonPrefixWith(old).length
     var q = new.commonSuffixWith(old).length
-    if (p + q > new.length) q = new.length - p
+    q = minOf(q, new.length - p, old.length - p)   // que prefijo y sufijo no se solapen en ninguno
     // no partir parejas en los bordes
     if (p > 0 && new[p - 1].isHighSurrogate()) p--
     if (q > 0 && new[new.length - q].isLowSurrogate()) q--
