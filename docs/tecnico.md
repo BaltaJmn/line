@@ -177,6 +177,8 @@ License 1.1, de `github.com/googlefonts/literata`, commit `0c2761b`) y su licenc
 | `iosApp/iosApp/Info.plist`, `iosApp.entitlements`, `PrivacyInfo.xcprivacy` | sección 8 |
 | `iosApp/iosApp/<lang>.lproj/InfoPlist.strings` | `docs/textos.md` |
 | `iosApp/LineWidget/LineWidget.swift` | widget de hoy (sistema y accesorios) y el espejo `L` |
+| `iosApp/LineWidget/Assets.xcassets` | `WidgetBackground`, el crema y el oscuro del fondo |
+| `iosApp/LineWidget/<lang>.lproj/Localizable.strings` | nombre y descripción del widget en el selector |
 | `iosApp/LineWidget/LineYearWidget.swift` | A `HabitTracker/iosApp/HabitWidget/HabitYearWidget.swift`, sin `AppIntentConfiguration` |
 | `iosApp/LineWidget/LineStore.swift` | decodifica `widget.json`, nada más |
 | `iosApp/LineWidget/Info.plist`, `LineWidget.entitlements` | sección 8 |
@@ -185,6 +187,7 @@ License 1.1, de `github.com/googlefonts/literata`, commit `0c2761b`) y su licenc
 | `tools/store/capturas.py`, `tools/store/cabecera.py` | C MoodTraker |
 | `tools/demo/generar.py` | N: el diario de ejemplo de las capturas (`store/capturas.md`) |
 | `tools/generate_icons.py` | A `HabitTracker/tools/generate_icons.py` con la geometría de `docs/pantallas.md` |
+| `tools/check-linestore.swift` | N: comprueba a mano el espejo Swift de `widgetView` y del día lógico |
 
 ---
 
@@ -1202,7 +1205,9 @@ Fechas siempre fijas y pasadas como parámetro.
    su VS16; un texto de 300 se puede acortar y no alargar.
 9. **Estado de los widgets**: `widgetState` con recuerdos hoy y mañana; `widgetView` con la fecha de
    ayer da `written = false` y `memory = memoryNext`; con la de anteayer, `memory = false`; al cambiar
-   de año, `days` vacío. En v1.1: con `lockOn`, `line` es nulo aunque el widget esté colocado.
+   de año, `days` vacío. En v1.1: con `lockOn`, `line` es nulo aunque el widget esté colocado. El
+   espejo Swift de `widgetView` y del día lógico se comprueba aparte con
+   `tools/check-linestore.swift`: la extensión no tiene target de tests.
 10. **Fusión**: fecha nueva se añade; mismo texto no cambia; "Sol" contra "Sol y playa" deja el largo;
     textos distintos quedan los dos con `\n`; foto del dispositivo gana; contadores `added`, `joined`
     y `same` correctos; ninguna fecha del dispositivo se pierde.

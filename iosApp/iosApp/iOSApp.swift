@@ -24,6 +24,7 @@ struct iOSApp: App {
                         .ignoresSafeArea()
                 }
             }
+            .onOpenURL { LineBridge.shared.open(url: $0.absoluteString) }
         }
     }
 }

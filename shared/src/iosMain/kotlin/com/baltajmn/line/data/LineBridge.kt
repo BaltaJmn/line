@@ -10,4 +10,9 @@ object LineBridge {
 
     /** Assigned by iOSApp.swift: WidgetCenter belongs to Swift, and Kotlin only asks. */
     var reloadWidgets: (() -> Unit)? = null
+
+    /** com.baltajmn.line://today from a widget. Anything else is left alone rather than guessed. */
+    fun open(url: String) {
+        Route.pending = url.substringAfterLast('/').takeIf { it.isNotEmpty() }
+    }
 }

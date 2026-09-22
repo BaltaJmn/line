@@ -15,6 +15,18 @@
 	<string>To open your diary with Face ID when the lock is on.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<!-- El widget abre la app con com.baltajmn.line://today. -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.baltajmn.line</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.baltajmn.line</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleLocalizations</key>
 	<array>
 		<string>en</string>

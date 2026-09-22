@@ -83,7 +83,7 @@ Resumen de `docs/tecnico.md` 3, para saber dónde buscar cuando exista:
 | `shared/src/commonTest`, `shared/src/androidHostTest` | `ModelTest.kt`, `DataTest.kt`, `StringsTest.kt`, `StorageTest.kt` |
 | `androidApp/` | `MainActivity.kt`, manifiesto, `res/xml`, previsualizaciones de widgets, `strings.xml`, icono |
 | `iosApp/iosApp`, `iosApp/LineWidget`, `iosApp/Configuration` | App, widgets de WidgetKit y `Config.xcconfig` |
-| `tools/` | `play-listing/subir.py`, `store/capturas.py`, `store/cabecera.py`, `demo/generar.py`, `generate_icons.py` |
+| `tools/` | `play-listing/subir.py`, `store/capturas.py`, `store/cabecera.py`, `demo/generar.py`, `generate_icons.py`, `check-linestore.swift` |
 | `.github/workflows/` | `tests.yml`, `release.yml`, `release-ios.yml`, `listings.yml` |
 
 Los pasos de cuenta que son idénticos en las tres apps (Play Console, cuenta de Apple, Google Cloud,
