@@ -1,0 +1,27 @@
+*.iml
+.kotlin
+.gradle
+**/build/
+xcuserdata
+!src/**/build/
+local.properties
+.idea
+.DS_Store
+captures
+.externalNativeBuild
+.cxx
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/project.xcworkspace/
+!*.xcworkspace/contents.xcworkspacedata
+**/xcshareddata/WorkspaceSettings.xcsettings
+
+# Firma de release: nunca al repositorio.
+keystore.properties
+*.jks
+*.keystore
+
+# Cuentas de servicio y claves de App Store Connect: viven en los secretos de GitHub.
+*.p8
+*service-account*.json
