@@ -36,6 +36,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.baltajmn.line.data.LineRepository
 import com.baltajmn.line.i18n.S
@@ -58,7 +60,7 @@ import com.baltajmn.line.ui.theme.Styles
 import kotlinx.datetime.LocalDate
 
 @Composable
-fun TodayScreen(today: LocalDate, onYear: () -> Unit, onSettings: () -> Unit) {
+fun TodayScreen(today: LocalDate, onYear: () -> Unit, onSettings: () -> Unit, onOpenDay: (LocalDate) -> Unit) {
     val journal = LineRepository.journal
     val settings = LineRepository.settings
     val text = journal[today.isoKey()]?.text.orEmpty()
@@ -121,7 +123,7 @@ fun TodayScreen(today: LocalDate, onYear: () -> Unit, onSettings: () -> Unit) {
             }
 
             TodayNotice(editing)
-            Memories(journal, today)
+            Memories(journal, today, onOpenDay)
             Spacer(Modifier.height(32.dp))
         }
     }
@@ -132,21 +134,21 @@ fun TodayScreen(today: LocalDate, onYear: () -> Unit, onSettings: () -> Unit) {
  * a week and a month back, and the date this page will first be remembered. Nothing invented.
  */
 @Composable
-private fun Memories(journal: Journal, today: LocalDate) {
+private fun Memories(journal: Journal, today: LocalDate, onOpenDay: (LocalDate) -> Unit) {
     val past = pastYears(journal, today)
     if (past.isEmpty() && journal.isEmpty()) return
     Spacer(Modifier.height(32.dp))
     past.forEachIndexed { i, (date, entry) ->
         if (i > 0) Spacer(Modifier.height(24.dp))
-        Memory(S.pastYearLabel(date.year, today.year - date.year), entry.text)
+        Memory(S.pastYearLabel(date.year, today.year - date.year), entry.text) { onOpenDay(date) }
     }
     if (past.isNotEmpty()) return
 
     val echo = echoes(journal, today)
-    echo?.week?.let { (date, entry) -> Memory(S.echoLabel(S.echoWeek, date), entry.text) }
+    echo?.week?.let { (date, entry) -> Memory(S.echoLabel(S.echoWeek, date), entry.text) { onOpenDay(date) } }
     echo?.month?.let { (date, entry) ->
         if (echo.week != null) Spacer(Modifier.height(24.dp))
-        Memory(S.echoLabel(S.echoMonth, date), entry.text)
+        Memory(S.echoLabel(S.echoMonth, date), entry.text) { onOpenDay(date) }
     }
     if (echo?.week != null || echo?.month != null) Spacer(Modifier.height(24.dp))
     Text(S.dayNumber(dayNumber(journal, today)), style = Styles.secondary)
@@ -155,10 +157,16 @@ private fun Memories(journal: Journal, today: LocalDate) {
 
 /** A label and the line it belongs to, whole: a memory is never cut short. */
 @Composable
-private fun Memory(label: String, text: String) {
-    Text(label, style = Styles.eyebrow)
-    Spacer(Modifier.height(8.dp))
-    Text(text, style = Styles.userMedium)
+private fun Memory(label: String, text: String, onOpen: () -> Unit) {
+    Column(
+        Modifier.fillMaxWidth()
+            .clickable(role = Role.Button, onClick = onOpen)
+            .semantics(mergeDescendants = true) { contentDescription = "$label. $text. ${S.a11yOpenDay}" },
+    ) {
+        Text(label.uppercase(), style = Styles.eyebrow)
+        Spacer(Modifier.height(8.dp))
+        Text(text, style = Styles.userMedium)
+    }
 }
 
 private fun milestoneText(m: Milestone): String = when (m) {

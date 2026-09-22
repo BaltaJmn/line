@@ -1,5 +1,6 @@
 package com.baltajmn.line
 
+import com.baltajmn.line.data.search
 import com.baltajmn.line.data.withText
 import com.baltajmn.line.model.LineEntry
 import kotlin.test.Test
@@ -41,5 +42,21 @@ class DataTest {
     fun nothingChangesForBlankNewDaysOrTheFuture() {
         assertNull(emptyMap<String, LineEntry>().withText(today, " ", today))
         assertNull(emptyMap<String, LineEntry>().withText(LocalDate.parse("2027-01-18"), "later", today))
+    }
+
+    // 13, the search half. docs/tecnico.md 6.5
+    @Test
+    fun searchIgnoresCaseAndAccentsAndAnswersFromEveryYear() {
+        val j = mapOf(
+            "2026-03-04" to LineEntry("Cafe\u0301 con Ana"),
+            "2027-01-17" to LineEntry("Un ano entero"),
+            "2028-05-02" to LineEntry("CAFE solo"),
+        )
+        assertEquals(
+            listOf(LocalDate.parse("2028-05-02"), LocalDate.parse("2026-03-04")),
+            search(j, " café ").map { it.first },
+        )
+        assertEquals(listOf(LocalDate.parse("2027-01-17")), search(j, "año").map { it.first })
+        assertTrue(search(j, "   ").isEmpty())
     }
 }

@@ -18,10 +18,13 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import com.baltajmn.line.data.LineRepository
 import com.baltajmn.line.data.today
 import com.baltajmn.line.i18n.S
+import com.baltajmn.line.ui.DaySheet
 import com.baltajmn.line.ui.Glyph
 import com.baltajmn.line.ui.GlyphButton
 import com.baltajmn.line.ui.TodayScreen
+import com.baltajmn.line.ui.YearScreen
 import com.baltajmn.line.ui.theme.LineTheme
+import kotlinx.datetime.LocalDate
 
 /** Three screens do not justify a navigation library. */
 enum class Screen { Today, Year, Settings }
@@ -37,6 +40,13 @@ fun App() {
     // The debounce may still be waiting when the app leaves the screen: write now.
     LifecycleEventEffect(Lifecycle.Event.ON_STOP) { LineRepository.saveNow() }
 
+    // The open day is an overlay over whichever screen called it, so back closes it first.
+    var openDay by remember { mutableStateOf<LocalDate?>(null) }
+    val closeDay = {
+        LineRepository.saveNow()
+        openDay = null
+    }
+
     LineTheme {
         Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
             when (screen) {
@@ -44,12 +54,21 @@ fun App() {
                     today = day,
                     onYear = { screen = Screen.Year },
                     onSettings = { screen = Screen.Settings },
+                    onOpenDay = { openDay = it },
                 )
-                // ponytail: Year arrives with #11 and Settings with #12; until then, only the way back.
-                Screen.Year, Screen.Settings -> {
-                    BackHandler { screen = Screen.Today }
+                Screen.Year -> YearScreen(
+                    today = day,
+                    onBack = { screen = Screen.Today },
+                    onOpenDay = { openDay = it },
+                )
+                // ponytail: Settings arrives with #12; until then, only the way back.
+                Screen.Settings ->
                     GlyphButton(Glyph.BACK, S.a11yBack, { screen = Screen.Today }, Modifier.safeDrawingPadding())
-                }
+            }
+            openDay?.let { DaySheet(it, day, closeDay) }
+
+            BackHandler(screen != Screen.Today || openDay != null) {
+                if (openDay != null) closeDay() else screen = Screen.Today
             }
         }
     }
