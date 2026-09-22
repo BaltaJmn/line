@@ -47,6 +47,11 @@ El árbol completo del código, fichero a fichero y con el origen de cada uno, e
 | `iosApp/iosApp.xcodeproj/xcshareddata/xcschemes` | El esquema `iosApp`, compartido: sin él el CI no puede archivar |
 | `.github/workflows` | `tests.yml`, `release.yml` (Play), `release-ios.yml` (TestFlight), `listings.yml` (ficha) |
 | `tools/play-listing/subir.py` | Comprueba los topes de la ficha de Play y la sube |
+| `tools/demo/generar.py` | El diario de demostración de las capturas, con reglas fijas |
+| `tools/store/capturas.py` | Monta las capturas crudas en las láminas de Play, iPhone y iPad |
+| `tools/store/cabecera.py` | Cabecera de Play de los cinco idiomas y el icono de 512 |
+| `tools/generate_icons.py`, `tools/icon-master.svg` | El icono de las dos plataformas, generado de una geometría |
+| `store/feature/<idioma>.png`, `store/icon-512.png` | Lo que genera `cabecera.py`, listo para subir a mano |
 
 ## Documentos para programar
 
