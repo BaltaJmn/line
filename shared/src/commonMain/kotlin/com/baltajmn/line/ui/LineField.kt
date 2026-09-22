@@ -15,6 +15,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
@@ -58,7 +63,17 @@ fun LineField(
                 onChange(edit.text)
             }
         },
-        modifier = modifier.heightIn(min = 96.dp),
+        // A hardware or emulator Enter would split the line in two; Done on the soft keyboard
+        // already closes it, and a line break pasted in with a text is still kept.
+        modifier = modifier.heightIn(min = 96.dp).onPreviewKeyEvent { event ->
+            val enter = event.key == Key.Enter || event.key == Key.NumPadEnter
+            if (enter && event.type == KeyEventType.KeyDown) {
+                focus.clearFocus()
+                true
+            } else {
+                enter
+            }
+        },
         textStyle = style,
         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences, imeAction = ImeAction.Done),
