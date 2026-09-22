@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Solo para el selector de widgets, que infla RemoteViews y no sabe de Glance. Ensena el estado mas
+  comun: el dia todavia sin escribir.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@color/widget_background"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/widget_preview_date"
+        android:textColor="@color/widget_muted"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+
+    <ImageView
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_marginTop="12dp"
+        android:importantForAccessibility="no"
+        android:src="@drawable/widget_circle" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/widget_preview_state"
+        android:textColor="@color/widget_on_background"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+</LinearLayout>

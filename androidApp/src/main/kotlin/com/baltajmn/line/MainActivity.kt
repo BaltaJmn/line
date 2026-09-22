@@ -1,6 +1,7 @@
 package com.baltajmn.line
 
 import android.Manifest
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -13,6 +14,7 @@ import com.baltajmn.line.data.AndroidContext
 import com.baltajmn.line.data.FilePicker
 import com.baltajmn.line.data.Lock
 import com.baltajmn.line.data.Reminder
+import com.baltajmn.line.data.Route
 
 // FragmentActivity and not ComponentActivity: BiometricPrompt needs a fragment host.
 class MainActivity : FragmentActivity() {
@@ -41,7 +43,15 @@ class MainActivity : FragmentActivity() {
         Lock.host = WeakReference(this)
         FilePicker.createDocument = { name -> createBackup.launch(name) }
         FilePicker.openDocument = { openBackup.launch(arrayOf("application/zip", "application/json", "*/*")) }
+        Route.pending = intent?.getStringExtra("screen")
         setContent { App() }
+    }
+
+    // launchMode is singleTask: a widget tapped while the app is already up arrives here.
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        Route.pending = intent.getStringExtra("screen")
     }
 
     // The launchers belong to this instance's registry: leaving them in a process wide object would

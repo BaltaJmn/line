@@ -257,6 +257,8 @@ Los nombres y descripciones que ve el selector de widgets: en Android, `strings.
 | `app_name` | Purl | Purl | Purl | Purl | Purl |
 | `widget_today_description` | Whether today has a line and whether there's a memory | Si hoy ya tiene línea y si hay recuerdo | Se hoje já tem linha e se há lembrança | Ob heute schon eine Zeile hat und ob es eine Erinnerung gibt | Si aujourd'hui a déjà une ligne et s'il y a un souvenir |
 | `widget_year_description` | Your year, day by day | Tu año, día a día | Seu ano, dia a dia | Dein Jahr, Tag für Tag | Ton année, jour après jour |
+| `widget_preview_date` | SAT 17 JAN | SÁB 17 ENE | SÁB 17 JAN | SA 17 JAN | SAM 17 JANV |
+| `widget_preview_state` | Not written yet | Por escribir | Por escrever | Noch nicht geschrieben | À écrire |
 | `widget_memory_description` (v1.1) | What you wrote a year ago | Lo que escribiste hace un año | O que você escreveu há um ano | Was du vor einem Jahr geschrieben hast | Ce que tu as écrit il y a un an |
 
 ---

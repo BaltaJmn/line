@@ -1,6 +1,11 @@
 package com.baltajmn.line.data
 
+import androidx.glance.appwidget.updateAll
+import com.baltajmn.line.widget.TodayWidget
 import java.io.File
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /** filesDir, next to the diary but readable by the widget process, which the diary never is. */
 actual fun writeWidgetState(json: String) {
@@ -10,6 +15,15 @@ actual fun writeWidgetState(json: String) {
     if (!temp.renameTo(File(dir, "widget.json"))) error("could not move widget.json into place")
 }
 
-// ponytail: the Glance widgets land in #20, and updateAll needs their classes. Until then the file
-// is the whole contract and there is nothing on a home screen to redraw.
-actual fun refreshWidgets() = Unit
+/** The only thing a widget is allowed to read, for the widget side to read it. */
+fun readWidgetState(): WidgetState? {
+    val dir = Storage.rootOverride ?: AndroidContext.value.filesDir
+    val text = runCatching { File(dir, "widget.json").readText() }.getOrNull() ?: return null
+    return runCatching { WidgetJson.decodeFromString<WidgetState>(text) }.getOrNull()
+}
+
+// ponytail: the year widget joins this list in #35.
+actual fun refreshWidgets() {
+    val context = AndroidContext.value
+    CoroutineScope(Dispatchers.Default).launch { TodayWidget().updateAll(context) }
+}

@@ -40,7 +40,7 @@ enum class Cover(val id: String, val color: Color) {
 
 // error points at the secondary text colour: nothing in the app is ever painted red, not even by a
 // Material component that reaches for it on its own.
-private val Light = lightColorScheme(
+internal val Light = lightColorScheme(
     primary = Color(0xFF6FAE9B),
     onPrimary = Color.White,
     primaryContainer = Color(0xFFD9EDE5),
@@ -57,7 +57,7 @@ private val Light = lightColorScheme(
     error = Color(0xFF8B8479),
 )
 
-private val Dark = darkColorScheme(
+internal val Dark = darkColorScheme(
     primary = Color(0xFF8FC9B6),
     onPrimary = Color(0xFF12271F),
     primaryContainer = Color(0xFF2B4A40),

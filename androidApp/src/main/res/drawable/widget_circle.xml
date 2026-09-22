@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- El anillo de "por escribir" de la previsualizacion. El widget de verdad lo pinta en un Bitmap. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+    <stroke android:width="2dp" android:color="@color/widget_outline" />
+    <size android:width="28dp" android:height="28dp" />
+</shape>

@@ -18,6 +18,7 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import com.baltajmn.line.data.LineRepository
 import com.baltajmn.line.data.Lock
 import com.baltajmn.line.data.Reminder
+import com.baltajmn.line.data.Route
 import com.baltajmn.line.data.syncWidgets
 import com.baltajmn.line.data.today
 import com.baltajmn.line.ui.DaySheet
@@ -46,6 +47,8 @@ fun App() {
     var day by remember { mutableStateOf(today()) }
     var screen by remember { mutableStateOf(Screen.Today) }
     var locked by remember { mutableStateOf(LineRepository.settings.lockOn) }
+    // The open day is an overlay over whichever screen called it, so back closes it first.
+    var openDay by remember { mutableStateOf<LocalDate?>(null) }
     var leftAt by remember { mutableStateOf<TimeSource.Monotonic.ValueTimeMark?>(null) }
 
     LifecycleEventEffect(Lifecycle.Event.ON_START) {
@@ -61,11 +64,22 @@ fun App() {
         LineRepository.saveNow()
         leftAt = TimeSource.Monotonic.markNow()
     }
+    // A widget or a link asked for a screen, maybe before the app existed.
+    LaunchedEffect(Route.pending) {
+        when (Route.pending) {
+            "today" -> screen = Screen.Today
+            "year" -> screen = Screen.Year
+            // ponytail: "pro" opens the paywall in #23.
+            else -> Unit
+        }
+        if (Route.pending != null) {
+            openDay = null
+            Route.pending = null
+        }
+    }
     // The task switcher takes its picture without asking, so the window is told in advance.
     LaunchedEffect(LineRepository.settings.lockOn) { Lock.setHidesPreview(LineRepository.settings.lockOn) }
 
-    // The open day is an overlay over whichever screen called it, so back closes it first.
-    var openDay by remember { mutableStateOf<LocalDate?>(null) }
     val closeDay = {
         LineRepository.saveNow()
         openDay = null

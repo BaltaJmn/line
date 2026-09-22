@@ -102,6 +102,7 @@ cae a la firma de debug, igual que la familia.
 | `data/Zip.kt` | `ZipWriter`, `ZipReader`, `crc32` | N |
 | `data/WidgetState.kt` | `WidgetState`, `WidgetJson`, `widgetState(...)`, `widgetView(...)` | N |
 | `data/Widgets.kt` | `expect fun refreshWidgets()`, `expect fun writeWidgetState(json: String)`, `syncWidgets(...)` | A `MoodTraker/.../data/Widgets.kt` |
+| `data/Route.kt` | `object Route`: la pantalla que pide un widget o un enlace | N |
 | `data/AppInfo.kt` | `PRIVACY_URL`, `SIBLINGS`, `expect object AppInfo` | A `MoodTraker/.../data/AppInfo.kt` |
 | `data/MoodTrakerImport.kt` | v1.1: leer la copia de MoodTraker | N |
 | `billing/Billing.kt` | `expect val revenueCatApiKey`, `object Billing` | C `MoodTraker/.../billing/Billing.kt` |
@@ -1025,6 +1026,13 @@ RevenueCat se quedan fuera. Las fotos solo viajan en el traspaso entre dispositi
 `settings.pro` viaja dentro de `entries.json` y `Billing.refresh()` lo corrige en el primer arranque.
 
 `locales_config.xml`: el de la familia (`en`, `es`, `pt`, `de`, `fr`).
+
+`values/colors.xml` y `values-night/colors.xml`: `widget_background`, `widget_on_background`,
+`widget_muted` y `widget_outline`, los mismos hex que `Light` y `Dark`. Solo los usa la
+previsualización del selector, que es `RemoteViews` y no puede leer el tema de Compose.
+
+`layout/today_widget_preview.xml` y `drawable/widget_circle.xml`: la previsualización, con la fecha
+de muestra y el estado sin escribir (`widget_preview_date`, `widget_preview_state`).
 
 `file_paths.xml`:
 

@@ -1,0 +1,5 @@
+<resources>
+    <string name="widget_today_description">Si hoy ya tiene línea y si hay recuerdo</string>
+    <string name="widget_preview_date">SÁB 17 ENE</string>
+    <string name="widget_preview_state">Por escribir</string>
+</resources>

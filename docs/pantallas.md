@@ -488,6 +488,11 @@ año (`model/Insights.kt`).
 Fondo `background` del sistema claro u oscuro, radio el del sistema, relleno 16. Sin texto del
 diario, nunca (el del recuerdo es la excepción de v1.1).
 
+En Android el relleno propio es 8 y no 16: desde Android 12 el escritorio ya mete su margen, y los
+dos juntos parten en dos la etiqueta más corta dentro de un 2x2. Ahí `widgetMemory` puede ocupar dos
+líneas; el punto queda centrado con ellas. Por debajo de 150 de alto el widget se queda sin la línea
+del recuerdo antes que pintarla a medias.
+
 ### 11.1 Hoy
 
 | Tamaño | Contenido |

@@ -1,0 +1,5 @@
+<resources>
+    <string name="widget_today_description">Ob heute schon eine Zeile hat und ob es eine Erinnerung gibt</string>
+    <string name="widget_preview_date">SA 17 JAN</string>
+    <string name="widget_preview_state">Noch nicht geschrieben</string>
+</resources>
