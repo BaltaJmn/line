@@ -79,7 +79,7 @@ Resumen de `docs/tecnico.md` 3, para saber dónde buscar cuando exista:
 | Ruta | Qué habrá |
 |---|---|
 | `shared/src/commonMain/kotlin/com/baltajmn/line` | `App.kt`, `model/`, `data/`, `billing/`, `i18n/`, `ui/`, `ui/theme/`, `share/` |
-| `shared/src/androidMain/.../line` | `data/` (almacén, fotos, bloqueo, recordatorio, widgets), `widget/` (Glance), `i18n/`, `billing/`, `share/` |
+| `shared/src/androidMain/.../line` | `data/` (almacén, fotos, bloqueo, recordatorio, widgets), `widget/` (Glance: `TodayWidget.kt`, `YearWidget.kt`), `i18n/`, `billing/`, `share/` |
 | `shared/src/iosMain/.../line` | `MainViewController.kt`, `LineBridge.kt`, `data/`, `i18n/`, `billing/`, `share/` |
 | `shared/src/commonTest`, `shared/src/androidHostTest` | `ModelTest.kt`, `DataTest.kt`, `StringsTest.kt`, `StorageTest.kt` |
 | `androidApp/` | `MainActivity.kt`, manifiesto, `res/xml`, previsualizaciones de widgets, `strings.xml`, icono |

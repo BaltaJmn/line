@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Solo para el selector de widgets, que infla RemoteViews y no sabe de Glance. Ensena el ano y la
+  rejilla vacia, que es lo que ve quien todavia no tiene Pro.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/widget_background"
+    android:padding="8dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/widget_preview_year"
+        android:textColor="@color/widget_on_background"
+        android:textSize="13sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="6dp"
+        android:gravity="center"
+        android:text="@string/widget_preview_pro"
+        android:textColor="@color/widget_muted"
+        android:textSize="13sp" />
+</LinearLayout>

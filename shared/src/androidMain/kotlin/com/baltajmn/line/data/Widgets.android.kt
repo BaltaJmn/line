@@ -2,6 +2,7 @@ package com.baltajmn.line.data
 
 import androidx.glance.appwidget.updateAll
 import com.baltajmn.line.widget.TodayWidget
+import com.baltajmn.line.widget.YearWidget
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,8 +23,10 @@ fun readWidgetState(): WidgetState? {
     return runCatching { WidgetJson.decodeFromString<WidgetState>(text) }.getOrNull()
 }
 
-// ponytail: the year widget joins this list in #35.
 actual fun refreshWidgets() {
     val context = AndroidContext.value
-    CoroutineScope(Dispatchers.Default).launch { TodayWidget().updateAll(context) }
+    CoroutineScope(Dispatchers.Default).launch {
+        TodayWidget().updateAll(context)
+        YearWidget().updateAll(context)
+    }
 }

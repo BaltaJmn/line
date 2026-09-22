@@ -1038,6 +1038,9 @@ previsualización del selector, que es `RemoteViews` y no puede leer el tema de 
 `layout/today_widget_preview.xml` y `drawable/widget_circle.xml`: la previsualización, con la fecha
 de muestra y el estado sin escribir (`widget_preview_date`, `widget_preview_state`).
 
+`layout/year_widget_preview.xml`: la misma idea para el widget del año, con el año de muestra y
+`Purl Pro` centrado (`widget_preview_year`, `widget_preview_pro`), que es lo que ve quien no lo tiene.
+
 `file_paths.xml`:
 
 ```xml

@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name" translatable="false">Purl</string>
     <string name="widget_today_description">Whether today has a line and whether there\'s a memory</string>
+    <string name="widget_year_description">Your year, day by day</string>
     <string name="widget_preview_date">SAT 17 JAN</string>
+    <string name="widget_preview_year">2026</string>
+    <string name="widget_preview_pro">Purl Pro</string>
     <string name="widget_preview_state">Not written yet</string>
 </resources>

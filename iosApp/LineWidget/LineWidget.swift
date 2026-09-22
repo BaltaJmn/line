@@ -46,6 +46,16 @@ enum L {
             .components(separatedBy: ", ")
     }
 
+    /// 212 lines in 2027, the same shape as `S.yearCount`.
+    static func yearCount(_ n: Int, _ year: Int) -> String {
+        if n == 1 {
+            return t("1 line in \(year)", "1 línea en \(year)", "1 linha em \(year)",
+                     "1 Zeile in \(year)", "1 ligne en \(year)")
+        }
+        return t("\(n) lines in \(year)", "\(n) líneas en \(year)", "\(n) linhas em \(year)",
+                 "\(n) Zeilen in \(year)", "\(n) lignes en \(year)")
+    }
+
     /// SAT 17 JAN, the same shape as `S.widgetDate`.
     static func date(_ day: Date) -> String {
         var calendar = Calendar(identifier: .gregorian)
@@ -217,5 +227,6 @@ struct LineTodayWidget: Widget {
 struct LineWidgetBundle: WidgetBundle {
     var body: some Widget {
         LineTodayWidget()
+        LineYearWidget()
     }
 }
