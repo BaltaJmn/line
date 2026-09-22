@@ -40,3 +40,6 @@ GoogleService-Info.plist
 # Diario de demostracion de las capturas: fotos propias y salida generada.
 tools/demo/fotos/
 tools/demo/salida/
+
+# Worktrees de los agentes de Claude Code.
+.claude/worktrees/

@@ -28,6 +28,9 @@ Todos los textos de la app en los cinco idiomas. De aquí salen `i18n/Strings.kt
   cada idioma (singular solo para 1).
 - Fechas: funciones de `Strings.kt` sobre `monthNames`, `monthShort` y `weekdayNames` escritos a mano,
   como `monthNames(lang)` de Quilt. Nada de formateadores de plataforma.
+- Las listas de la sección 1 son funciones (`S.monthNames()`) y las horas se pasan como `hour, minute`:
+  `S.clock(h, m)` da el `21:00` que usan `offerReminder` y `reminderAt`. Los tests cambian `S.lang` para
+  recorrer los cinco idiomas; los textos sin parámetros se fijan una vez al arrancar.
 
 ---
 
@@ -41,7 +44,7 @@ Todos los textos de la app en los cinco idiomas. De aquí salen `i18n/Strings.kt
 | `weekdayNames` | | Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday | lunes, martes, miércoles, jueves, viernes, sábado, domingo | segunda-feira, terça-feira, quarta-feira, quinta-feira, sexta-feira, sábado, domingo | Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag, Sonntag | lundi, mardi, mercredi, jeudi, vendredi, samedi, dimanche |
 | `weekdayShort` | | Mon, Tue, Wed, Thu, Fri, Sat, Sun | lun, mar, mié, jue, vie, sáb, dom | seg, ter, qua, qui, sex, sáb, dom | Mo, Di, Mi, Do, Fr, Sa, So | lun, mar, mer, jeu, ven, sam, dim |
 | `longDate` | fecha | Saturday, January 17 | Sábado, 17 de enero | Sábado, 17 de janeiro | Samstag, 17. Januar | Samedi 17 janvier |
-| `longDateWithYear` | fecha | Tuesday, January 17, 2026 | Martes, 17 de enero de 2026 | Terça-feira, 17 de janeiro de 2026 | Dienstag, 17. Januar 2026 | Mardi 17 janvier 2026 |
+| `longDateWithYear` | fecha | Tuesday, January 20, 2026 | Martes, 20 de enero de 2026 | Terça-feira, 20 de janeiro de 2026 | Dienstag, 20. Januar 2026 | Mardi 20 janvier 2026 |
 | `shortDate` | fecha | January 10 | 10 de enero | 10 de janeiro | 10. Januar | 10 janvier |
 | `dayMonthYear` | fecha | January 17, 2027 | 17 de enero de 2027 | 17 de janeiro de 2027 | 17. Januar 2027 | 17 janvier 2027 |
 | `abbrDateWithYear` | fecha | Jan 17, 2027 | 17 ene 2027 | 17 jan 2027 | 17. Jan. 2027 | 17 janv. 2027 |
