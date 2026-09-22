@@ -9,6 +9,9 @@ import com.baltajmn.line.model.JournalJson
 import com.baltajmn.line.model.LineEntry
 import com.baltajmn.line.model.Settings
 import com.baltajmn.line.model.isoKey
+import com.baltajmn.line.model.logicalDate
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.Job
@@ -20,8 +23,13 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
 
 const val SAVE_DEBOUNCE_MS = 800L
+
+/** "Today" everywhere in the app: the logical day, which ends at 03:00 local time. */
+@OptIn(ExperimentalTime::class)
+fun today(): LocalDate = logicalDate(Clock.System.now(), TimeZone.currentSystemDefault())
 
 /**
  * Single source of truth. The whole diary is one JSON file; state changes at once on the main
@@ -98,6 +106,8 @@ object LineRepository {
     fun saveNow() {
         scope.launch { flush() }
     }
+
+    fun updateSettings(change: (Settings) -> Settings) = edit { it.copy(settings = change(it.settings)) }
 
     // --- entries ----------------------------------------------------------------------------
 
