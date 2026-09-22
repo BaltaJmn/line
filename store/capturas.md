@@ -37,8 +37,8 @@ Espera dentro `01_hoy.png` a `06_ajustes.png` y deja el resultado en
 | Fichero | Pantalla | Qué tiene que verse |
 |---|---|---|
 | `01_hoy` | Hoy, estado D (`docs/pantallas.md` 4.2) | La línea de hoy escrita, la racha, y debajo los dos años anteriores, el de hace un año con foto. Sin teclado |
-| `02_ano` | Año, el año en curso | La rejilla llena hasta hoy con huecos sueltos, y el recuento arriba |
-| `03_buscar` | Año con la búsqueda abierta | `coffee` en en-US y `cafe` sin tilde en es-ES: salen resultados de tres años, que enseña de paso el plegado de acentos |
+| `02_ano` | Año, el año en curso | La rejilla llena hasta hoy con huecos sueltos, y el recuento, que va debajo: desplazada hasta que se vean las 31 filas y el recuento a la vez |
+| `03_buscar` | Año con la búsqueda abierta | `coffee` en en-US y `cafe` sin tilde en es-ES: salen resultados de tres años, que enseña de paso el plegado de acentos. Sin teclado: la tecla de buscar lo esconde |
 | `04_widgets` | Pantalla de inicio del sistema | El widget de hoy (2x2) y el del año (4x2) sobre un fondo de pantalla liso del sistema |
 | `05_tarjeta` | Compartir, tarjeta del año | La tarjeta de 1080x1350 en la vista previa, antes de la hoja del sistema |
 | `06_ajustes` | Ajustes | Bloqueo encendido, recordatorio a las 21:00, la fila de portadas con salvia elegida |
@@ -83,7 +83,9 @@ Reglas, todas fijas para que dos ejecuciones el mismo día den el mismo diario:
 - El texto de un día de relleno es `RELLENO[idioma][fecha.toordinal() % 14]`.
 - `late` siempre `false`. Ninguna etiqueta ni ánimo.
 - El programa se niega con `--hoy` el 1 de enero o el 29 de febrero: el primero sacaría el hito del
-  aniversario y el de tres años en la escena 01, y el segundo no tiene años anteriores.
+  aniversario y el de tres años en la escena 01, y el segundo no tiene años anteriores. También se
+  niega del 2 al 10 de enero: `hoy - 9 días` cae el año anterior y la búsqueda de la escena 03 se
+  queda en dos años.
 - `settings`: `{"reminderOn": true, "reminderOffered": true, "cover": "sage", "lastBackup": hoy,
   "backupNoticeDone": true, "pro": true}`. Así no sale ni la oferta del recordatorio ni el aviso de
   copia, y los widgets Pro se pintan. `pro` es la caché: con la clave de RevenueCat a `null` nadie la
@@ -100,8 +102,8 @@ Textos fijos:
 | `hoy` | Market with Leo. We bought far too many peaches. | Mercado con Leo. Compramos demasiados melocotones. |
 | `hoy - 1 año` | Same street, new flat. First night among boxes. | Misma calle, piso nuevo. Primera noche entre cajas. |
 | `hoy - 2 años` | Rained all day. Painted the hallway green, no regrets. | Llovió todo el día. Pintamos el pasillo de verde, sin arrepentimientos. |
-| `hoy - 400 días` | Coffee with Ana at the place by the river. Two hours gone. | Café con Ana en el sitio del río. Se nos fueron dos horas. |
-| `hoy - 200 días` | New coffee grinder. The kitchen smells like a café. | Molinillo de café nuevo. La cocina huele a cafetería. |
+| `hoy - 2 años - 1 día` | Coffee with Ana at the place by the river. Two hours gone. | Café con Ana en el sitio del río. Se nos fueron dos horas. |
+| `hoy - 1 año - 1 día` | New coffee grinder. The kitchen smells like a café. | Molinillo de café nuevo. La cocina huele a cafetería. |
 | `hoy - 45 días` | Coffee on the balcony before anyone was awake. | Café en el balcón antes de que nadie se despertara. |
 | `hoy - 9 días` | Too much coffee, too little sleep. Still a good day. | Demasiado café, poco sueño. Aun así, buen día. |
 

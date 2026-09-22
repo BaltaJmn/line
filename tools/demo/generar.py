@@ -23,8 +23,8 @@ FIXED = {
         "today": "Market with Leo. We bought far too many peaches.",
         "year1": "Same street, new flat. First night among boxes.",
         "year2": "Rained all day. Painted the hallway green, no regrets.",
-        "d400": "Coffee with Ana at the place by the river. Two hours gone.",
-        "d200": "New coffee grinder. The kitchen smells like a cafe.",
+        "old": "Coffee with Ana at the place by the river. Two hours gone.",
+        "last": "New coffee grinder. The kitchen smells like a cafe.",
         "d45": "Coffee on the balcony before anyone was awake.",
         "d9": "Too much coffee, too little sleep. Still a good day.",
     },
@@ -32,8 +32,8 @@ FIXED = {
         "today": "Mercado con Leo. Compramos demasiados melocotones.",
         "year1": "Misma calle, piso nuevo. Primera noche entre cajas.",
         "year2": "Llovió todo el día. Pintamos el pasillo de verde, sin arrepentimientos.",
-        "d400": "Café con Ana en el sitio del río. Se nos fueron dos horas.",
-        "d200": "Molinillo de café nuevo. La cocina huele a cafetería.",
+        "old": "Café con Ana en el sitio del río. Se nos fueron dos horas.",
+        "last": "Molinillo de café nuevo. La cocina huele a cafetería.",
         "d45": "Café en el balcón antes de que nadie se despertara.",
         "d9": "Demasiado café, poco sueño. Aun así, buen día.",
     },
@@ -90,11 +90,16 @@ def main():
         today: "today",
         today.replace(year=today.year - 1): "year1",
         today.replace(year=today.year - 2): "year2",
-        today - datetime.timedelta(days=400): "d400",
-        today - datetime.timedelta(days=200): "d200",
+        # The day before one and two years ago: dates sure to fall in the two older years, so the
+        # search of scene 03 finds three years whatever the month.
+        today.replace(year=today.year - 2) - datetime.timedelta(days=1): "old",
+        today.replace(year=today.year - 1) - datetime.timedelta(days=1): "last",
         today - datetime.timedelta(days=45): "d45",
         today - datetime.timedelta(days=9): "d9",
     }
+    searched = {day.year for day, key in fixed_dates.items() if key in ("old", "last", "d45", "d9")}
+    if len(searched) < 3:
+        sys.exit("Con esta fecha la busqueda de la escena 03 no llega a tres años: pasa otro --hoy.")
     always = set(fixed_dates)
     always |= {datetime.date(today.year - n, 1, 1) for n in (0, 1, 2)}
     always |= {today - datetime.timedelta(days=n) for n in range(1, 13)}
