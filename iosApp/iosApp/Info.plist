@@ -10,6 +10,9 @@
 	<string>Purl</string>
 	<!-- La app no usa cifrado propio, solo HTTPS del sistema. Sin esta clave App Store Connect
 	     pregunta por el cumplimiento de exportacion en cada build y la retiene hasta responder. -->
+	<!-- Sin esta clave LocalAuthentication no puede usar Face ID. Traducciones en <lang>.lproj. -->
+	<key>NSFaceIDUsageDescription</key>
+	<string>To open your diary with Face ID when the lock is on.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>CFBundleLocalizations</key>

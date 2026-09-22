@@ -375,8 +375,9 @@ ahí `moodRow` (Anotar el ánimo).
 +------------------------------------------------+
 ```
 
-Fondo `background`, centrado, sin nada más. El diálogo del sistema salta al aparecer; si se cancela,
-queda el botón `unlock` (Desbloquear). Textos del diálogo del sistema: `lockPromptTitle` (Abrir Purl)
+Fondo `background`, centrado, sin nada más. Al aparecer quita el foco del campo de hoy: si no, el
+teclado vuelve a subir encima del bloqueo al volver de segundo plano. El diálogo del sistema salta al
+aparecer; si se cancela, queda el botón `unlock` (Desbloquear). Textos del diálogo del sistema: `lockPromptTitle` (Abrir Purl)
 y `lockPromptSubtitle` (Tu diario está bloqueado).
 
 La vista de multitarea en iOS es solo el color `background`, sin texto.

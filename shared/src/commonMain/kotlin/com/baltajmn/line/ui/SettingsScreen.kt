@@ -50,6 +50,7 @@ import com.baltajmn.line.data.ImportProblem
 import com.baltajmn.line.data.MergeResult
 import com.baltajmn.line.data.PickResult
 import com.baltajmn.line.data.LineRepository
+import com.baltajmn.line.data.Lock
 import com.baltajmn.line.data.PRIVACY_URL
 import com.baltajmn.line.data.Reminder
 import com.baltajmn.line.data.merge
@@ -109,13 +110,22 @@ fun SettingsScreen(onBack: () -> Unit) {
             }
 
             Section(S.sectionPrivacy) {
-                // ponytail: turning it on asks to authenticate first from #18; here it only stores.
-                SettingRow(title = S.lockRow, subtitle = S.lockSubtitle) {
-                    SoftSwitch(settings.lockOn) { on ->
-                        LineRepository.updateSettings { it.copy(lockOn = on) }
-                        // The lock decides whether a reminder may quote the diary, so the window
-                        // is rebuilt without it.
-                        Reminder.sync(askPermission = false)
+                val canLock = remember { Lock.isAvailable() }
+                SettingRow(
+                    title = S.lockRow,
+                    subtitle = if (canLock) S.lockSubtitle else S.lockUnavailable,
+                    enabled = canLock,
+                ) {
+                    SoftSwitch(settings.lockOn, enabled = canLock) { on ->
+                        // Turning it on proves who is asking: otherwise whoever has the phone in
+                        // their hand could lock the owner out of their own diary.
+                        val store = {
+                            LineRepository.updateSettings { it.copy(lockOn = on) }
+                            // The lock decides whether a reminder may quote the diary, so the window
+                            // is rebuilt without it.
+                            Reminder.sync(askPermission = false)
+                        }
+                        if (on) Lock.authenticate { if (it) store() } else store()
                     }
                 }
             }
@@ -278,10 +288,11 @@ private fun SettingRow(
 }
 
 @Composable
-private fun SoftSwitch(checked: Boolean, onChange: (Boolean) -> Unit) {
+private fun SoftSwitch(checked: Boolean, enabled: Boolean = true, onChange: (Boolean) -> Unit) {
     Switch(
         checked = checked,
         onCheckedChange = onChange,
+        enabled = enabled,
         colors = SwitchDefaults.colors(
             checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
             checkedTrackColor = MaterialTheme.colorScheme.primary,
