@@ -106,7 +106,7 @@ cae a la firma de debug, igual que la familia.
 | `data/MoodTrakerImport.kt` | v1.1: leer la copia de MoodTraker | N |
 | `billing/Billing.kt` | `expect val revenueCatApiKey`, `object Billing` | C `MoodTraker/.../billing/Billing.kt` |
 | `i18n/Strings.kt` | `expect fun systemLanguage()`, `object S` con `t(en, es, pt, de, fr)` | A `MoodTraker/.../i18n/Strings.kt` |
-| `ui/theme/Theme.kt` | `LineTheme`, colores, `Covers`, `SoftShapes`, `Eyebrow`, `UserText` | A `MoodTraker/.../ui/theme/Theme.kt` |
+| `ui/theme/Theme.kt` | `LineTheme`, colores, `enum class Cover`, `SoftShapes`, `Styles` (los diez estilos de `docs/pantallas.md` 1.2), `MAX_CONTENT_WIDTH` | A `MoodTraker/.../ui/theme/Theme.kt` |
 | `ui/Icons.kt` | `Glyph`, `GlyphButton`, `GlyphIcon` | A `MoodTraker/.../ui/Icons.kt` |
 | `ui/LineField.kt` | el campo de una línea: Literata, tope, contador, `ImeAction.Done` | N |
 | `ui/TodayScreen.kt` | Hoy | N |
@@ -120,8 +120,9 @@ cae a la firma de debug, igual que la familia.
 | `share/ShareCard.kt` | `renderYearCard`, `renderLineCard` | A `MoodTraker/.../share/ShareCard.kt` |
 | `share/Sharing.kt` | `expect fun ImageBitmap.encodeToPng()`, `expect object Sharing` | C `MoodTraker/.../share/Sharing.kt` |
 
-`shared/src/commonMain/composeResources/font/literata_regular.ttf` y `OFL.txt` al lado (Literata,
-SIL Open Font License 1.1, de `github.com/googlefonts/literata`). Se borra
+`shared/src/commonMain/composeResources/font/literata_regular.ttf` (Literata Regular, SIL Open Font
+License 1.1, de `github.com/googlefonts/literata`, commit `0c2761b`) y su licencia en
+`composeResources/files/OFL.txt`: en `font/` el generador la tomaría por una fuente más. Se borra
 `composeResources/drawable/compose-multiplatform.xml` de la plantilla.
 
 ### `shared/src/androidMain/kotlin/com/baltajmn/line`
@@ -853,7 +854,7 @@ sección si no queda ninguna.
 
 ### 6.17 Portadas
 
-`Covers` en `Theme.kt` con los ocho de la tabla de la sección 5. Elegir una portada que no es `sage`
+`Cover` en `Theme.kt` con los ocho de la tabla de la sección 5 (`Cover.of(id)`). Elegir una portada que no es `sage`
 sin `pro` abre el `ProDialog` y no cambia nada. Con `pro` falso, una portada Pro ya elegida se
 mantiene (D-B6).
 

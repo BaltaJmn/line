@@ -27,7 +27,8 @@ Los `colorScheme` de la familia, sin cambiar un hex (`MoodTraker/shared/.../ui/t
 | `primary` | `6FAE9B` | `8FC9B6` | acción de texto, interruptores encendidos |
 | `onPrimary` | `FFFFFF` | `12271F` | texto sobre `primary` |
 
-`error` no se usa en ninguna pantalla: ni un aviso ni un borrado se pintan en rojo ni en su pariente.
+`error` no se usa en ninguna pantalla: ni un aviso ni un borrado se pintan en rojo ni en su pariente. Por si
+un componente de Material lo busca solo, `error` vale lo mismo que `onSurfaceVariant`.
 
 **Portada.** La portada elegida (`docs/tecnico.md` sección 5) tiñe, y solo tiñe: las celdas llenas de
 la rejilla del año, el punto del hito en Hoy, el punto de la fecha en Hoy y en el día abierto, las dos
@@ -49,6 +50,9 @@ tarjetas y los widgets. El acento de las acciones sigue siendo `primary`. En osc
 | `Action` | sistema | 15 / 20 sp | Medium | `primary` | botones de texto |
 
 Literata Regular es la única fuente empaquetada. No hay cursiva ni negrita del usuario.
+
+En código, `Styles` de `ui/theme/Theme.kt` con el nombre en minúscula inicial: `Styles.userLarge`,
+`Styles.eyebrow`. Cada estilo lleva ya su color.
 
 ### 1.3 Medidas
 
