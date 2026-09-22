@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.backhandler.BackHandler
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
+import com.baltajmn.line.billing.Billing
 import com.baltajmn.line.data.LineRepository
 import com.baltajmn.line.data.Lock
 import com.baltajmn.line.data.Reminder
@@ -23,6 +24,8 @@ import com.baltajmn.line.data.syncWidgets
 import com.baltajmn.line.data.today
 import com.baltajmn.line.ui.DaySheet
 import com.baltajmn.line.ui.LockScreen
+import com.baltajmn.line.ui.Paywall
+import com.baltajmn.line.ui.ProDialog
 import com.baltajmn.line.ui.SettingsScreen
 import com.baltajmn.line.ui.TodayScreen
 import com.baltajmn.line.ui.YearScreen
@@ -43,6 +46,7 @@ fun App() {
     remember {
         LineRepository.load()
         Reminder.sync(askPermission = false)
+        Billing.configure()
     }
     var day by remember { mutableStateOf(today()) }
     var screen by remember { mutableStateOf(Screen.Today) }
@@ -50,11 +54,14 @@ fun App() {
     // The open day is an overlay over whichever screen called it, so back closes it first.
     var openDay by remember { mutableStateOf<LocalDate?>(null) }
     var leftAt by remember { mutableStateOf<TimeSource.Monotonic.ValueTimeMark?>(null) }
+    var proCheck by remember { mutableStateOf(0) }
 
     LifecycleEventEffect(Lifecycle.Event.ON_START) {
         // Coming back after 03:00 is a new day, and the widgets are told before they are looked at.
         day = today()
         syncWidgets(LineRepository.journal, LineRepository.settings, day)
+        // A purchase or a refund may have happened on another device.
+        proCheck++
         // A minute away locks it again; stepping out to a photo or a share sheet does not.
         val away = leftAt?.elapsedNow()
         if (LineRepository.settings.lockOn && away != null && away >= RELOCK_AFTER) locked = true
@@ -64,12 +71,17 @@ fun App() {
         LineRepository.saveNow()
         leftAt = TimeSource.Monotonic.markNow()
     }
+    // Catches a purchase made on another device, and a refund. A failure keeps the cached Pro.
+    LaunchedEffect(proCheck) { Billing.refresh() }
     // A widget or a link asked for a screen, maybe before the app existed.
     LaunchedEffect(Route.pending) {
         when (Route.pending) {
             "today" -> screen = Screen.Today
             "year" -> screen = Screen.Year
-            // ponytail: "pro" opens the paywall in #23.
+            "pro" -> {
+                screen = Screen.Today
+                Paywall.open = true
+            }
             else -> Unit
         }
         if (Route.pending != null) {
@@ -102,6 +114,7 @@ fun App() {
                 Screen.Settings -> SettingsScreen(onBack = { screen = Screen.Today })
             }
             openDay?.let { DaySheet(it, day, closeDay) }
+            if (Paywall.open) ProDialog { Paywall.open = false }
 
             // Over everything, including the open day and any dialog under it.
             if (locked) LockScreen { locked = false }

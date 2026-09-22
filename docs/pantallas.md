@@ -425,7 +425,8 @@ Pago único, sin suscripción.
   `proLockWidget`, cada una empezando por un guion; debajo `proOnce` (Pago único, sin suscripción.).
 - Botones: `restore` (Restaurar), `notNow` (Ahora no), `buy(price)` (Comprar por 5,99 EUR) con el
   precio que devuelve la tienda.
-- Sin tienda: texto extra `storeUnavailable` (La tienda no está disponible ahora.) y `buy` desactivado.
+- Sin tienda: texto extra `storeUnavailable` (La tienda no está disponible ahora.) y `buy` no se
+  pinta: sin precio no hay oferta que hacer. Quedan `restore` y `notNow`.
 - Comprando: `buy` pasa a `working`. Éxito: se cierra. Cancelado: no pasa nada. Error: `buyFailed` (No
   se ha podido completar la compra.) bajo las líneas.
 - v1.1 añade `proBook`, `proMemoryWidget`, `proSiri` (iOS) y `proTile` (Android); v1.2 `proRecaps` y

@@ -21,6 +21,9 @@ data class Sibling(val name: String, val tagline: String, val androidUrl: String
 /** The store of the platform this build runs on, or null while that app has no page there. */
 expect val Sibling.storeUrl: String?
 
+/** True on iOS. The paywall names the lock screen widget, which only that platform has. */
+expect val onIos: Boolean
+
 /**
  * The sister apps. A store URL only once that app is in production on that store the day Purl is
  * published; until then it is null and its row is not shown (docs/tecnico.md 6.16, issue #30).

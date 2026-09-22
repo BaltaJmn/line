@@ -267,10 +267,14 @@ fun Ask(
 
 /** A text button: 40 high, 16 of side padding, no background. */
 @Composable
-fun TextAction(label: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun TextAction(label: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) {
     Box(
-        modifier.heightIn(min = 40.dp).clip(MaterialTheme.shapes.small).clickable(role = Role.Button, onClick = onClick)
+        modifier.heightIn(min = 40.dp).clip(MaterialTheme.shapes.small)
+            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
             .padding(horizontal = 16.dp),
         contentAlignment = Alignment.Center,
-    ) { Text(label, style = Styles.action) }
+    ) {
+        val style = Styles.action
+        Text(label, style = if (enabled) style else style.copy(color = MaterialTheme.colorScheme.onSurfaceVariant))
+    }
 }

@@ -32,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,6 +50,7 @@ import com.baltajmn.line.data.ImportFailed
 import com.baltajmn.line.data.ImportProblem
 import com.baltajmn.line.data.MergeResult
 import com.baltajmn.line.data.PickResult
+import com.baltajmn.line.billing.Billing
 import com.baltajmn.line.data.LineRepository
 import com.baltajmn.line.data.Lock
 import com.baltajmn.line.data.PRIVACY_URL
@@ -63,6 +65,7 @@ import com.baltajmn.line.i18n.S
 import com.baltajmn.line.ui.theme.Cover
 import com.baltajmn.line.ui.theme.MAX_CONTENT_WIDTH
 import com.baltajmn.line.ui.theme.Styles
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 
 /**
@@ -79,6 +82,9 @@ fun SettingsScreen(onBack: () -> Unit) {
     // Title and text together: an export that fails is not an import that fails (pantallas 9.3).
     var failure by remember { mutableStateOf<Pair<String?, String>?>(null) }
     var imported by remember { mutableStateOf<Int?>(null) }
+    var restoring by remember { mutableStateOf(false) }
+    var restored by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
 
     Column(
         Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()),
@@ -185,13 +191,25 @@ fun SettingsScreen(onBack: () -> Unit) {
             }
 
             Section(S.sectionPro) {
-                // ponytail: the paywall and the restore are #23.
                 SettingRow(
                     title = S.proRow,
                     subtitle = if (settings.pro) S.proOwned else S.proSubtitle,
                     enabled = !settings.pro,
+                    onClick = { Paywall.open = true },
                 )
-                SettingRow(title = S.restoreRow)
+                // Both stores ask for this to be reachable without buying anything first.
+                SettingRow(
+                    title = S.restoreRow,
+                    enabled = !restoring,
+                    onClick = {
+                        restoring = true
+                        scope.launch {
+                            val found = Billing.restore()
+                            restoring = false
+                            restored = if (found) S.restoreDone else S.restoreNothing
+                        }
+                    },
+                )
             }
 
             val siblings = SIBLINGS.filter { it.storeUrl != null }
@@ -210,6 +228,8 @@ fun SettingsScreen(onBack: () -> Unit) {
             Spacer(Modifier.height(32.dp))
         }
     }
+
+    restored?.let { Ask(null, it, S.ok, onConfirm = { restored = null }) }
 
     pending?.let { (result, delivered) ->
         Ask(
@@ -311,9 +331,13 @@ private fun Covers(selected: String, pro: Boolean) {
                 Modifier.size(32.dp)
                     .clip(CircleShape)
                     .background(cover.color)
-                    // ponytail: without Pro a locked cover opens the ProDialog of #23; for now it stays put.
-                    .clickable(role = Role.Button, enabled = pro || cover == Cover.SAGE) {
-                        LineRepository.updateSettings { it.copy(cover = cover.id) }
+                    // A locked cover sells Pro instead of changing anything (docs/tecnico.md 6.17).
+                    .clickable(role = Role.Button) {
+                        if (pro || cover == Cover.SAGE) {
+                            LineRepository.updateSettings { it.copy(cover = cover.id) }
+                        } else {
+                            Paywall.open = true
+                        }
                     }
                     .semantics {
                         contentDescription = S.coverName(cover.id) + if (chosen) ", ${S.a11ySelected}" else ""

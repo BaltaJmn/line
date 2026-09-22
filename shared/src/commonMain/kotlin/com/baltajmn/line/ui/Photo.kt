@@ -47,9 +47,10 @@ fun PhotoButton(date: LocalDate, today: LocalDate, modifier: Modifier = Modifier
         label = S.a11yPhoto,
         modifier = modifier,
         onClick = {
-            // ponytail: without Pro the fourth photo opens the ProDialog of #23; for now it stays put.
             if (LineRepository.canAddPhoto(date)) {
                 PhotoPicker.pick { bytes -> bytes?.let { LineRepository.setPhoto(date, it, today) } }
+            } else {
+                Paywall.open = true
             }
         },
     )

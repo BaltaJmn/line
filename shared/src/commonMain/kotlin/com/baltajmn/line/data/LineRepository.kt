@@ -123,6 +123,11 @@ object LineRepository {
 
     fun updateSettings(change: (Settings) -> Settings) = edit { it.copy(settings = change(it.settings)) }
 
+    /** What the store says, kept on disk so the app knows it offline and the widgets can read it. */
+    fun updatePro(active: Boolean) {
+        if (active != settings.pro) updateSettings { it.copy(pro = active) }
+    }
+
     // --- entries ----------------------------------------------------------------------------
 
     fun entryOn(date: LocalDate): LineEntry? = journal[date.isoKey()]

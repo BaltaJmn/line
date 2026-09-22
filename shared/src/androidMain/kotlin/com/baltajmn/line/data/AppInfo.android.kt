@@ -18,3 +18,5 @@ actual object AppInfo {
 }
 
 actual val Sibling.storeUrl: String? get() = androidUrl
+
+actual val onIos: Boolean = false
