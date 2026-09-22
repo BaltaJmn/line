@@ -36,3 +36,7 @@ google-services.json
 GoogleService-Info.plist
 .env
 .env.*
+
+# Diario de demostracion de las capturas: fotos propias y salida generada.
+tools/demo/fotos/
+tools/demo/salida/

@@ -1,15 +1,33 @@
-# Diario de una línea al día, spec de producto
+# Purl: diario de una línea al día, spec de producto
 
-App Compose Multiplatform (Android + iOS) que hereda el cuaderno de papel *One Line a Day: A
-Five-Year Memory Book*: escribes una línea al día y, al abrir la app, lees lo que escribiste ese
-mismo día en años anteriores.
+App Compose Multiplatform (Android + iOS, iPhone y iPad) que hereda el cuaderno de papel *One Line
+a Day: A Five-Year Memory Book*: escribes una línea al día y, al abrir la app, lees lo que
+escribiste ese mismo día en años anteriores.
 
 Tercera de la familia. Hermana de **Quilt** (`../HabitTracker`, `com.baltajmn.habit`) y de
 **MoodTraker** (`../MoodTraker`, `com.baltajmn.mood`): misma arquitectura, misma paleta, misma
-promesa (sin cuenta, sin suscripción, tus datos son tuyos). Identificador previsto para las dos
-tiendas: `com.baltajmn.line`.
+promesa (sin cuenta, sin suscripción, tus datos son tuyos). Nombre de tienda **Purl**.
+Identificador en las dos tiendas: `com.baltajmn.line`. El repositorio y el código siguen llamándose
+`line`, igual que Quilt vive en `com.baltajmn.habit`.
 
 La promesa en una frase: *treinta segundos al día hoy, cinco años de memoria mañana*.
+
+## Documentos
+
+Este SPEC es el porqué del producto: qué hace la app, qué no hace y por qué. Lo que se programa está
+escrito aparte y aquí solo se resume lo imprescindible para entender cada decisión.
+
+| Dónde | Qué contiene |
+|---|---|
+| `docs/tecnico.md` | El contrato de implementación: árbol de código, modelo, esquemas de `entries.json` y `widget.json`, reglas de fecha, guardado, fusión, recordatorio, bloqueo, widgets, compras, plataforma y tests |
+| `docs/pantallas.md` | La interfaz pantalla a pantalla, con sus estados: Hoy, Año, Ajustes, el día concreto, bloqueo, paywall, tarjeta y widgets |
+| `docs/textos.md` | Todos los textos en los cinco idiomas: app, notificaciones, widgets, `InfoPlist.strings`, `Localizable.strings` y el banco de preguntas |
+| `store/` | La tienda: fichas en cinco idiomas, novedades, capturas, formularios, la política de privacidad, compras, CI y el checklist de lanzamiento (`store/lanzamiento.md`) |
+| `CLAUDE.md`, `AGENTS.md`, `MAPA.md` | Las reglas de trabajo que cargan solas las sesiones de Claude Code y Codex, y el inventario del repositorio |
+| Issues del repo | `gh issue list -R BaltaJmn/line`: #1 a #44, una por pieza, en los hitos v1.0, v1.1 y v1.2 |
+
+Todo lo que dicen estos documentos está decidido. Si un detalle de implementación de este SPEC no
+coincide con `docs/tecnico.md`, manda `docs/tecnico.md` y el SPEC se corrige en el mismo cambio.
 
 ---
 
@@ -76,62 +94,85 @@ permanente: Apple amplía esa app en cada versión.
       se guarda con rebote al dejar de teclear y al salir de la pantalla.
 - [ ] Una entrada por día. Editable siempre, sin historial de versiones.
 - [ ] Debajo del campo de hoy, **lo que escribiste este mismo día en años anteriores**, el más
-      reciente arriba. Es la pantalla principal, no una pantalla aparte.
-- [ ] Durante el primer año, ese bloque se rellena con **hace una semana** y **hace un mes**, que
-      tienen dato desde el día 8 y el día 31.
-- [ ] Escribir en cualquier día pasado, sin límite de cuánto atrás, desde la rejilla o la búsqueda.
+      reciente arriba. Es la pantalla principal, no una pantalla aparte. Tocar un bloque abre ese
+      día.
+- [ ] Mientras un día no tenga años anteriores (todo el primer año, y cualquier fecha que se
+      estrene después), ese bloque se rellena con **hace una semana** y **hace un mes**, cada uno
+      solo si existe, y con la fecha en la que esa página volverá.
+- [ ] Escribir en cualquier día pasado desde la rejilla (del año de la entrada más antigua al
+      actual), la búsqueda o los bloques de años anteriores.
 - [ ] Rejilla del año de 12 columnas por 31 filas, binaria: celda llena si hay línea, hueco si no.
       Nunca en rojo. Tocar una celda abre ese día.
-- [ ] Búsqueda de texto libre, como filtro dentro de la pantalla del año. No es una cuarta pantalla.
-- [ ] Racha de días escritos, en sitio secundario. Solo cuenta el día real de escritura: rellenar
-      un día atrasado ni la sube ni la rompe.
-- [ ] Recordatorio diario local a la hora que elijas, apagado hasta que lo enciendas. Se calla si el
-      día ya tiene línea, **en las dos plataformas** (ver §5).
+- [ ] Búsqueda de texto libre, sin distinguir mayúsculas ni acentos, como filtro dentro de la
+      pantalla del año. No es una cuarta pantalla.
+- [ ] Racha de días escritos a tiempo, en sitio secundario y solo a partir de 2. Una línea escrita
+      otro día para una fecha pasada queda marcada como atrasada (`late`): ni sube la racha ni la
+      rompe.
+- [ ] Hitos: una línea discreta en Hoy, ese día y solo ese día (§5).
+- [ ] Recordatorio diario local a la hora que elijas (21:00 al encenderlo), apagado hasta que lo
+      enciendas. Se calla si el día ya tiene línea, **en las dos plataformas** (ver §5).
 - [ ] Bloqueo de la app con la biometría del sistema y respaldo al código del dispositivo. Gratis,
       apagado por defecto. Con el bloqueo puesto, la vista de multitarea no enseña la pantalla.
 - [ ] Widget de hoy en las dos plataformas, **de solo lectura**: la fecha, si el día ya está escrito
       y si hay recuerdo disponible. Nunca el texto: lee un fichero de estado aparte y el diario no
       está a su alcance (ver §3).
-- [ ] Exportar en **un solo `.zip`** con `entries.json` (reimportable), `diario.md` (legible sin la
-      app) y la carpeta `photos/`. Importar la copia propia. Gratis para siempre.
-- [ ] Aviso único a los 30 días para que hagas una copia, y fecha de la última copia en Ajustes.
-- [ ] Tarjeta para compartir de 1080x1350: por defecto solo forma (días escritos, racha, año), y
-      el texto de una entrada solo si el usuario la elige a mano.
+- [ ] Dos widgets Pro, también de solo lectura y sin texto: el **widget del año** (rejilla binaria,
+      Android e iOS) y el **widget de pantalla de bloqueo** de iOS. Se copian de Quilt.
+- [ ] Exportar en **un solo `.zip`** con `entries.json` (reimportable), `journal.md` (legible sin la
+      app) y la carpeta `photos/`. Importar la copia propia **fusionando**: nunca reemplaza y nunca
+      pierde texto. Gratis para siempre.
+- [ ] Aviso único para que hagas una copia, cuando hace 30 días de la primera entrada y aún no hay
+      ninguna copia, y fecha de la última copia en Ajustes.
+- [ ] Tarjeta para compartir de 1080x1350: por defecto solo forma (rejilla del año, días escritos,
+      racha, año y portada), y el texto de una entrada solo si el usuario la elige a mano desde ese
+      día.
 - [ ] Foto del día: una por entrada, opcional. Tres entradas con foto gratis, el resto en Pro.
-- [ ] Cinco idiomas: inglés, español, portugués, alemán y francés.
+- [ ] Ocho portadas de color con los pasteles de la familia: salvia gratis y por defecto, las otras
+      siete en Pro.
+- [ ] Cinco idiomas: inglés, español, portugués, alemán y francés. Sin selector: sigue al sistema,
+      como las hermanas.
+- [ ] iPhone y iPad, vertical y horizontal; Android sin orientación fija. Tema claro u oscuro según
+      el sistema.
 - [ ] Tres pantallas: **Hoy**, **Año**, **Ajustes**. Sin librería de navegación.
 
 ### v1.1, lo que la gente pedirá en las reseñas
 
-- **El libro en PDF maquetado**: una página por día con los bloques de cada año, portada y
-  tipografía. Es el gancho de marketing más fuerte que tiene el concepto.
-- Widget de pantalla de bloqueo en iOS, widget del año, baldosa de Ajustes rápidos en Android.
-- **Dictar la línea por Siri y Atajos** sin abrir la app: un `AppIntent` con un parámetro de texto
-  (iOS 16+) que llama al repositorio de Kotlin, igual que `Shortcuts.swift` sobre `Shortcuts.ios.kt`
-  en las hermanas. Si el día ya tiene línea, añade en una línea nueva y no trunca nunca: el tope de
-  280 vive en la interfaz, no en el modelo. Con el bloqueo activo exige el dispositivo desbloqueado.
+- **El libro en PDF maquetado** (Pro): A5 vertical, una página por fecha del calendario con los
+  bloques de cada año, portada del color elegido y la misma tipografía que la app. Es el gancho de
+  marketing más fuerte que tiene el concepto, y el día que sale el precio sube a 8,99 EUR (§6).
+- Baldosa de Ajustes rápidos en Android (Pro): enseña si hoy está escrito y abre Hoy con el foco
+  puesto.
+- **Dictar la línea por Siri y Atajos** (Pro) sin abrir la app: un `AppIntent` con un parámetro de
+  texto que llama al repositorio de Kotlin, igual que `Shortcuts.swift` sobre `Shortcuts.ios.kt` en
+  las hermanas. Si el día ya tiene línea, añade en una línea nueva y no trunca nunca: el tope de 280
+  vive en la interfaz, no en el modelo. Exige siempre el dispositivo desbloqueado
+  (`.requiresAuthentication`), esté o no puesto el bloqueo de la app: la política del intent es
+  estática y escribir en el diario con el teléfono bloqueado no se permite nunca.
 - **Widget del recuerdo** (Pro): la línea de hace un año, en la pantalla de inicio. Es la única
   superficie que enseña texto, y solo porque el usuario la coloca a propósito para eso: colocarla es
   el consentimiento. Con el bloqueo activo no enseña nada, en iOS se tacha en pantalla de bloqueo y
-  StandBy con `privacySensitive()`, y la app escribe en el estado del widget esa única línea, nunca
-  el diario (ver §3).
+  StandBy con `privacySensitive()`, y la app escribe en el estado del widget la línea de hace un año
+  de hoy y la de mañana, nunca el diario (ver §3).
 - **Importar las notas de MoodTraker**: su copia ya lleva fecha y nota por día. Quien viene de la
   hermana con un año de notas tiene el eco del pasado el primer día, que es exactamente el riesgo
   número uno de este concepto (§11). Coste pequeño: el formato de copia de MoodTraker es nuestro.
-  Nunca pisa una línea ya escrita.
-- Etiquetas libres por entrada, como en MoodTraker: sin catálogo que mantener, la hoja del día
-  sugiere las diez más usadas.
+  Nunca pisa una línea ya escrita: salta esas fechas y lo dice antes de importar.
+- Etiquetas libres por entrada, como en MoodTraker: sin catálogo que mantener, el campo sugiere las
+  diez más usadas. La búsqueda las encuentra y `journal.md` las escribe.
 - Pulsación larga sobre una celda: las primeras palabras sin salir de la rejilla.
-- Banco fijo de preguntas para el día en blanco, escrito a mano en los cinco idiomas, opcional y
-  apagable. Sin IA y sin red.
+- Banco fijo de 60 preguntas para el día en blanco, escrito a mano en los cinco idiomas, apagado
+  por defecto. Sin IA y sin red.
 
 ### v1.2, retención
 
-- Recapitulaciones de mes y de año, y el aviso de diciembre que las dispara.
-- Ánimo opcional por entrada, reutilizando la paleta de MoodTraker, como filtro de la rejilla.
-- Varias fotos por entrada.
-- Sincronización sobre iCloud y Drive del propio usuario, si y solo si antes hay una política de
-  fusión escrita (ver §9).
+- Recapitulaciones de mes y de año (Pro), **dentro de la app y sin notificación**: tocar el mes o
+  el año en la pantalla Año. Del 26 de diciembre al 7 de enero, Hoy enseña una línea discreta que
+  lleva al resumen del año. La app no elige ni destaca fragmentos.
+- Ánimo opcional por entrada, gratis y apagado por defecto, con los cinco niveles y colores de
+  MoodTraker (sin rojo), como filtro de la rejilla.
+- Varias fotos por entrada, hasta cuatro (Pro).
+- Sincronización sobre el iCloud Drive del propio usuario y, en Android, una carpeta elegida por él,
+  con la política de fusión que ya está escrita en §9.
 
 ### Descartado a propósito
 
@@ -149,6 +190,9 @@ permanente: Apple amplía esa app en cada versión.
 | `FLAG_SECURE` en Android | Bloquea también las capturas que el propio usuario quiere hacer, incluida la de su tarjeta. `setRecentsScreenshotEnabled(false)` (Android 13+) oculta la multitarea sin prohibir nada |
 | Insignias, niveles, notificación de hito | El número redondo dentro de la pantalla y nada más. Una notificación de felicitación es la primera que se desactiva, y arrastra al recordatorio con ella |
 | Cuarta pantalla de búsqueda | La familia cabe en tres pantallas |
+| Selector de idioma dentro de la app | Las hermanas no lo tienen, y Android 13+ e iOS ya dan idioma por app desde los ajustes del sistema |
+| Aviso de diciembre para las recapitulaciones | Sería una segunda notificación. La recapitulación se ofrece dentro de Hoy, sin interrumpir |
+| Onboarding, y con él la mención de las apps hermanas | No hay onboarding (§5). La venta cruzada vive solo en Ajustes |
 
 ### Explícitamente fuera de alcance
 
@@ -170,13 +214,15 @@ forma de fallo tres meses después.
 | 29 de febrero | Fecha propia. En años no bisiestos no aparece en la vista de años anteriores, y el 28 no la absorbe |
 | El límite de 280 caracteres | Vive **en la interfaz, no en el modelo**. El almacén acepta cualquier longitud y la lectura muestra el texto entero. Si el límite vive en el modelo, importar una copia con entradas largas trunca el diario del usuario en silencio, que es la peor clase de fallo posible aquí |
 | Qué es un carácter | Se cuentan puntos de código, no unidades UTF-16: un emoji cuenta uno y no dos. Y el corte al pegar texto largo **nunca parte una pareja suplente**, la misma lección que `habitIcon()` en Quilt (`e8ef697`): media pareja no es texto válido y el lado Swift la rechaza |
-| Dónde vive el diario | `entries.json` en el almacenamiento privado de la app (`filesDir` en Android, Application Support en iOS), **nunca en el contenedor del App Group**. Allí solo va `widget.json` con tres campos |
-| Editar y borrar el pasado | Editable siempre, sin versiones. Borrar pide confirmación. Una entrada que queda vacía se elimina del mapa, para que la rejilla y la búsqueda no mientan |
-| Qué escribe el widget | **Nada, y no puede.** A diferencia de Quilt y MoodTraker, el widget es de solo lectura, su intent solo abre la app en Hoy, y el fichero del diario ni siquiera está en su contenedor |
-| Qué se ve con el bloqueo activo | Con `lockEnabled`, ni el widget ni la notificación imprimen texto de ninguna entrada, y la vista de multitarea sale en blanco. Solo estado |
+| Dónde vive el diario | `entries.json` en el almacenamiento privado de la app (`filesDir` en Android, Application Support en iOS), **nunca en el contenedor del App Group**. Allí solo va `widget.json`, el estado de los widgets, sin texto |
+| Editar y borrar el pasado | Editable siempre, sin versiones. Borrar pide confirmación. Una entrada sin texto y sin foto se elimina del mapa, para que la rejilla y la búsqueda no mientan |
+| Línea atrasada | La que se crea en un día posterior a su fecha queda marcada `late` al crearla y no cambia al editarla. No cuenta para la racha. Un fichero sin el campo cuenta todo como escrito a tiempo |
+| Importar una copia | **Fusiona, nunca reemplaza.** Si el mismo día tiene textos distintos en el teléfono y en la copia, se quedan los dos, uno debajo del otro. Antes de tocar nada se enseña cuántos días entran, cuántos se juntan y cuántos son iguales |
+| Qué escribe el widget | **Nada, y no puede.** A diferencia de Quilt y MoodTraker, los widgets son de solo lectura, tocarlos solo abre la app (en Hoy, en Año o en el paywall), y el fichero del diario ni siquiera está en su contenedor |
+| Qué se ve con el bloqueo activo | Con `lockOn`, ni el widget ni la notificación imprimen texto de ninguna entrada, y la vista de multitarea sale en blanco. Solo estado |
 | Copia automática del sistema | Android: a la nube **solo si va cifrada de extremo a extremo** (`disableIfNoEncryptionCapabilities="true"`), sin fotos; el traspaso entre dispositivos sí lleva fotos. iOS: la copia de iCloud del dispositivo, que ya incluye los datos de la app |
 | Pérdida del dispositivo | Sin sincronización, la defensa es la copia cifrada del sistema, el traspaso al móvil nuevo, el aviso de los 30 días y la fecha de la última copia siempre visible |
-| Nombre, `applicationId`, bundle id y App Group | Se fijan **antes de la primera línea de código**. Son irreversibles tras publicar |
+| Nombre, `applicationId`, bundle id y App Group | Fijados antes de la primera línea de código: **Purl**, `com.baltajmn.line`, `group.com.baltajmn.line` (§7). Son irreversibles tras publicar |
 
 El widget de solo lectura merece un párrafo propio: elimina de raíz la clase de fallo más cara de la
 familia, la de un widget de Swift que reescribe el fichero entero y borra los campos que su `struct`
@@ -185,8 +231,9 @@ de un toque. Aquí no hay acción de un toque que justifique escribir: escribir 
 
 Y aquí la garantía la da la arquitectura, no la disciplina. El diario no está en el App Group, así
 que ni el widget de iOS ni ninguna extensión pueden leerlo ni escribirlo aunque alguien se equivoque
-en el código. El widget lee `widget.json`: fecha, si el día está escrito y si hay recuerdo. Sin
-texto que filtrar y sin modelo que reimplementar en Swift.
+en el código. El widget lee `widget.json`: fecha, si el día está escrito, si hay recuerdo, la
+rejilla binaria del año, la portada y si hay Pro. Sin texto que filtrar y sin modelo que
+reimplementar en Swift.
 
 El dictado por Siri (v1.1) **no** reabre el contrato de paridad: el `AppIntent` corre en el proceso
 de la app y escribe a través del repositorio de Kotlin, nunca con un modelo propio en Swift. El
@@ -199,16 +246,24 @@ contrato solo vuelve el día que código Swift escriba `entries.json`, y eso hay
 
 Misma paleta que las hermanas, para que las tres se lean como una familia.
 
-- Fondo crema `#FBF8F3` en claro y `#17150F` en oscuro. Nunca blanco puro ni negro puro.
-- Acento salvia `#6FAE9B`. Ocho pasteles para portadas y rejilla: rosa, melocotón, mantequilla,
-  salvia, menta, cielo, lavanda, lila.
+- Fondo crema `#FBF8F3` en claro y `#17150F` en oscuro. Nunca blanco puro ni negro puro. Claro u
+  oscuro lo decide el sistema, sin ajuste propio.
+- Acento salvia `#6FAE9B`. Ocho portadas con los ocho pasteles de la familia y sus mismos hex:
+  rosa, melocotón, mantequilla, salvia, menta, cielo, pervinca, lila. Salvia es la de serie. La
+  portada tiñe las celdas llenas de la rejilla, el acento de Hoy, la tarjeta, los widgets y, en
+  v1.1, la cubierta del libro.
 - Radios de 18 a 32 dp, bordes de 1 dp en vez de sombras. Sin tarjetas: el crema es el lienzo y cada
   bloque lo nombra una etiqueta pequeña en versalitas, como en MoodTraker.
 - **Sin rojo en ninguna parte.** Un día sin escribir es un hueco, no un suspenso.
-- Iconos dibujados con `Canvas`, no glifos de texto: en iOS un `‹` o un engranaje se pintan como
-  emoji de color y rompen la escala de grises.
-- La tipografía del texto del usuario es la protagonista de la pantalla Hoy. Todo lo demás (racha,
-  fecha, contador) va en un peso ligero y un tamaño claramente menor.
+- Iconos dibujados con `Canvas`, no glifos de texto: en iOS la flecha de volver o el engranaje
+  escritos como texto se pintan como emoji de color y rompen la escala de grises. Se reutiliza
+  `ui/Icons.kt` de MoodTraker.
+- La tipografía del texto del usuario es la protagonista de la pantalla Hoy: **Literata Regular**
+  (licencia OFL, pensada para leer en pantalla), empaquetada en la app para que se vea igual en las
+  dos plataformas. Todo lo demás (racha, fecha, contador) va en la fuente del sistema, con un peso
+  ligero y un tamaño claramente menor. Los widgets usan la fuente del sistema.
+- Una sola columna de contenido de 600 dp como máximo, centrada: la app corre en iPad y en
+  horizontal, y una línea de texto a todo el ancho de una tableta no se lee.
 
 Principios:
 
@@ -238,8 +293,11 @@ disparadores sueltos porque el tope de 64 avisos pendientes por app, repartido e
 sus días, daba 12 días de margen. Con un solo aviso diario el mismo tope da **64 días**:
 
 - Se programan hasta 60 avisos sueltos, uno por día, cada uno con su propio identificador de fecha.
-- Al guardar la línea del día se retira el aviso de hoy.
-- Se rellena la ventana en cada arranque y en cada guardado, así que en uso normal nunca baja.
+  La ventana empieza hoy si hoy no está escrito y la hora aún no ha pasado; si no, mañana.
+- La ventana se recalcula entera (se borran los pendientes y se vuelven a programar) al arrancar,
+  al guardar cualquier entrada, al cambiar la hora, al encender o apagar el recordatorio y al
+  cambiar el bloqueo. Guardar la línea de hoy retira así el aviso de hoy, y en uso normal la
+  ventana nunca baja.
 - Quien no abre la app en dos meses deja de recibir avisos. Es el comportamiento correcto: seguir
   avisando a quien ya lo dejó es lo que acaba en desinstalación.
 
@@ -247,7 +305,10 @@ De regalo, cada aviso suelto lleva su propio texto, así que en iOS también pue
 de hace un año (solo con el bloqueo apagado, ver abajo). El recuerdo de una fecha futura ya está
 escrito hoy, y al editarlo se reprograma la ventana entera, que son 60 peticiones y cuesta nada.
 
-El texto base se escribe para que sirva siempre: *un momento para tu línea de hoy*.
+El texto base se escribe para que sirva siempre: *un momento para tu línea de hoy*. Cuando existe
+la entrada de hace un año exacto y el bloqueo está apagado, el aviso se titula *hace un año, hoy* y
+cita su principio, hasta 120 caracteres cortados en un espacio. El 29 de febrero no tiene recuerdo
+de un año antes.
 
 Los datos de industria sobre frecuencia (con un solo aviso semanal ya hay un 10 % que desactiva las
 notificaciones si el contenido no aporta; en la franja de 6 a 10 por semana el abandono ronda el
@@ -266,8 +327,9 @@ adicional. Es lo que ha vendido tres millones de cuadernos de papel.
   solo si el bloqueo está apagado.
 - Los primeros 365 días ese eco no existe, y es justo el periodo crítico. El puente sale del propio
   fichero: **hace una semana**, **hace un mes**, el número de día del diario, y la fecha exacta en la
-  que esa página empezará a tener recuerdo. Honestidad sobre que lo mejor está por llegar; nada de
-  recuerdos fabricados.
+  que esa página volverá (un año después; el 29 de febrero, el siguiente 29 de febrero). Vale para
+  cualquier día que todavía no tenga años anteriores, no solo el primer año. Honestidad sobre que lo
+  mejor está por llegar; nada de recuerdos fabricados.
 - El único atajo honesto es traer un pasado que ya existe: **las notas de MoodTraker** (v1.1). Son
   del propio usuario, con su fecha, y convierten el año uno en año dos para quien viene de la hermana.
 
@@ -277,22 +339,26 @@ El widget de un tracker de hábitos puede enseñar el dato entero porque el dato
 dato es una frase íntima en una pantalla que ve cualquiera que mire de reojo.
 
 **El widget muestra estructura, nunca contenido**: la fecha, si el día está escrito, y si hay
-recuerdo disponible. Tocarlo abre la app en Hoy. Esto vale para Glance, para WidgetKit y para el
-widget de pantalla de bloqueo de iOS. Al no imprimir texto nunca, el widget no depende de
+recuerdo disponible. Tocarlo abre la app en Hoy. Esto vale para Glance, para WidgetKit, para el
+widget de pantalla de bloqueo de iOS y para el widget del año, que solo pinta la rejilla binaria.
+Los dos últimos son Pro: sin Pro se pintan en un estado bloqueado que al tocarlo abre el paywall. Al no imprimir texto nunca, el widget no depende de
 `redacted(reason:)` para ser seguro, aunque se respete cuando el usuario lo activa. Y no puede
 imprimirlo aunque quisiera: solo tiene acceso a `widget.json`.
 
 La excepción deliberada es el **widget del recuerdo** de v1.1, que existe para enseñar la línea de
-hace un año. Ahí el consentimiento es colocarlo, y la app copia en `widget.json` esa única línea
-cuando el widget está puesto y el bloqueo apagado. En iOS lleva `privacySensitive()`, así que en
+hace un año. Ahí el consentimiento es colocarlo, y la app copia en `widget.json` esa línea (y la de
+mañana, para que el cambio de día a las 03:00 no dependa de abrir la app) cuando el widget está
+puesto, hay Pro y el bloqueo está apagado. En iOS lleva `privacySensitive()`, así que en
 pantalla de bloqueo y en StandBy sale tachado. Es el enganche más fuerte que tiene un widget en esta
 categoría, y la regla de "nunca el diario" sigue intacta: sale una línea, elegida por la fecha, a
 petición.
 
 ### Rachas, sin castigo
 
-Contador de días seguidos, en un sitio secundario, nunca compitiendo con la línea del día. Sin
-animación de pérdida, sin aviso previo, sin nada que se desbloquee por llegar a un número.
+Contador de días seguidos escritos a tiempo, en un sitio secundario, nunca compitiendo con la línea
+del día, y solo a partir de 2. Cuenta hacia atrás desde hoy si hoy está escrito, o desde ayer si no:
+por la mañana, antes de escribir, la racha de ayer sigue ahí. Sin animación de pérdida, sin aviso
+previo, sin nada que se desbloquee por llegar a un número.
 
 Aquí hay que ser más estricto que en las hermanas. En un hábito, la presión de racha empuja como
 mucho a marcar una casilla vacía. En un diario empuja a escribir relleno, y el relleno contamina
@@ -302,13 +368,15 @@ el eco del pasado deja de funcionar.
 ### Primera sesión
 
 Una sola pantalla: la fecha de hoy, el campo con el foco puesto y un texto de ayuda corto. Sin
-tutorial, sin elegir tema, sin configurar nada antes de escribir. El permiso de notificaciones se
-ofrece **después** de guardar la primera línea.
+tutorial, sin elegir tema, sin configurar nada antes de escribir. El recordatorio se ofrece
+**después** de guardar la primera línea, una sola vez y dentro de Hoy ("¿Te lo recuerdo cada día a
+las 21:00?"), y el permiso del sistema se pide solo si el usuario dice que sí.
 
 ### Qué se comparte de un diario privado
 
-La tarjeta compartible por defecto **no lleva texto**: días escritos, racha, año y paleta. Si el
-usuario quiere compartir una línea concreta, la elige él, entrada por entrada. La app no sugiere ni
+La tarjeta compartible por defecto **no lleva texto**: la rejilla del año, días escritos, racha, año
+y portada, y se comparte desde la pantalla Año. Si el usuario quiere compartir una línea concreta, la
+elige él, entrada por entrada: la tarjeta de una línea solo existe desde ese día abierto. La app no sugiere ni
 selecciona nunca qué fragmento enseñar. Es la única forma de mantener el canal de crecimiento sin
 tocar la honestidad con la que la gente escribe, que es la base del producto.
 
@@ -317,9 +385,11 @@ el canal no tira, se itera el diseño de la tarjeta agregada antes de tocar la r
 
 ### Hitos
 
-Una línea discreta dentro de la pantalla, ese día y solo ese día: primera entrada, 30 días, 100 días,
-el primer aniversario del diario, y el día en que por primera vez hay tres años a la vista en la
-misma página. Ligados al valor real (más historia, eco más fuerte), nunca a puntos ni a trofeos.
+Una línea discreta dentro de la pantalla, ese día y solo ese día: la primera línea, la línea 30, la
+línea 100 (cuentan entradas, no racha), el primer aniversario del diario, y el día en que por primera
+vez hay tres años a la vista en la misma página. Si coinciden varios, se enseña uno, con esta
+prioridad: aniversario, tres años, 100, 30, primera. Se deducen del fichero, sin estado
+guardado. Ligados al valor real (más historia, eco más fuerte), nunca a puntos ni a trofeos.
 
 ---
 
@@ -346,17 +416,18 @@ malos:
 
 **Se cobran las superficies y los adornos. Nunca el contenido ni la memoria.**
 
-| Gratis para siempre | Pro, pago único |
-|---|---|
-| Escribir cualquier día, incluidos los pasados | Foto en todas las entradas |
-| Leer todo el histórico y la vista completa de años anteriores | Portadas y paletas del libro |
-| Rejilla del año y búsqueda de texto | Widgets de pantalla de bloqueo, del año y del recuerdo |
-| Recordatorio diario | Dictado por Siri y Atajos, baldosa de Ajustes rápidos |
-| Bloqueo con biometría | Recapitulaciones de mes y de año |
-| Widget de hoy | Libro en PDF maquetado (v1.1) |
-| Exportar e importar (JSON y Markdown) | |
-| Tarjeta para compartir | |
-| Tres entradas con foto | |
+| Gratis para siempre | Pro en v1.0 | Pro desde v1.1 y v1.2 |
+|---|---|---|
+| Escribir cualquier día, incluidos los pasados | Foto a partir de la cuarta entrada con foto | Libro en PDF maquetado (v1.1) |
+| Leer todo el histórico y la vista completa de años anteriores | Siete de las ocho portadas | Widget del recuerdo (v1.1) |
+| Rejilla del año y búsqueda de texto | Widget del año (Android e iOS) | Dictado por Siri y Atajos (v1.1) |
+| Recordatorio diario | Widget de pantalla de bloqueo (iOS) | Baldosa de Ajustes rápidos (v1.1) |
+| Bloqueo con biometría | | Recapitulaciones de mes y de año (v1.2) |
+| Widget de hoy | | Varias fotos por entrada (v1.2) |
+| Exportar e importar (JSON y Markdown) | | |
+| Tarjeta para compartir | | |
+| Tres entradas con foto y la portada salvia | | |
+| Etiquetas, preguntas del día, ánimo, importar de MoodTraker | | |
 
 La distinción que hay que escribir para que la regla no se coma a sí misma: **exportar tus datos no
 se cobra nunca; el libro en PDF maquetado no es una exportación de datos, es un producto**. Quien
@@ -364,7 +435,12 @@ solo quiere sus datos los tiene gratis y reimportables en dos formatos.
 
 Las tres entradas con foto son el equivalente exacto del mood con foto gratis de MoodTraker: están
 para que todo el mundo vea el efecto antes de pagar. Igual que `FREE_HABIT_LIMIT` en Quilt, el número
-es una perilla para medir, no un dogma.
+es una perilla para medir, no un dogma (`FREE_PHOTO_LIMIT = 3`, cuenta las entradas que tienen foto
+ahora mismo: quitar una libera hueco).
+
+Si se pierde Pro (un reembolso), no se rompe nada: las fotos siguen a la vista, la portada elegida se
+queda, y solo deja de poderse elegir otra portada Pro o añadir fotos por encima del límite. Los
+widgets Pro pasan a su estado bloqueado.
 
 ### Las cuatro cosas que no se tocan nunca
 
@@ -384,13 +460,14 @@ atrás:
 |---|---|---|
 | Quilt | **4,99 EUR**, sin descuento de lanzamiento | `HabitTracker/store/lanzamiento.md`, producto `pro_lifetime` |
 | MoodTraker | 7,99 EUR, 5,49 EUR de lanzamiento | `MoodTraker/store/revenuecat.md` |
-| **Este diario** | **5,99 EUR en v1.0, 8,99 EUR desde v1.1** | Esta sección |
+| **Purl** | **5,99 EUR en v1.0, 8,99 EUR desde v1.1** | Esta sección, `store/revenuecat.md` |
 
 A 8,99 EUR desde el primer día el diario sería **la más cara de las tres**, no la del medio, y con el
 paquete de pago más fino de la familia en v1.0 (§11, riesgo 2): foto, portadas y dos superficies.
-La propuesta es escalonar por valor y no por calendario:
+**Decisión: escalonar por valor y no por calendario**, sin descuento de lanzamiento:
 
-- **v1.0 a 5,99 EUR.** Lo que se vende es foto en todas las entradas, portadas y widgets extra.
+- **v1.0 a 5,99 EUR.** Lo que se vende es foto en todas las entradas, siete portadas, el widget del
+  año y el de pantalla de bloqueo.
 - **v1.1 a 8,99 EUR**, el día que sale el libro en PDF maquetado, que es el producto que justifica el
   precio. Quien compró a 5,99 conserva Pro para siempre: subir el precio cuando crece lo que se da es
   la dirección honesta, y en RevenueCat es tocar el panel, no el código.
@@ -401,8 +478,9 @@ horquilla de la categoría va de 2,99 $ (DayGram, muy básico) a 54,99 $. **Prec
 activados en las dos tiendas**: es lo único que hace que "asequible" no sea solo una palabra, y no
 cuesta una línea de código.
 
-Es una decisión del autor. Si prefiere 8,99 desde el principio, la alternativa de la primera versión
-de este spec sigue siendo defendible: 6,49 EUR de lanzamiento las primeras 4 a 6 semanas.
+Precio base en España; el resto de países, por la conversión automática de cada tienda. Se descartó
+salir a 8,99 con 6,49 de lanzamiento: un descuento de lanzamiento sobre un paquete fino vende la
+rebaja, no el producto.
 
 ### Lo que llega al bolsillo
 
@@ -425,15 +503,19 @@ se mide en la beta y en las primeras semanas, no aquí.
 ### Reglas
 
 1. **El plan gratis es la prueba.** No existen pruebas gratuitas para compras únicas.
-2. **El paywall aparece al chocar**: al poner la cuarta foto, al tocar una portada de Pro o al
-   colocar el widget del año o el del recuerdo. Nunca al arrancar.
-3. **"Restaurar compra" visible en Ajustes.** Requisito de Apple.
+2. **El paywall aparece al chocar**: al poner la cuarta foto, al tocar una portada de Pro o al tocar
+   un widget Pro colocado sin Pro, que se pinta bloqueado. La única entrada que no es un choque es la
+   fila "Purl Pro" de Ajustes, para quien quiere comprar a propósito. Nunca al arrancar. Es el
+   `ProDialog` de las hermanas: qué incluye, precio leído de la tienda, comprar, restaurar, cerrar.
+3. **"Restaurar compra" visible en Ajustes**, además de dentro del diálogo. Requisito de Apple.
 4. **Nada de anuncios.**
 5. **RevenueCat KMP**, un producto no consumible, las dos tiendas de una vez.
 6. **Small Business Program de Apple el primer día**: 70 % en vez de 55 %. Si la cuenta no está ya
    inscrita, la comisión reducida tarda en aplicarse y las primeras ventas se cobran al 30 %.
-7. **Venta cruzada discreta**: una sección en Ajustes con una fila por app hermana y una mención
-   descartable al final del onboarding. Sin banners, sin notificaciones, sin cruzar datos entre apps.
+7. **Venta cruzada discreta**: una sección "Más apps" en Ajustes con una fila por app hermana que
+   esté publicada en la tienda de esa plataforma; si no hay ninguna, la sección no aparece. No hay
+   onboarding, así que no hay otra mención. Sin banners, sin notificaciones, sin cruzar datos entre
+   apps.
 
 ### Cuándo tocaría una suscripción
 
@@ -447,31 +529,50 @@ con coste, nunca convertir en suscripción el núcleo de escribir y leer tu diar
 
 ### El nombre
 
-El repositorio se llama `line` y el identificador será `com.baltajmn.line`, pero el nombre visible no
-tiene por qué coincidir, igual que Quilt vive en `com.baltajmn.habit`. Y **no puede** coincidir:
-"Line" a secas choca con LINE, la mensajería, que ocupa esa búsqueda en las dos tiendas y es marca
-registrada. El identificador no se ve y no importa; el nombre de la ficha sí.
+El repositorio se llama `line` y el identificador es `com.baltajmn.line`, pero el nombre visible no
+coincide, igual que Quilt vive en `com.baltajmn.habit`. Y **no puede** coincidir: "Line" a secas
+choca con LINE, la mensajería, que ocupa esa búsqueda en las dos tiendas y es marca registrada. El
+identificador no se ve y no importa; el nombre de la ficha sí.
 
 Descartado de entrada el nombre literal: **One Line a Day**, **5 Year Journal** y variantes ya los
 usan al menos cinco competidores directos. Hunde la búsqueda por nombre exacto y rompe la convención
 de la familia, que nombra con metáfora.
 
-| Candidato | Metáfora del icono | Nota |
-|---|---|---|
-| **Fivefold** (recomendado) | Una hoja pastel plegada en cinco capas que al abrirse enseña los cinco años | Lleva "five" dentro, que es exactamente lo que se busca en la tienda. Sin colisión en la categoría. La búsqueda exacta sí devuelve dos vecinos que no compiten: *FiveFoldFury*, un juego en App Store, y *The Five Fold Network*, una televisión religiosa en Play |
-| Braid | Cinco hebras pastel que se trenzan en una sola línea | Sigue la familia textil de Quilt, pero **BRAID es marca registrada de software en Estados Unidos** (el videojuego) y contamina la búsqueda. Solo si la comprobación de marca sale limpia |
-| Skein | Una madeja que se enrolla un día más cada día | Libre y bonito, pero es palabra rara y difícil de pronunciar fuera del inglés |
-| Strand | Una hebra suelta | Demasiado genérico, se diluye en la búsqueda |
+**Decisión: Purl.** El punto del revés, la mitad de todo tejido de punto: cada día un punto, cada año
+una vuelta. Sigue la familia textil de Quilt, suena a *pearl* (algo que se guarda y gana valor con
+los años) y se lee igual en los cinco idiomas. El título de ficha lleva el formato detrás: `Purl:
+5-Year Line Diary`.
 
-Antes de comprar dominio: buscar en EUIPO, en USPTO, en las dos tiendas y en Google, y tener dos
-alternativas de la misma familia. **El nombre y los identificadores se fijan antes de escribir
-código.**
+La primera recomendación de este spec, **Fivefold**, cayó al comprobarla en septiembre de 2026: ya
+existe una app llamada exactamente "Fivefold" en las dos tiendas (un juego de puzles de Milkbag
+Games) y otra en App Store (Spring Data), y Fivefold Incorporated tiene cuatro solicitudes vivas del
+wordmark en USPTO, una de ellas de software como servicio. La búsqueda web no lo había enseñado; las
+tiendas y el registro sí.
+
+| Candidato | Resultado de la comprobación (App Store, Google Play, USPTO, EUIPO) |
+|---|---|
+| **Purl** (elegido) | Sin app con ese nombre en App Store (consulta de España; la de Estados Unidos falló por la API) ni en Play. Sin marca viva en clases 9, 41 o 42 en USPTO ni en EUIPO. Riesgo blando: el corto de Pixar *Purl* (2018), otra categoría |
+| Daythread (primera reserva) | Limpio en las cuatro fuentes, pero convive con *DiaryThreads* y *DailyThread* en el mismo nicho |
+| Fiveply (segunda reserva) | Limpio, pero suena a material técnico y arrastra el prefijo de Fivefold |
+| Fivefold | App exacta en las dos tiendas y marcas vivas en USPTO |
+| Braid | Marca registrada de software en Estados Unidos (el videojuego) |
+| Skein | App exacta en Play; marca viva en EUIPO en clases 9 y 42 |
+| Spool, Twine, Loom, Warp, Bobbin | App exacta en App Store o marca viva en clase 9 |
+| Weft, Linen | Marca viva de software en USPTO |
+| Strand | App exacta en Play, marca viva en clase 9, "playa" en alemán, y la búsqueda la domina *Strands* del NYT |
+| Selvedge | App exacta en App Store (la revista textil) |
+
+La unicidad del nombre en App Store Connect se confirma al crear la app, que es tarea del autor en la
+issue #1. El nombre completo de la ficha, "Purl: 5-Year Line Diary", es además una cadena distinta de
+cualquier "Purl" suelto. No hace falta dominio propio: la política vive en `line.baltajmn.dev`, con el
+slug interno, igual que `mood.baltajmn.dev`.
 
 ### El icono
 
 El mismo criterio que en Quilt: el icono es la propia metáfora del producto sobre fondo oscuro
 (`#2C2820` a `#17150F`), porque en la comparativa a 48 px la versión crema desaparece sobre un
-lanzador claro. Los pasteles son los protagonistas.
+lanzador claro. Los pasteles son los protagonistas: cinco vueltas de puntos del revés, una por año,
+cada una de un pastel. La geometría exacta está en `docs/pantallas.md`.
 
 Sale todo de un script como el `tools/generate_icons.py` de Quilt: PNG de 1024 para iOS, adaptativo
 de Android con su capa `monochrome` de un solo color, PNG heredados en cinco densidades e icono de
@@ -479,23 +580,14 @@ notificación en blanco sobre transparente.
 
 ### ASO
 
-**Inglés**
+Los textos definitivos de las dos fichas, en los cinco idiomas, están en `store/listings/` (Play) y
+`store/app-store/` (App Store), con sus topes comprobados. La base:
 
-| Campo | Contenido |
-|---|---|
-| Título | `Fivefold: 5-Year Line Diary` |
-| Subtítulo (App Store) | `One line a day, five years` |
-| Palabras clave | diary, journal, 5 year, one line, memory, daily, gratitude, notebook, reflection, on this day |
-| Descripción corta (Play, 80) | `Write one line a day. See what you wrote on this date in past years.` |
-
-**Español**
-
-| Campo | Contenido |
-|---|---|
-| Título | `Fivefold: diario de una línea` |
-| Subtítulo (App Store) | `Una línea al día, cinco años` |
-| Palabras clave | diario, agenda, una línea, diario de 5 años, memoria, recuerdos, gratitud, reflexión, en este día |
-| Descripción corta (Play, 80) | `Escribe una línea al día y lee qué escribiste este mismo día otros años.` |
+| Campo | Inglés | Español |
+|---|---|---|
+| Título | `Purl: 5-Year Line Diary` | `Purl: diario de una línea` |
+| Subtítulo (App Store) | `One line a day, five years` | `Una línea al día, cinco años` |
+| Descripción corta (Play, 80) | `Write one line a day. Read what you wrote on this date in past years.` | `Escribe una línea al día. Lee qué escribiste este mismo día otros años.` |
 
 Ángulo de la descripción larga, igual en los cinco idiomas: treinta segundos al día, no un ejercicio
 de escritura; el gancho es releer; pago único sin suscripción; todo se queda en el teléfono y se
@@ -512,50 +604,61 @@ de que el código esté listo.
 | Qué | Detalle |
 |---|---|
 | **Trader status del DSA** | Obligatorio en la UE desde el 17/02/2025. Apple retira las apps que no lo declaran y publica la dirección del trader en la ficha. Si la cuenta ya lo declaró por Quilt, esto se hereda |
-| **Manifiesto de privacidad de iOS** | `PrivacyInfo.xcprivacy` con las razones de las APIs de motivo obligatorio que llame **nuestro** código: `NSUserDefaults` (CA92.1) si se usa, y `FileTimestamp` (C617.1) solo si leemos fechas o tamaños de ficheros; escribir no la exige. RevenueCat trae su propio manifiesto. La fuente de verdad no es esta lista, es el informe de privacidad que genera Xcode sobre el archivo. Sin manifiesto, rechazo automático `ITMS-91053` / `ITMS-91061` en la primera subida |
+| **Manifiesto de privacidad de iOS** | `PrivacyInfo.xcprivacy` escrito desde cero (ninguna hermana ha subido todavía a App Store): sin seguimiento, los tipos de datos de RevenueCat, y las razones de API de motivo obligatorio que usen nuestro código y el runtime de Kotlin y Compose. El contenido literal y sus fuentes están en `docs/tecnico.md`. RevenueCat trae su propio manifiesto. La comprobación final es el informe de privacidad que genera Xcode sobre el primer archivo. Sin manifiesto, rechazo automático `ITMS-91053` / `ITMS-91061` en la primera subida |
 | **App Privacy y Data Safety** | Con RevenueCat dentro se declaran historial de compras e identificadores, igual que en Quilt: obligatorio, no compartido, sin seguimiento. El texto de las entradas no sale del dispositivo, y eso se dice explícitamente en los dos formularios y en la política |
-| **Clasificación por edad** | Cuestionario nuevo de Apple. El usuario escribe lo que quiere pero no lo comparte con nadie: no es contenido generado por usuarios a efectos de moderación. En Play, público objetivo a partir de 13 para no entrar en la política de Familias |
+| **Clasificación por edad** | Cuestionario nuevo de Apple (franjas 4+, 9+, 13+, 16+ y 18+ desde 2025): todo "no", resultado esperado 4+. El usuario escribe lo que quiere pero no lo comparte con nadie: no es contenido generado por usuarios a efectos de moderación. IARC: la clasificación más baja de cada sistema. En Play, público objetivo a partir de 13 para no entrar en la política de Familias. Respuestas completas en `store/formularios.md` |
 | **Copia automática del sistema** | Android: Auto Backup está activo por defecto y sube hasta 25 MB por app al Drive del usuario; si se pasa, **no sube nada** y lo reintenta cuando baje. Por eso las fotos se excluyen de `<cloud-backup>` y el texto (menos de 1 MB) entra. Y la nube se configura con `disableIfNoEncryptionCapabilities="true"`: solo sube si va cifrada de extremo a extremo, que en Android 9+ exige que el usuario tenga bloqueo de pantalla. El traspaso entre dispositivos (`<device-transfer>`) no cuenta contra los 25 MB y **sí lleva las fotos**. Por debajo de Android 12 se usa `fullBackupContent` con `requireFlags="clientSideEncryption"`. iOS: la copia de iCloud del dispositivo incluye los datos de la app y los del App Group, según el soporte técnico de Apple; comprobarlo igualmente en dispositivo antes de prometerlo en la ficha |
 | **Data Safety y la copia del sistema** | La definición de Google: se declara lo que "sale del dispositivo", salvo lo que va cifrado de extremo a extremo y nadie más que emisor y receptor puede leer. Con la nube solo cifrada, la copia del sistema entra en esa excepción. **Es una inferencia sobre la definición**, porque la ayuda de Play no menciona la copia del sistema: se deja escrita en `store/` con su fuente y se revisa si Google publica algo concreto |
 | **Prueba cerrada de Google** | 12 probadores durante 14 días continuos, **por app**, más hasta 7 días de revisión del acceso a producción. Si el número baja de 12 hay que recuperarlo y volver a sostenerlo. Es el camino crítico del calendario. Los probadores de Quilt primero: ya dijeron que sí una vez, y un diario pide abrirlo a diario, que es justo el uso que Google mira. El intercambio recíproco entre desarrolladores, Test4Test incluido, arrastra el riesgo de asociación de cuentas que documenta `HabitTracker/store/testers.md` |
 | **La corrección de honestidad** | Con RevenueCat dentro, "sin red" deja de ser cierto. El mensaje es "sin cuenta y sin analítica; la única conexión que hace la app es la de la compra", igual que ya corrigió Quilt |
+| **Cumplimiento de exportación** | `ITSAppUsesNonExemptEncryption = NO`: la única criptografía es el HTTPS del sistema que usa RevenueCat |
+| **iPad** | La app es universal como sus hermanas, así que App Store exige capturas de iPad además de las de iPhone (`store/capturas.md`) |
 
 ---
 
 ## 9. Arquitectura prevista
 
-El repositorio está vacío: esto es el plan, no el estado. Se clona el andamiaje de MoodTraker
-(Gradle, CI, workflows de release, firma, scripts de ficha, política de privacidad) y se renombra.
+El repositorio solo tiene la plantilla del asistente de Kotlin Multiplatform: esto es el plan, no el
+estado. Se sustituye por el andamiaje de MoodTraker (Gradle, CI, workflows de release, firma, scripts
+de ficha) con las **mismas versiones** que las hermanas, no las más nuevas que trae la plantilla:
+subir de versión es una tarea para las tres apps a la vez. El contrato completo, fichero a fichero,
+está en `docs/tecnico.md`; aquí queda el porqué.
 
 ### Árbol de `shared/src/commonMain/kotlin/com/baltajmn/line`
 
 ```
-App.kt                  enum Screen (Today, Year, Settings) + puerta de bloqueo
-model/Entry.kt          LineEntry + Journal = Map<String, LineEntry>, racha y recuento (con tests)
-model/DayClock.kt       corte del día a las 03:00, fecha local, vecinos del mismo día (con tests)
+App.kt                  enum Screen (Today, Year, Settings) + puerta de bloqueo + URLs de widgets
+model/Entry.kt          LineEntry, Settings, el fichero y Journal = Map<String, LineEntry>
+model/DayClock.kt       corte del día a las 03:00, años anteriores, ecos, cuándo vuelve la página
+model/Insights.kt       racha con late, número de día, hitos (con tests)
+model/Text.kt           recuento y corte por puntos de código, plegado de acentos (con tests)
 data/Storage.kt         expect: JSON atómico con copia .bak (filesDir / Application Support)
-data/LineRepository.kt  fuente única de verdad, estado Compose, límite de fotos del plan gratis
+data/LineRepository.kt  fuente única de verdad, estado Compose, escritor único, límite de fotos
 data/Search.kt          filtro lineal en memoria sobre el Journal ya cargado
-data/Photos.kt          expect: selector del sistema, reescalado a 512 px, caché en memoria
+data/Merge.kt           la fusión que nunca pierde texto: importar, MoodTraker, sincronizar (con tests)
+data/Photos.kt          expect: selector del sistema, reescalado a 1024 px, caché en memoria
 data/Lock.kt            expect: biometría con respaldo al código, multitarea oculta
 data/Reminder.kt        expect: un aviso diario que se calla si el día ya tiene línea
 data/ReminderPlan.kt    las fechas y textos de los próximos 60 avisos, puro común (con tests)
-data/Backup.kt          expect: guardar y elegir fichero para exportar e importar
-data/Export.kt          entries.json, diario.md y el zip que los junta, puro común
+data/FilePicker.kt      expect: elegir fichero para importar y destino para exportar
+data/Export.kt          entries.json, journal.md y el zip que los junta, puro común
 data/Zip.kt             zip STORED de escritura y lectura con CRC32, puro común (con tests)
-data/WidgetState.kt     deriva widget.json (fecha, escrito, recuerdo) y lo escribe en el App Group
-data/Widgets.kt         expect: refrescar el widget tras cada guardado
+data/WidgetState.kt     deriva widget.json y lo escribe (App Group en iOS)
+data/Widgets.kt         expect: refrescar los widgets tras cada guardado
+data/AppInfo.kt         URL de la política, URLs de las hermanas, versión
 billing/Billing.kt      expect: clave de RevenueCat + comprar / restaurar / refrescar
 i18n/Strings.kt         los cinco idiomas en una tabla, obligados por firma
-ui/theme/Theme.kt       paleta pastel claro/oscuro
+ui/theme/Theme.kt       paleta de la familia, portadas, Literata
+ui/Icons.kt             iconos dibujados con Canvas, de MoodTraker
 ui/TodayScreen.kt       el campo de hoy y los años anteriores del mismo día
-ui/YearScreen.kt        rejilla binaria, lista y búsqueda como filtro
-ui/DaySheet.kt          un día concreto: texto y foto
-ui/SettingsScreen.kt    recordatorio, bloqueo, copia, idioma, restaurar compra
+ui/LineField.kt         el campo de una línea, compartido por Hoy y el día abierto
+ui/YearScreen.kt        rejilla binaria y búsqueda como filtro
+ui/DaySheet.kt          un día concreto: texto, foto, compartir, borrar
+ui/SettingsScreen.kt    recordatorio, bloqueo, portada, copia, Pro, más apps
 ui/LockScreen.kt        overlay, se pinta antes que cualquier otra pantalla
-ui/Pro.kt               paywall
+ui/Pro.kt               ProDialog, el paywall de las hermanas
 ui/ShareScreen.kt       vista previa de la tarjeta
-share/ShareCard.kt      dibuja la tarjeta 1080x1350
+share/ShareCard.kt      dibuja las dos tarjetas de 1080x1350
 share/Sharing.kt        expect: PNG + hoja de compartir + guardar en fotos
 ```
 
@@ -569,13 +672,24 @@ hermanas.
   "version": 1,
   "entries": {
     "2026-01-17": { "text": "Primer día de vacaciones, llovió todo el rato." },
-    "2027-01-17": { "text": "Mismo día, sol. Cambio de piso confirmado.", "photo": "p-8f21.jpg" }
+    "2027-01-17": { "text": "Mismo día, sol. Cambio de piso confirmado.", "photo": "p-3f9a1c2e.jpg" },
+    "2027-01-18": { "text": "Escrita al día siguiente.", "late": true }
   },
-  "reminderHour": 21,
-  "reminderMinute": 0,
-  "lockEnabled": false
+  "settings": {
+    "reminderOn": false,
+    "reminderHour": 21,
+    "reminderMinute": 0,
+    "reminderOffered": false,
+    "lockOn": false,
+    "cover": "sage",
+    "lastBackup": null,
+    "backupNoticeDone": false
+  }
 }
 ```
+
+Los ajustes van en su propio objeto porque la importación los ignora: una copia trae días, no las
+preferencias de otro teléfono.
 
 Mapa plano por fecha ISO local, no un bloque fijo de cinco huecos. La vista de años anteriores se
 calcula filtrando las claves por su sufijo `mm-dd`. El formato no impone techo de cinco años: el
@@ -587,29 +701,41 @@ vieja.
 el contenedor compartido solo hay esto:
 
 ```json
-{ "date": "2027-01-17", "written": true, "memory": true }
+{
+  "date": "2027-01-17",
+  "written": true,
+  "memory": true,
+  "memoryNext": false,
+  "year": 2027,
+  "days": "0110111...",
+  "cover": "sage",
+  "pro": true
+}
 ```
 
-Más, en v1.1 y solo con el widget del recuerdo puesto y el bloqueo apagado, un campo `"line"` con la
-línea de hace un año. `LineStore.swift` decodifica esos tres o cuatro campos y nada más: no hay
-modelo del diario en Swift que mantener en paridad, y no hay forma de que el widget lea ni borre una
-entrada.
+`days` es la rejilla binaria del año (366 caracteres), para el widget del año. `memoryNext` dice si
+mañana hay recuerdo, para que el widget cambie de día a las 03:00 sin que la app se abra. Ni un
+carácter de texto. Más, en v1.1 y solo con el widget del recuerdo puesto, Pro y el bloqueo apagado,
+`"line"` y `"lineNext"` con la línea de hace un año de hoy y de mañana. `LineStore.swift` decodifica
+esos campos y nada más: no hay modelo del diario en Swift que mantener en paridad, y no hay forma de
+que el widget lea ni borre una entrada.
 
 ### La copia de seguridad es un zip
 
 MoodTraker mete las fotos en base64 dentro del JSON de la copia. Aquí eso no escala: una foto por día
-a 512 px son unos 40 a 80 KB, así que un año con foto diaria son 15 a 30 MB, un tercio más en base64,
-y cinco años pasan de 100 MB **en una sola cadena en memoria**. En un Android de gama baja eso es un
+a 1024 px de lado largo y calidad 80 son unos 120 a 200 KB (MoodTraker usa 512; aquí la foto es un
+recuerdo y acaba impresa en el libro), así que un año con foto diaria son 45 a 75 MB, un tercio más en
+base64, y cinco años pasan de 250 MB **en una sola cadena en memoria**. En un Android de gama baja eso es un
 cierre por falta de memoria justo al hacer la copia, que es el peor momento posible. Y a ese tamaño
 tampoco cabe en un correo, que era el argumento del fichero único.
 
 La copia es **un solo fichero `.zip`**, que sigue siendo un fichero:
 
 ```
-<nombre>-2027-01-17.zip
-├── entries.json    lo que reimporta la app
-├── journal.md      todas las líneas por fecha, legible con cualquier editor dentro de 50 años
-└── photos/         los JPEG tal cual
+purl-2027-01-17.zip
++-- entries.json    lo que reimporta la app: version y entries, sin ajustes
++-- journal.md      todas las líneas por fecha, legible con cualquier editor dentro de 50 años
++-- photos/         los JPEG tal cual
 ```
 
 Los nombres de dentro son fijos y en inglés en los cinco idiomas, para que la estructura sea la misma
@@ -637,12 +763,13 @@ fichero pequeño.
 
 Lo que deja de valer no es el tamaño, es **cuántas veces se escribe**:
 
-- **Autoguardado con rebote de 700 a 1.000 ms** tras la última pulsación, más guardado forzado al ir
+- **Autoguardado con rebote de 800 ms** tras la última pulsación, más guardado forzado al ir
   a segundo plano o al salir de la pantalla. Guardar por tecla reescribiría el diario entero una vez
   por carácter, y también la copia `.bak`.
 - **Un único escritor, fuera del hilo principal.** El guardado del rebote y el de ir a segundo plano
   pueden coincidir; dos escrituras cruzadas rotan la `.bak` dos veces y la copia buena se pierde.
-  Una sola cola serializada lo evita. Es además la deuda que MoodTraker ya tiene anotada: su `save()`
+  Un solo escritor detrás de un `Mutex`, que escribe siempre la última instantánea, lo evita; y
+  `flush()` escribe lo pendiente al ir a segundo plano sin esperar al rebote. Es además la deuda que MoodTraker ya tiene anotada: su `save()`
   reescribe el fichero entero en el hilo principal en cada toque.
 - **iOS, protección `CompleteUntilFirstUserAuthentication`**, no `Complete`, aunque el widget ya no lea
   el diario. Con `Complete` el fichero deja de poder abrirse unos segundos después de bloquear el
@@ -656,8 +783,10 @@ Lo que deja de valer no es el tamaño, es **cuántas veces se escribe**:
 
 ### Búsqueda sin base de datos
 
-Cargar el Journal entero al arrancar y filtrar con `contains()` insensible a mayúsculas. A estos
-tamaños, recorrer unos miles de cadenas cortas es submilisegundo y no necesita índice.
+Cargar el Journal entero al arrancar y filtrar con `contains()` sin distinguir mayúsculas ni acentos
+(una tabla fija de plegado para las letras de los cinco idiomas: "cafe" encuentra "café", "ano"
+encuentra "año"). A estos tamaños, recorrer unos miles de cadenas cortas es submilisegundo y no
+necesita índice.
 
 Deja de bastar cuando cambie la forma de lo que se pide: ranking, coincidencia difusa, por raíz.
 Aviso importante, comprobado: **FTS5 no está disponible en la SQLite del sistema de la mayoría de
@@ -670,9 +799,14 @@ verdad, no alternativa cómoda.
 
 `data/Lock.kt` como `expect object` mínimo: `isAvailable()` y `authenticate(onResult)`.
 
-- Android: `BiometricPrompt` con `DEVICE_CREDENTIAL`, comprobando con `BiometricManager.canAuthenticate()`.
+- Android: `androidx.biometric:biometric:1.1.0`, la única versión estable, que exige que
+  `MainActivity` sea una `FragmentActivity`. En Android 11+ con `BIOMETRIC_WEAK or
+  DEVICE_CREDENTIAL`; de Android 7 a 10 esa combinación no existe, y se usa `BIOMETRIC_WEAK` con
+  `setDeviceCredentialAllowed(true)` y `KeyguardManager.isDeviceSecure()` para saber si hay código.
+  Las API nuevas pensadas para Compose siguen en alpha y no se usan.
 - iOS: `LAContext.evaluatePolicy(.deviceOwnerAuthentication)`, que ya cae solo al código del
-  dispositivo.
+  dispositivo, con `NSFaceIDUsageDescription` en el `Info.plist` (sin ella iOS deniega Face ID).
+- Encenderlo exige autenticarse una vez, para comprobar que funciona. Apagarlo no.
 
 **Sin PIN propio.** Sin cifrado del fichero, un PIN propio solo añade una pantalla de recuperación
 que mantener y el caso "he olvidado el código y he perdido mi diario".
@@ -686,12 +820,11 @@ Tres sitios, tres respuestas:
 | Notificación | No imprime texto: ni el fragmento de hace un año ni nada del diario |
 | Vista de multitarea | Android 13+: `setRecentsScreenshotEnabled(false)`, que oculta la miniatura sin impedir las capturas del usuario. iOS: una vista de color crema encima en cuanto la escena deja de estar activa, puesta desde `iOSApp.swift` y no desde Compose, que no llega a repintar antes de la foto del sistema. Por debajo de Android 13 no hay forma limpia y se acepta |
 
-**Vuelve a pedirse a los 60 segundos en segundo plano**, constante fija como el corte de las 03:00.
+**Vuelve a pedirse a los 60 segundos en segundo plano**, medidos con reloj monótono, constante fija
+como el corte de las 03:00. Un arranque en frío siempre pide.
 Pedirla cada vez que se sale un instante a copiar algo es la forma más rápida de que alguien apague el
 bloqueo, y un bloqueo apagado no protege nada.
 
-Es una decisión de producto tanto como técnica y se toma antes de publicar, no después de la primera
-reseña.
 
 ### Cifrado en reposo: teatro
 
@@ -715,7 +848,13 @@ va cifrada de extremo a extremo por el sistema, o no sale (§8).
 7. Plan de avisos de iOS: 60 fechas desde mañana si hoy ya está escrito y desde hoy si no, texto del
    recuerdo solo con el bloqueo apagado, y el 29 de febrero.
 8. Tope de 280: contar un emoji como uno y no partir nunca una pareja suplente al cortar lo pegado.
-9. `widget.json`: con el bloqueo activo no lleva `line` aunque el widget del recuerdo esté puesto.
+9. `widget.json`: la derivación (fecha, escrito, recuerdo de hoy y de mañana, rejilla del año) y el
+   cambio de día a las 03:00 sin la app; y en v1.1, con el bloqueo activo no lleva `line` aunque el
+   widget del recuerdo esté puesto.
+
+Más los que exigen las reglas nuevas: fusión que nunca pierde texto, racha con líneas atrasadas,
+hitos, ecos, plegado de acentos y siguiente disparo del recordatorio de Android. La lista completa,
+con los casos concretos, está en `docs/tecnico.md`.
 
 ### Sincronización, y por qué no ahora
 
@@ -726,8 +865,18 @@ Fusionar por clave de día funciona en el caso común y falla justo en el que im
 En Android no hay equivalente del sistema: la ruta realista es el Storage Access Framework apuntando
 a una carpeta de Drive elegida a mano, que es exportar e importar con un paso menos, no sincronizar.
 
-Fuera del MVP y de v1.1. Es el único cambio de toda esta lista que rompe la garantía de la familia:
-un fichero, una escritura atómica, un dispositivo.
+Fuera del MVP y de v1.1: llega en v1.2 y con la política de fusión ya escrita aquí, porque es el
+único cambio de toda esta lista que rompe la garantía de la familia (un fichero, una escritura
+atómica, un dispositivo):
+
+- **Fusión a tres bandas por día**, contra la última versión sincronizada que guarda cada
+  dispositivo. Si cambió un solo lado, gana ese lado.
+- Si cambiaron los dos, la misma fusión que la importación: textos iguales, uno; uno contiene al
+  otro, el más largo; distintos, los dos, uno debajo del otro. **Nunca se pierde texto.**
+- Borrado en un lado contra edición en el otro: gana la edición. Un borrado que se pierde es una
+  molestia; una línea que se pierde es la reseña de una estrella.
+- Misma estructura de ficheros que el zip. iOS sobre el contenedor de iCloud Drive del usuario;
+  Android sobre una carpeta elegida con el Storage Access Framework.
 
 ### Trampas heredadas que siguen aplicando
 
@@ -737,8 +886,8 @@ un fichero, una escritura atómica, un dispositivo.
   Multiplatform aborta el proceso al arrancar y parece que la app ni se lanza.
 - `plutil -extract` reescribe el fichero de entrada si no le pasas `-o -`.
 - Carpeta sincronizada de `iosApp/iosApp`: un fichero nuevo entra en el target sin tocar el `.pbxproj`.
-- Glance no tiene lienzo. Aquí no hace falta bitmap porque el widget es texto, pero vuelve a aplicar
-  el día que se dibuje la rejilla del año en un widget.
+- Glance no tiene lienzo, y 365 cajas agotan el presupuesto de `RemoteViews`: el widget del año se
+  dibuja en un `Bitmap` en Android y con `Canvas` de SwiftUI en iOS, como en Quilt.
 - **El `versionCode` no se reutiliza nunca**, ni entre canales de Play.
 - **Todo lo que convive con el teclado scrollea con `imePadding()`.** Hoy abre con el teclado arriba y
   los años anteriores debajo: sin `verticalScroll` más `imePadding`, la hoja se encoge y corta lo de
@@ -749,61 +898,58 @@ un fichero, una escritura atómica, un dispositivo.
 
 ## 10. Plan de ataque
 
-1. Nombre definitivo, comprobación de marca, `applicationId`, bundle id y App Group.
-2. Clonar el andamiaje de MoodTraker: Gradle, CI, workflows, firma, iconos, scripts de ficha,
-   política de privacidad.
-3. Alta en las dos consolas con ese identificador, trader status, Small Business Program, ficha en
-   borrador.
-4. Primera build instalable y **alta de la prueba cerrada de Google con 12 probadores**. El reloj de
-   los 14 días arranca aquí, no al final.
-5. Modelo y almacén: JSON atómico, copia `.bak`, número de versión.
-6. Pantalla Hoy: escribir, autoguardado con rebote, corte de día a las 03:00.
-7. La vista de años anteriores dentro de Hoy, con los ecos de hace una semana y hace un mes.
-8. Pantalla Año: rejilla binaria y búsqueda como filtro de la propia pantalla.
-9. Ajustes: recordatorio, bloqueo, exportar, importar, idioma, restaurar compra.
-10. `Strings.kt` en los cinco idiomas.
-11. Recordatorio local en las dos plataformas, permiso al encenderlo. En iOS, la ventana de 60 avisos
-    sueltos.
-12. Exportar el zip, importar la copia propia, aviso de copia a los 30 días, reglas de copia del
-    sistema (`dataExtractionRules` y `fullBackupContent`).
-13. Bloqueo con biometría y multitarea oculta.
-14. `widget.json` y los widgets de solo lectura: Glance y WidgetKit.
-15. Foto del día y paywall: RevenueCat, producto no consumible, restaurar, compra probada de verdad.
-16. Tarjeta para compartir en `Canvas`.
-17. Formularios: manifiesto de privacidad, App Privacy, Data Safety, clasificación por edad.
-18. Capturas y textos de ficha, cinco idiomas, dos tiendas.
-19. Beta corta con gente real.
-20. Envío a revisión de Apple y solicitud de acceso a producción en Play al cumplirse los 14 días.
+Cada paso es una o varias issues del repo; el orden es el de dependencias, y el contrato de cada una
+está en `docs/tecnico.md`.
+
+1. Confirmar Purl al crear la app en las dos consolas (#1). Identificadores ya fijados.
+2. Sustituir la plantilla por el andamiaje de MoodTraker, con sus versiones (#4).
+3. Alta en las dos consolas, trader status, Small Business Program, RevenueCat y secretos (#3).
+4. Primera build instalable y **alta de la prueba cerrada de Google con 12 probadores** (#29). El
+   reloj de los 14 días arranca aquí, no al final.
+5. Modelo y almacén: JSON atómico, copia `.bak`, versión, escritor único (#5, #6).
+6. Textos en cinco idiomas y tema (#7, #8): los textos ya están escritos en `docs/textos.md`.
+7. Pantalla Hoy, años anteriores, ecos e hitos (#9, #10).
+8. Pantalla Año y Ajustes (#11, #12).
+9. Recordatorio en las dos plataformas (#13, #14).
+10. Zip, exportar, importar fusionando, aviso de copia y copia del sistema (#15, #16, #17).
+11. Bloqueo y multitarea oculta (#18).
+12. `widget.json` y los widgets: hoy, año y pantalla de bloqueo (#19, #20, #21, #34, #35).
+13. Foto del día, compras y portadas (#22, #23, #24).
+14. Tarjeta para compartir e icono (#25, #26).
+15. Formularios, política publicada, ficha y capturas (#27, #28): los textos ya están en `store/`.
+16. Beta con gente real, envío a revisión y acceso a producción (#30).
 
 ### Estimación
 
-**Producto, unas 18,5 jornadas**
+**Producto, unas 20 jornadas**
 
 | Tarea | Jornadas |
 |---|---|
 | Andamiaje copiado y renombrado | 1 |
-| Modelo, almacén atómico, versión del fichero | 1 |
+| Modelo, almacén atómico, versión del fichero, escritor único | 1 |
 | Pantalla Hoy, autoguardado, corte de día | 2 |
-| Vista de años anteriores y ecos del primer año | 1,5 |
+| Vista de años anteriores, ecos e hitos | 1,5 |
 | Pantalla Año: rejilla y búsqueda | 1,5 |
 | Ajustes completos | 1 |
-| `Strings.kt`, cinco idiomas | 1 |
+| `Strings.kt` y el espejo `L`, con los textos ya escritos | 0,5 |
 | Recordatorio en las dos plataformas, con la ventana de avisos de iOS | 1,5 |
-| Exportar el zip, importar, aviso de copia y reglas de copia del sistema | 1,5 |
+| Exportar el zip, importar fusionando, aviso de copia y reglas de copia del sistema | 1,5 |
 | Bloqueo biométrico y multitarea oculta | 1 |
-| Widget de Android (Glance) | 1 |
-| Widget de iOS (WidgetKit), que solo decodifica `widget.json` | 1 |
-| Foto del día | 1 |
+| Widget de hoy en Android (Glance) | 1 |
+| Widget de hoy en iOS (WidgetKit), que solo decodifica `widget.json` | 1 |
+| Widget del año (las dos plataformas) y de pantalla de bloqueo, copiados de Quilt | 1,5 |
+| Foto del día y portadas | 1 |
 | Paywall y RevenueCat | 1 |
 | Tarjeta para compartir | 1 |
-| Pulido en dispositivo real, claro y oscuro, texto grande | 1,5 |
+| Pulido en dispositivo real, claro y oscuro, texto grande, iPad | 1,5 |
 
-**Tienda, unas 4 jornadas**: altas y trámites 0,5; RevenueCat 0,5; probar compras de verdad 1;
-política y formularios 0,5; capturas y textos en cinco idiomas 1,5.
+**Tienda, unas 3 jornadas**: altas y trámites 0,5; RevenueCat 0,5; probar compras de verdad 1;
+capturas de teléfono y de iPad 1. Los textos de ficha, la política y las respuestas de los
+formularios ya están escritos.
 
 **Riesgo, 3 jornadas**: 2 de beta con gente real, 1 de colchón por rechazo.
 
-**Total: unas 25,5 jornadas. De 5 a 7 semanas de calendario**, mandadas por los 14 días de prueba
+**Total: unas 26 jornadas. De 5 a 7 semanas de calendario**, mandadas por los 14 días de prueba
 cerrada de Google más hasta 7 de revisión del acceso a producción. Si la prueba cerrada no arranca en
 la primera semana, el calendario se va a 9 semanas aunque el código esté terminado.
 
@@ -821,9 +967,10 @@ la primera semana, el calendario se va a 9 semanas aunque el código esté termi
    precio escalonado de §6: 5,99 mientras el paquete es fino, 8,99 cuando llega el libro.
 3. **"He cambiado de móvil y he perdido mi diario"** es la reseña de una estrella previsible. El
    aviso de copia y la copia automática del sistema son la única defensa antes de v1.2.
-4. **El nombre.** Braid colisiona con marca registrada de software conocida; Fivefold no tiene
-   colisión encontrada, pero la comprobación se ha hecho por búsqueda web, no en EUIPO ni dentro de
-   las consolas.
+4. **El nombre.** Purl sale limpio en Play, en App Store de España, en USPTO y en EUIPO, pero la
+   consulta de App Store de Estados Unidos falló y la unicidad solo se confirma al crear la app en
+   App Store Connect (#1). Si estuviera cogido, la reserva es Daythread; nada del código depende del
+   nombre, que solo vive en los textos, la ficha y el icono.
 5. **La tarjeta sin texto puede compartirse menos** que el mosaico de MoodTraker, y con ella el canal
    orgánico.
 6. **Auto Backup sube el diario al Drive del usuario por defecto.** Resuelto a medias: con
@@ -834,6 +981,8 @@ la primera semana, el calendario se va a 9 semanas aunque el código esté termi
 7. **La prueba cerrada de Google es por app** y vuelve a aplicar aquí entera.
 8. **Journal de Apple puede añadir la vista de años anteriores** en cualquier versión. El hueco en
    iOS no es permanente; en Android sí es estructural.
+9. **iPad y horizontal** multiplican las pantallas que hay que revisar y exigen capturas de iPad. Se
+   contiene con una sola columna de 600 dp centrada y sin diseños propios de tableta.
 
 ### Correcciones de datos hechas durante la investigación
 
@@ -856,6 +1005,13 @@ Van aquí para que nadie las vuelva a buscar:
 - El traspaso entre dispositivos de Android no cuenta contra los 25 MB de la copia en la nube, así
   que las fotos pueden viajar al móvil nuevo aunque no suban a Drive.
 - Okio lee zips pero no los escribe, y solo en JVM: no sirve para la copia en iOS.
+- **Fivefold no estaba libre**: la búsqueda web no enseñaba ni el juego *Fivefold* de las dos tiendas
+  ni las cuatro solicitudes vivas de Fivefold Incorporated en USPTO. Un nombre se comprueba en las
+  tiendas y en el registro, no en un buscador.
+- `androidx.biometric` no tiene versión estable desde la 1.1.0 (2021): lo que funciona con
+  `ComponentActivity` y Compose está en alpha.
+- `LocalDate.plus(1, YEAR)` sobre un 29 de febrero da el 28 en kotlinx-datetime, y restar un mes al
+  31 de marzo da el último día de febrero: recortan, no lanzan excepción.
 - `setRecentsScreenshotEnabled(false)` existe desde Android 13 y oculta la multitarea sin bloquear
   las capturas, que es lo que hace `FLAG_SECURE`.
 
@@ -897,5 +1053,10 @@ Van aquí para que nadie las vuelva a buscar:
 - [kmp-zip, zip multiplataforma de lectura y escritura](https://github.com/henrik242/kmp-zip)
 - [Entitlement de Journaling Suggestions, Apple Developer](https://developer.apple.com/documentation/bundleresources/entitlements/com.apple.developer.journal.allow)
 - [Day One adopta Journaling Suggestions, iDrop News](https://www.idropnews.com/news/day-one-gains-support-for-ios-172-journalling-suggestions/203880/)
-- [FiveFoldFury, App Store](https://apps.apple.com/us/app/fivefoldfury/id6747382328)
-- [The Five Fold Network, Google Play](https://play.google.com/store/apps/details?id=com.lightcast.thefivefoldnetwork)
+- [Búsqueda de marcas de USPTO](https://tmsearch.uspto.gov)
+- [TMview, marcas de la UE y nacionales](https://www.tmdn.org/tmview)
+- [Búsqueda de apps de Apple](https://itunes.apple.com/search?term=fivefold&entity=software)
+- [Biometric, notas de versión](https://developer.android.com/jetpack/androidx/releases/biometric)
+- [Autenticación biométrica, combinaciones por nivel de API](https://developer.android.com/identity/sign-in/biometric-auth)
+- [Literata, Google Fonts](https://fonts.google.com/specimen/Literata)
+- [kotlinx-datetime, `LocalDate.kt`](https://github.com/Kotlin/kotlinx-datetime/blob/master/core/commonKotlin/src/LocalDate.kt)

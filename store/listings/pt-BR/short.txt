@@ -1,0 +1,1 @@
+Escreva uma linha por dia. Leia o que escreveu nesta data em anos anteriores.
