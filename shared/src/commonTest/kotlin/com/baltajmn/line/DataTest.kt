@@ -1,6 +1,10 @@
 package com.baltajmn.line
 
 import com.baltajmn.line.data.REMINDER_WINDOW
+import com.baltajmn.line.data.ZipDamaged
+import com.baltajmn.line.data.ZipReader
+import com.baltajmn.line.data.ZipWriter
+import com.baltajmn.line.data.crc32
 import com.baltajmn.line.data.nextFire
 import com.baltajmn.line.data.reminderPlan
 import com.baltajmn.line.data.search
@@ -9,7 +13,9 @@ import com.baltajmn.line.model.LineEntry
 import com.baltajmn.line.model.Settings
 import com.baltajmn.line.model.logicalDate
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlinx.datetime.LocalDate
@@ -122,5 +128,62 @@ class DataTest {
         assertEquals(LocalDateTime.parse("2027-01-18T01:30"), plan.first().at)
         assertEquals(LocalDate.parse("2027-01-17"), logicalDate(plan.first().at))
         assertEquals("reminder-2027-01-17", plan.first().id)
+    }
+
+    // 6. The backup zip. docs/tecnico.md 4.3, 6.9
+    @Test
+    fun crc32MatchesTheCheckValueOfTheStandard() {
+        assertEquals(0xCBF43926.toInt(), crc32("123456789".encodeToByteArray()))
+    }
+
+    @Test
+    fun aZipWeWroteComesBackWithEveryByte() {
+        val photo = ByteArray(300) { (it * 7).toByte() }
+        val other = byteArrayOf(0, -1, 127, -128, 10, 13)
+        val zip = zipOf(
+            "entries.json" to """{"version":1}""".encodeToByteArray(),
+            "journal.md" to "# Purl\n\n2027-01-17\nCafe\n".encodeToByteArray(),
+            "photos/p-1.jpg" to photo,
+            "photos/p-2.jpg" to other,
+        )
+        val read = mutableListOf<Pair<String, ByteArray>>()
+        reader(zip).forEach { name, bytes -> read += name to bytes }
+        assertEquals(listOf("entries.json", "journal.md", "photos/p-1.jpg", "photos/p-2.jpg"), read.map { it.first })
+        assertContentEquals(photo, read[2].second)
+        assertContentEquals(other, read[3].second)
+    }
+
+    @Test
+    fun aZipCutInHalfIsRefused() {
+        val zip = zipOf("entries.json" to ByteArray(500) { 42 })
+        assertFailsWith<ZipDamaged> { reader(zip.copyOfRange(0, zip.size / 2)).forEach { _, _ -> } }
+    }
+
+    @Test
+    fun aBrokenCrcIsRefused() {
+        val zip = zipOf("entries.json" to "hola".encodeToByteArray())
+        // The payload starts right after the 30 byte local header and the name.
+        val payload = 30 + "entries.json".length
+        zip[payload] = (zip[payload] + 1).toByte()
+        assertFailsWith<ZipDamaged> { reader(zip).forEach { _, _ -> } }
+    }
+
+    private fun zipOf(vararg files: Pair<String, ByteArray>): ByteArray {
+        val out = mutableListOf<Byte>()
+        val writer = ZipWriter({ bytes -> bytes.forEach { out += it } })
+        files.forEach { (name, bytes) -> writer.add(name, bytes) }
+        writer.finish()
+        return out.toByteArray()
+    }
+
+    private fun reader(data: ByteArray): ZipReader {
+        var pos = 0
+        return ZipReader { n ->
+            if (pos >= data.size) {
+                null
+            } else {
+                data.copyOfRange(pos, minOf(pos + n, data.size)).also { pos += it.size }
+            }
+        }
     }
 }
