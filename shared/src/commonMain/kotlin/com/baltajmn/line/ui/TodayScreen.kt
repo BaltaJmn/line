@@ -40,10 +40,17 @@ import androidx.compose.ui.unit.dp
 import com.baltajmn.line.data.LineRepository
 import com.baltajmn.line.i18n.S
 import com.baltajmn.line.model.COUNTER_FROM
+import com.baltajmn.line.model.Journal
 import com.baltajmn.line.model.LINE_LIMIT
+import com.baltajmn.line.model.Milestone
 import com.baltajmn.line.model.STREAK_SHOWN_FROM
 import com.baltajmn.line.model.codePointCount
+import com.baltajmn.line.model.dayNumber
+import com.baltajmn.line.model.echoes
 import com.baltajmn.line.model.isoKey
+import com.baltajmn.line.model.milestone
+import com.baltajmn.line.model.nextReturn
+import com.baltajmn.line.model.pastYears
 import com.baltajmn.line.model.streak
 import com.baltajmn.line.ui.theme.Cover
 import com.baltajmn.line.ui.theme.MAX_CONTENT_WIDTH
@@ -68,6 +75,15 @@ fun TodayScreen(today: LocalDate, onYear: () -> Unit, onSettings: () -> Unit) {
                 Text(S.longDate(today), style = Styles.dateLine, modifier = Modifier.weight(1f))
                 GlyphButton(Glyph.YEAR, S.a11yYear, onYear)
                 GlyphButton(Glyph.SETTINGS, S.a11ySettings, onSettings)
+            }
+
+            milestone(journal, today)?.let {
+                Spacer(Modifier.height(8.dp))
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(8.dp).clip(CircleShape).background(Cover.of(settings.cover).color))
+                    Spacer(Modifier.width(8.dp))
+                    Text(milestoneText(it), style = Styles.body)
+                }
             }
 
             // A new day is a new field: its cursor and its focus do not carry over from yesterday.
@@ -105,9 +121,52 @@ fun TodayScreen(today: LocalDate, onYear: () -> Unit, onSettings: () -> Unit) {
             }
 
             TodayNotice(editing)
+            Memories(journal, today)
             Spacer(Modifier.height(32.dp))
         }
     }
+}
+
+/**
+ * The echo of the past. Past years if the page has any; while it has none, the first-year bridge:
+ * a week and a month back, and the date this page will first be remembered. Nothing invented.
+ */
+@Composable
+private fun Memories(journal: Journal, today: LocalDate) {
+    val past = pastYears(journal, today)
+    if (past.isEmpty() && journal.isEmpty()) return
+    Spacer(Modifier.height(32.dp))
+    past.forEachIndexed { i, (date, entry) ->
+        if (i > 0) Spacer(Modifier.height(24.dp))
+        Memory(S.pastYearLabel(date.year, today.year - date.year), entry.text)
+    }
+    if (past.isNotEmpty()) return
+
+    val echo = echoes(journal, today)
+    echo?.week?.let { (date, entry) -> Memory(S.echoLabel(S.echoWeek, date), entry.text) }
+    echo?.month?.let { (date, entry) ->
+        if (echo.week != null) Spacer(Modifier.height(24.dp))
+        Memory(S.echoLabel(S.echoMonth, date), entry.text)
+    }
+    if (echo?.week != null || echo?.month != null) Spacer(Modifier.height(24.dp))
+    Text(S.dayNumber(dayNumber(journal, today)), style = Styles.secondary)
+    Text(S.returnsOn(nextReturn(today)), style = Styles.secondary)
+}
+
+/** A label and the line it belongs to, whole: a memory is never cut short. */
+@Composable
+private fun Memory(label: String, text: String) {
+    Text(label, style = Styles.eyebrow)
+    Spacer(Modifier.height(8.dp))
+    Text(text, style = Styles.userMedium)
+}
+
+private fun milestoneText(m: Milestone): String = when (m) {
+    Milestone.FirstLine -> S.milestoneFirst
+    Milestone.Thirty -> S.milestoneThirty
+    Milestone.Hundred -> S.milestoneHundred
+    Milestone.Anniversary -> S.milestoneAnniversary
+    Milestone.ThreeYears -> S.milestoneThreeYears
 }
 
 /** One notice at a time, by priority: corrupt, save failed, reminder offer (pantallas 4.3). */
