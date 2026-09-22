@@ -4,19 +4,36 @@ Inventario de todo lo que hay y dónde está. Los otros documentos de la raíz t
 [`CLAUDE.md`](CLAUDE.md) y [`AGENTS.md`](AGENTS.md) son las reglas de trabajo que se cargan solas en
 cada sesión, y [`SPEC.md`](SPEC.md) explica el porqué de cada decisión de producto.
 
-Hoy el repositorio tiene los documentos y el material de tienda. El código llega con la issue #4
-(andamiaje) y las siguientes; su árbol completo, fichero a fichero y con el origen de cada uno, ya
-está en [`docs/tecnico.md`](docs/tecnico.md) 3. Cada issue que añade ficheros los añade también aquí.
+El árbol completo del código, fichero a fichero y con el origen de cada uno, está en
+[`docs/tecnico.md`](docs/tecnico.md) 3. Cada issue que añade ficheros los añade también aquí.
 
 ## Raíz
 
 | Fichero | Qué es |
 |---|---|
+| `README.md` | Qué es Purl y cómo se compila |
 | `SPEC.md` | Spec de producto: benchmark, alcance por versión, diseño, retención, monetización, nombre, cumplimiento, plan y riesgos |
 | `CLAUDE.md`, `AGENTS.md` | Contexto permanente y contratos que no se rompen |
 | `MAPA.md` | Este fichero |
+| `build.gradle.kts`, `settings.gradle.kts`, `gradle.properties`, `gradlew`, `gradle/` | Gradle, con las versiones de las hermanas (`docs/tecnico.md` 2) |
 | `.gitignore` | Firma, claves, cuentas de servicio y la salida del diario de demostración fuera del repositorio |
 | `keystore.properties`, `local.properties` | Locales, ignorados por git, nunca se suben |
+
+## Código
+
+| Ruta | Qué hay |
+|---|---|
+| `shared/build.gradle.kts` | Módulo común: objetivos Android e iOS, framework estático `Shared`, el `-L` de Swift para los tests de iOS |
+| `shared/src/commonMain/kotlin/com/baltajmn/line` | `App.kt` |
+| `shared/src/iosMain/kotlin/com/baltajmn/line` | `MainViewController.kt` |
+| `androidApp/build.gradle.kts` | `com.baltajmn.line`, firma de release desde `keystore.properties` |
+| `androidApp/src/main` | `MainActivity.kt` (`FragmentActivity`), manifiesto, tema `Theme.Purl`, `locales_config.xml` |
+| `iosApp/iosApp` | `iOSApp.swift`, `ContentView.swift`, `Info.plist`, `iosApp.entitlements` |
+| `iosApp/LineWidget` | Extensión de widgets: `Info.plist`, `LineWidget.entitlements`, `LineWidget.swift` (provisional hasta #21) |
+| `iosApp/Configuration/Config.xcconfig` | Versión, identificador y Team ID de iOS |
+| `iosApp/iosApp.xcodeproj/xcshareddata/xcschemes` | El esquema `iosApp`, compartido: sin él el CI no puede archivar |
+| `.github/workflows` | `tests.yml`, `release.yml` (Play), `release-ios.yml` (TestFlight), `listings.yml` (ficha) |
+| `tools/play-listing/subir.py` | Comprueba los topes de la ficha de Play y la sube |
 
 ## Documentos para programar
 
