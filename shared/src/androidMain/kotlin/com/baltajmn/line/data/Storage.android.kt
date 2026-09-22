@@ -63,6 +63,17 @@ actual object Storage {
         return import.path
     }
 
+    private val importFolder get() = File(dir, "import").apply { mkdirs() }
+
+    actual fun writeImport(name: String, bytes: ByteArray) {
+        File(importFolder, name).writeBytes(bytes)
+    }
+
+    actual fun adoptImport(name: String, asName: String) {
+        val from = File(importFolder, name)
+        if (from.exists() && !from.renameTo(File(photos, asName))) from.copyTo(File(photos, asName), overwrite = true)
+    }
+
     /** Flushed to the disk before any rename, so a power cut cannot leave a renamed empty file. */
     private fun writeTemp(text: String) {
         FileOutputStream(temp).use {

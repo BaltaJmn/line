@@ -1,5 +1,6 @@
 package com.baltajmn.line
 
+import com.baltajmn.line.data.merge
 import com.baltajmn.line.model.Echoes
 import com.baltajmn.line.model.Edit
 import com.baltajmn.line.model.JournalFile
@@ -304,5 +305,58 @@ class ModelTest {
         assertEquals("strasse", fold("Straße"))
         assertEquals("coeur", fold("cœur"))
         assertEquals("cafe", fold("Cafe${0x301.toChar()}"))
+    }
+
+    // 10. Merge. docs/tecnico.md 6.6
+    @Test
+    fun mergeAddsJoinsAndNeverLosesADayOfThisPhone() {
+        val device = mapOf(
+            "2027-01-15" to LineEntry("solo mio"),
+            "2027-01-16" to LineEntry("Sol"),
+            "2027-01-17" to LineEntry("igual"),
+            "2027-01-18" to LineEntry("playa"),
+            "2027-01-19" to LineEntry("con foto", photo = "p-device.jpg"),
+        )
+        val incoming = mapOf(
+            "2027-01-16" to LineEntry("Sol y playa"),
+            "2027-01-17" to LineEntry("igual"),
+            "2027-01-18" to LineEntry("montana"),
+            "2027-01-19" to LineEntry("con foto", photo = "p-backup.jpg"),
+            "2027-01-20" to LineEntry("nuevo", photo = "p-nuevo.jpg"),
+        )
+        val r = merge(device, incoming)
+
+        // A date only the backup had is added whole, and its photo is asked for.
+        assertEquals(LineEntry("nuevo", photo = "p-nuevo.jpg"), r.journal["2027-01-20"])
+        assertEquals(setOf("p-nuevo.jpg"), r.photosFromIncoming)
+        // The longer text wins when one contains the other; different texts keep both.
+        assertEquals("Sol y playa", r.journal["2027-01-16"]?.text)
+        assertEquals("igual", r.journal["2027-01-17"]?.text)
+        assertEquals("playa\nmontana", r.journal["2027-01-18"]?.text)
+        // The photo of this phone wins.
+        assertEquals("p-device.jpg", r.journal["2027-01-19"]?.photo)
+        // Counters, and no date of this phone is lost.
+        assertEquals(1, r.added)
+        assertEquals(2, r.joined)
+        assertEquals(2, r.same)
+        assertEquals("solo mio", r.journal["2027-01-15"]?.text)
+        assertTrue(device.keys.all { it in r.journal })
+    }
+
+    @Test
+    fun mergeTakesTheBackupPhotoOnlyWhenThisPhoneHasNone() {
+        val device = mapOf("2027-01-17" to LineEntry("texto"))
+        val incoming = mapOf("2027-01-17" to LineEntry("texto", photo = "p-backup.jpg"))
+        val r = merge(device, incoming)
+        assertEquals("p-backup.jpg", r.journal["2027-01-17"]?.photo)
+        assertEquals(setOf("p-backup.jpg"), r.photosFromIncoming)
+        assertEquals(1, r.joined)
+    }
+
+    @Test
+    fun mergeKeepsTheLateFlagOfThisPhone() {
+        val device = mapOf("2027-01-17" to LineEntry("texto", late = true))
+        val incoming = mapOf("2027-01-17" to LineEntry("otro"))
+        assertTrue(merge(device, incoming).journal.getValue("2027-01-17").late)
     }
 }

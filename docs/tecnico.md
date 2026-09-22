@@ -338,6 +338,7 @@ Se rechaza, con el diario intacto y la clave de texto indicada, si:
 | JSON sin `version` entero o sin objeto `entries` | `importNotBackup` |
 | `version` mayor que la que entiende esta app | `importTooNew` |
 | Una clave de `entries` que no es fecha ISO válida | `importDamaged` |
+| Un `photo` que no es un nombre de fichero suelto (`../`, `/`, `.`, vacío) | `importDamaged` |
 | Copia sin ninguna entrada | `importEmpty` |
 
 Una copia de MoodTraker metida por el botón de importar normal se reconoce (`app == "mood"`) y se
@@ -617,6 +618,11 @@ Importar de MoodTraker (v1.1) no usa `merge`: solo añade fechas que no existen.
 5. Si confirma: se mueven las fotos de `photosFromIncoming` de `import/` a `photos/`, se aplica el
    diario fusionado, se guarda con `flush()` y se borra `import/`. Si cancela, se borra `import/`.
 
+Solo se adoptan las fotos que la copia ha traído de verdad. Una copia que nombra una foto que no
+entrega (un `entries.json` suelto, por ejemplo) deja la línea y pierde el nombre de la foto: adoptar
+por nombre permitiría que se quedara con lo que una importación anterior hubiera dejado en `import/`.
+Las fotos se mueven fuera del hilo principal, y el botón de importar dice `working` mientras tanto.
+
 `import/` se vacía también al arrancar, por si la app murió a mitad.
 
 ### 6.8 Exportar
@@ -627,7 +633,15 @@ Importar de MoodTraker (v1.1) no usa `merge`: solo añade fechas que no existen.
 2. `flush()` y se toma una instantánea del diario.
 3. `ZipWriter` escribe `entries.json`, `journal.md` y cada foto, leyendo cada una entera (unos 200 KB)
    para calcular su CRC antes de la cabecera: nunca más de una foto en memoria.
-4. Solo cuando el sistema confirma el guardado: `lastBackup = hoy`, `backupNoticeDone = true`.
+4. Solo cuando el sistema confirma el guardado: `lastBackup = hoy`, `backupNoticeDone = true`. Cancelar
+   el selector no es fallar: no se enseña nada y no se toca nada. `exportFailed` es solo para el error
+   de verdad.
+
+El aviso de la copia (`docs/pantallas.md` 4.2 J) sale cuando hay entradas, han pasado
+`BACKUP_NOTICE_AFTER_DAYS` días **desde la primera entrada del diario** (`first.daysUntil(hoy) >= 30`),
+`lastBackup` es nulo y `backupNoticeDone` es falso. `Ahora no` también pone `backupNoticeDone = true`:
+es un aviso único, y repetirlo no hace mejor la copia. `backupNoticeDone` vive en `Settings`, que no
+viaja en la copia, así que importar un diario ajeno nunca arrastra el aviso ya contestado.
 
 ### 6.9 Zip
 

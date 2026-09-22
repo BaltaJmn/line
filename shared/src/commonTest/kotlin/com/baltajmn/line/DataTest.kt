@@ -1,6 +1,10 @@
 package com.baltajmn.line
 
+import com.baltajmn.line.data.ImportFailed
+import com.baltajmn.line.data.ImportProblem
 import com.baltajmn.line.data.REMINDER_WINDOW
+import com.baltajmn.line.data.journalMarkdown
+import com.baltajmn.line.data.readBackup
 import com.baltajmn.line.data.ZipDamaged
 import com.baltajmn.line.data.ZipReader
 import com.baltajmn.line.data.ZipWriter
@@ -179,6 +183,80 @@ class DataTest {
     private fun reader(data: ByteArray): ZipReader {
         var pos = 0
         return ZipReader { n ->
+            if (pos >= data.size) {
+                null
+            } else {
+                data.copyOfRange(pos, minOf(pos + n, data.size)).also { pos += it.size }
+            }
+        }
+    }
+
+    // 15. What an import refuses. docs/tecnico.md 4.6
+    @Test
+    fun anyJsonIsNotABackup() {
+        // ignoreUnknownKeys would decode this into an empty diary, which would read as "nothing to merge".
+        assertEquals(ImportProblem.NotBackup, refusal("""{"hello":"world"}"""))
+        assertEquals(ImportProblem.NotBackup, refusal("""{"version":1}"""))
+        assertEquals(ImportProblem.NotBackup, refusal("""{"entries":{"2027-01-17":{"text":"x"}}}"""))
+        assertEquals(ImportProblem.NotBackup, refusal("not a file at all"))
+    }
+
+    @Test
+    fun aBackupFromALaterVersionIsRefusedWholeAndAnEmptyOneToo() {
+        assertEquals(ImportProblem.TooNew, refusal("""{"version":99,"entries":{"2027-01-17":{"text":"x"}}}"""))
+        assertEquals(ImportProblem.Empty, refusal("""{"version":1,"entries":{}}"""))
+        assertEquals(ImportProblem.Damaged, refusal("""{"version":1,"entries":{"manana":{"text":"x"}}}"""))
+    }
+
+    @Test
+    fun aPhotoNameThatWalksOutOfTheFolderIsRefused() {
+        // Without this the name reaches the file system and "../entries.json" is the diary itself.
+        val evil = """{"version":1,"entries":{"2027-03-04":{"text":"x","photo":"../entries.json"}}}"""
+        assertEquals(ImportProblem.Damaged, refusal(evil))
+        assertEquals(ImportProblem.Damaged, refusal("""{"version":1,"entries":{"2027-03-04":{"text":"x","photo":"a/b.jpg"}}}"""))
+    }
+
+    @Test
+    fun aVersionThatIsNotANumberIsNotABackupInsteadOfACrash() {
+        assertEquals(ImportProblem.NotBackup, refusal("""{"version":[1],"entries":{"2027-01-17":{"text":"x"}}}"""))
+        assertEquals(ImportProblem.NotBackup, refusal("""{"version":{"a":1},"entries":{}}"""))
+    }
+
+    @Test
+    fun aMoodTrakerBackupIsRecognised() {
+        val mood = """{"app":"mood","store":{"entries":[{"date":"2027-01-17","note":"hola"}]}}"""
+        assertEquals(ImportProblem.IsMoodTraker, refusal(mood))
+    }
+
+    @Test
+    fun aBareEntriesJsonImportsWithoutPhotos() {
+        val backup = readBackup(sourceOf("""{"version":1,"entries":{"2027-01-17":{"text":"Cafe","late":true}}}"""))
+        assertEquals(LineEntry("Cafe", late = true), backup.journal["2027-01-17"])
+        assertTrue(backup.photos.isEmpty())
+    }
+
+    // 4.4: the file someone opens in fifty years, in a plain text editor.
+    @Test
+    fun theMarkdownIsTheDiaryInOrderWithItsPhotos() {
+        val j = mapOf(
+            "2027-01-17" to LineEntry("Mismo dia, sol.", photo = "p-3f9a1c2e.jpg"),
+            "2026-01-17" to LineEntry("Primer dia de vacaciones."),
+        )
+        assertEquals(
+            "# Purl\n" +
+                "\n## 2026-01-17\nPrimer dia de vacaciones.\n" +
+                "\n## 2027-01-17\nMismo dia, sol.\n\n![](photos/p-3f9a1c2e.jpg)\n",
+            journalMarkdown(j),
+        )
+    }
+
+    private fun refusal(text: String): ImportProblem? =
+        runCatching { readBackup(sourceOf(text)) }.exceptionOrNull().let { (it as? ImportFailed)?.problem }
+
+    private fun sourceOf(text: String): (Int) -> ByteArray? {
+        val data = text.encodeToByteArray()
+        var pos = 0
+        return { n ->
             if (pos >= data.size) {
                 null
             } else {

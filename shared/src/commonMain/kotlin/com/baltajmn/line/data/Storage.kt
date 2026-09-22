@@ -30,4 +30,10 @@ expect object Storage {
 
     /** Path of import/, emptied and created. */
     fun importDir(): String
+
+    /** A photo of a backup being read, parked in import/ until the user confirms. */
+    fun writeImport(name: String, bytes: ByteArray)
+
+    /** Moves an accepted photo from import/ into photos/, under the name the entry will carry. */
+    fun adoptImport(name: String, asName: String)
 }

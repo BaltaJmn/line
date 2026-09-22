@@ -24,10 +24,14 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.daysUntil
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
 const val SAVE_DEBOUNCE_MS = 800L
+
+/** A month of writing with no backup is when the question earns the interruption, once. */
+const val BACKUP_NOTICE_AFTER_DAYS = 30
 
 /** "Today" everywhere in the app: the logical day, which ends at 03:00 local time. */
 @OptIn(ExperimentalTime::class)
@@ -122,6 +126,52 @@ object LineRepository {
     fun setText(date: LocalDate, text: String, today: LocalDate) {
         val next = journal.withText(date, text, today) ?: return
         edit { it.copy(entries = next) }
+    }
+
+    /** Asked once, a month in, and never again after a backup or after being waved away. */
+    fun needsBackupNotice(today: LocalDate): Boolean {
+        if (settings.backupNoticeDone || settings.lastBackup != null) return false
+        val first = journal.keys.minOrNull()?.let(LocalDate::parse) ?: return false
+        return first.daysUntil(today) >= BACKUP_NOTICE_AFTER_DAYS
+    }
+
+    /**
+     * Takes in a merge: the photos the backup brought move out of import/ first, under a free name
+     * if theirs was taken, and only then does the diary change. Nothing of this phone is dropped.
+     */
+    fun applyImport(result: MergeResult, delivered: Set<String>, onDone: () -> Unit = {}) {
+        val before = journal
+        scope.launch {
+            // Only what the backup actually carried is adopted. A backup that names a photo it does
+            // not bring must not pick up whatever a previous import happened to leave in import/.
+            val adoptable = result.photosFromIncoming.filter { it in delivered && isSafePhotoName(it) }
+            val renamed = withContext(Dispatchers.IO) {
+                val taken = (Storage.listPhotos() + before.values.mapNotNull { it.photo }).toMutableSet()
+                val renamed = mutableMapOf<String, String>()
+                adoptable.forEach { name ->
+                    val target = if (name in taken) freePhotoName(taken) else name
+                    taken += target
+                    renamed[name] = target
+                    Storage.adoptImport(name, target)
+                }
+                renamed
+            }
+            val merged = result.journal.mapValues { (key, entry) ->
+                val photo = entry.photo
+                val fromBackup = photo != null && before[key]?.photo != photo
+                when {
+                    // Only a photo that came with the backup is renamed: the one already here keeps its name.
+                    fromBackup && photo in renamed -> entry.copy(photo = renamed.getValue(photo!!))
+                    // Named but not delivered: the line is kept, the photo that does not exist is not.
+                    fromBackup -> entry.copy(photo = null)
+                    else -> entry
+                }
+            }
+            edit { it.copy(entries = merged) }
+            flush()
+            withContext(Dispatchers.IO) { Storage.importDir() }
+            onDone()
+        }
     }
 
     fun delete(date: LocalDate) {

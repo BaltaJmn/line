@@ -44,6 +44,7 @@ actual object Storage {
     private val path get() = "$root/entries.json"
     private val backupPath get() = "$root/entries.bak.json"
     private val photosDir get() = "$root/photos".also { fm.createDirectoryAtPath(it, true, protection, null) }
+    private val importFolder get() = "$root/import".also { fm.createDirectoryAtPath(it, true, protection, null) }
 
     actual fun read(): String? = textAt(path)
 
@@ -86,6 +87,13 @@ actual object Storage {
         fm.removeItemAtPath(import, null)
         fm.createDirectoryAtPath(import, true, protection, null)
         return import
+    }
+
+    actual fun writeImport(name: String, bytes: ByteArray) = writeAtomically("$importFolder/$name", bytes)
+
+    actual fun adoptImport(name: String, asName: String) {
+        fm.removeItemAtPath("$photosDir/$asName", null)
+        fm.moveItemAtPath("$importFolder/$name", "$photosDir/$asName", null)
     }
 
     private fun writeAtomically(target: String, bytes: ByteArray) {

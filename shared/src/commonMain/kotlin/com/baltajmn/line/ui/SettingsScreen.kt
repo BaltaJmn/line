@@ -42,9 +42,20 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.baltajmn.line.data.AppInfo
+import com.baltajmn.line.data.Backup
+import com.baltajmn.line.data.abandonImport
+import com.baltajmn.line.data.FilePicker
+import com.baltajmn.line.data.ImportFailed
+import com.baltajmn.line.data.ImportProblem
+import com.baltajmn.line.data.MergeResult
+import com.baltajmn.line.data.PickResult
 import com.baltajmn.line.data.LineRepository
 import com.baltajmn.line.data.PRIVACY_URL
 import com.baltajmn.line.data.Reminder
+import com.baltajmn.line.data.merge
+import com.baltajmn.line.data.readBackup
+import com.baltajmn.line.data.startExport
+import com.baltajmn.line.data.today
 import com.baltajmn.line.data.SIBLINGS
 import com.baltajmn.line.data.storeUrl
 import com.baltajmn.line.i18n.S
@@ -61,6 +72,12 @@ import kotlinx.datetime.LocalDate
 fun SettingsScreen(onBack: () -> Unit) {
     val settings = LineRepository.settings
     var pickTime by remember { mutableStateOf(false) }
+    var busy by remember { mutableStateOf(false) }
+    var applying by remember { mutableStateOf(false) }
+    var pending by remember { mutableStateOf<Pair<MergeResult, Set<String>>?>(null) }
+    // Title and text together: an export that fails is not an import that fails (pantallas 9.3).
+    var failure by remember { mutableStateOf<Pair<String?, String>?>(null) }
+    var imported by remember { mutableStateOf<Int?>(null) }
 
     Column(
         Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()),
@@ -111,7 +128,6 @@ fun SettingsScreen(onBack: () -> Unit) {
             }
 
             Section(S.sectionBackup) {
-                // ponytail: both rows do the work in #16.
                 val empty = LineRepository.journal.isEmpty()
                 SettingRow(
                     title = S.exportRow,
@@ -120,9 +136,42 @@ fun SettingsScreen(onBack: () -> Unit) {
                     } else {
                         settings.lastBackup?.let { S.lastBackup(LocalDate.parse(it)) } ?: S.lastBackupNever
                     },
-                    enabled = !empty,
+                    enabled = !empty && FilePicker.available && !busy,
+                    onClick = {
+                        startExport(today()) { result ->
+                            // pantallas 9.3: the export failure has no dialog of its own, only the line and ok.
+                            if (result == PickResult.Failed) failure = null to S.exportFailed
+                        }
+                    },
                 )
-                SettingRow(title = S.importRow, subtitle = S.importSubtitle)
+                SettingRow(
+                    title = S.importRow,
+                    subtitle = S.importSubtitle,
+                    enabled = FilePicker.available && !busy,
+                    onClick = {
+                        busy = true
+                        var read: Result<Backup>? = null
+                        FilePicker.importFile({ source -> read = runCatching { readBackup(source) } }) { result ->
+                            busy = false
+                            val answer = read
+                            when {
+                                result == PickResult.Cancelled -> abandonImport()
+                                answer == null -> {
+                                    abandonImport()
+                                    failure = S.importFailedTitle to S.importDamaged
+                                }
+                                else -> answer.fold(
+                                    onSuccess = { pending = merge(LineRepository.journal, it.journal) to it.photos },
+                                    onFailure = {
+                                        // The photos it had already parked go with the refusal.
+                                        abandonImport()
+                                        failure = S.importFailedTitle to importText(it)
+                                    },
+                                )
+                            }
+                        }
+                    },
+                )
             }
 
             Section(S.sectionPro) {
@@ -150,6 +199,41 @@ fun SettingsScreen(onBack: () -> Unit) {
             }
             Spacer(Modifier.height(32.dp))
         }
+    }
+
+    pending?.let { (result, delivered) ->
+        Ask(
+            title = S.importTitle,
+            text = S.importSummary(result.added, result.joined, result.same),
+            // The button says so while the photos are copied and the diary rewritten (pantallas 9.2).
+            confirm = if (applying) S.working else S.importAction,
+            onConfirm = {
+                if (!applying) {
+                    applying = true
+                    LineRepository.applyImport(result, delivered) {
+                        applying = false
+                        imported = result.added + result.joined
+                        pending = null
+                    }
+                }
+            },
+            onDismiss = if (applying) {
+                null
+            } else {
+                {
+                    abandonImport()
+                    pending = null
+                }
+            },
+        )
+    }
+
+    failure?.let { (title, text) ->
+        Ask(title = title, text = text, confirm = S.ok, onConfirm = { failure = null })
+    }
+
+    imported?.let { n ->
+        Ask(title = S.importTitle, text = S.importDone(n), confirm = S.ok, onConfirm = { imported = null })
     }
 
     if (pickTime) {
@@ -229,6 +313,15 @@ private fun Covers(selected: String, pro: Boolean) {
             }
         }
     }
+}
+
+private fun importText(e: Throwable): String = when ((e as? ImportFailed)?.problem) {
+    ImportProblem.NotBackup -> S.importNotBackup
+    ImportProblem.TooNew -> S.importTooNew
+    ImportProblem.Empty -> S.importEmpty
+    ImportProblem.IsMoodTraker -> S.importIsMoodTraker
+    // A file that broke while being read is damaged as far as the user is concerned.
+    ImportProblem.Damaged, null -> S.importDamaged
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

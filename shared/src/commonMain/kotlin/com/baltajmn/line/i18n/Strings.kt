@@ -775,7 +775,15 @@ object S {
         )
     }
 
-    fun importDone(n: Int) = if (n == 1) {
+    fun importDone(n: Int) = if (n == 0) {
+        t(
+            "Diary up to date: there was nothing to change.",
+            "Diario al día: no había nada que cambiar.",
+            "Diário atualizado: não havia nada para mudar.",
+            "Tagebuch aktuell: es gab nichts zu ändern.",
+            "Journal à jour : il n'y avait rien à changer.",
+        )
+    } else if (n == 1) {
         t(
             "Diary up to date: 1 day updated.",
             "Diario al día: 1 día actualizado.",

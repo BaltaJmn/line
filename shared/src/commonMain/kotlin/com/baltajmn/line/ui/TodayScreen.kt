@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,6 +41,9 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.baltajmn.line.data.LineRepository
+import com.baltajmn.line.data.PickResult
+import com.baltajmn.line.data.Reminder
+import com.baltajmn.line.data.startExport
 import com.baltajmn.line.i18n.S
 import com.baltajmn.line.model.COUNTER_FROM
 import com.baltajmn.line.model.Journal
@@ -65,6 +69,7 @@ fun TodayScreen(today: LocalDate, onYear: () -> Unit, onSettings: () -> Unit, on
     val settings = LineRepository.settings
     val text = journal[today.isoKey()]?.text.orEmpty()
     var editing by remember { mutableStateOf(false) }
+    var exportFailed by remember { mutableStateOf(false) }
 
     Column(
         Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()),
@@ -122,11 +127,14 @@ fun TodayScreen(today: LocalDate, onYear: () -> Unit, onSettings: () -> Unit, on
                 if (count >= COUNTER_FROM) Text(S.counter(count, LINE_LIMIT), style = Styles.light)
             }
 
-            TodayNotice(editing)
+            TodayNotice(editing, today) { exportFailed = true }
             Memories(journal, today, onOpenDay)
             Spacer(Modifier.height(32.dp))
         }
     }
+
+    // pantallas 9.3: a backup that could not be saved says so, wherever it was asked for.
+    if (exportFailed) Ask(null, S.exportFailed, S.ok, onConfirm = { exportFailed = false })
 }
 
 /**
@@ -179,7 +187,7 @@ private fun milestoneText(m: Milestone): String = when (m) {
 
 /** One notice at a time, by priority: corrupt, save failed, reminder offer (pantallas 4.3). */
 @Composable
-private fun TodayNotice(editing: Boolean) {
+private fun TodayNotice(editing: Boolean, today: LocalDate, onExportFailed: () -> Unit) {
     val settings = LineRepository.settings
     when {
         LineRepository.corrupt -> Notice(S.noticeCorrupt, S.ok to LineRepository::dismissCorrupt)
@@ -188,7 +196,18 @@ private fun TodayNotice(editing: Boolean) {
         !settings.reminderOffered && LineRepository.journal.isNotEmpty() && !editing -> Notice(
             S.offerReminder(settings.reminderHour, settings.reminderMinute),
             S.notNow to { LineRepository.updateSettings { it.copy(reminderOffered = true) } },
-            S.yes to { LineRepository.updateSettings { it.copy(reminderOffered = true, reminderOn = true) } },
+            S.yes to {
+                LineRepository.updateSettings { it.copy(reminderOffered = true, reminderOn = true) }
+                Reminder.sync(askPermission = true)
+            },
+        )
+        // Asked once. Waving it away counts as answered: a second nag is not a better backup.
+        LineRepository.needsBackupNotice(today) && !editing -> Notice(
+            S.noticeBackup,
+            S.notNow to { LineRepository.updateSettings { it.copy(backupNoticeDone = true) } },
+            S.makeBackup to {
+                startExport(today) { result -> if (result == PickResult.Failed) onExportFailed() }
+            },
         )
     }
 }
@@ -209,6 +228,25 @@ private fun Notice(message: String, vararg actions: Pair<String, () -> Unit>) {
             }
         }
     }
+}
+
+/** One dialog shape for the app: an optional title, a line of text and at most two actions. */
+@Composable
+fun Ask(
+    title: String?,
+    text: String,
+    confirm: String,
+    onConfirm: () -> Unit,
+    onDismiss: (() -> Unit)? = null,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss ?: onConfirm,
+        title = title?.let { { Text(it, style = Styles.title) } },
+        text = { Text(text, style = Styles.body) },
+        confirmButton = { TextAction(confirm, onClick = onConfirm) },
+        dismissButton = onDismiss?.let { { TextAction(S.cancel, onClick = it) } },
+        containerColor = MaterialTheme.colorScheme.surface,
+    )
 }
 
 /** A text button: 40 high, 16 of side padding, no background. */

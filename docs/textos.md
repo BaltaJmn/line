@@ -156,6 +156,7 @@ Todos los textos de la app en los cinco idiomas. De aquí salen `i18n/Strings.kt
 | `importSummary` | added, joined, same | The backup brings 12 new days, 3 that join with yours and 40 that are the same. Nothing gets deleted. | La copia trae 12 días nuevos, 3 que se juntan con los tuyos y 40 iguales. No se borra nada. | A cópia traz 12 dias novos, 3 que se juntam aos seus e 40 iguais. Nada é apagado. | Die Sicherung bringt 12 neue Tage, 3, die sich mit deinen verbinden, und 40 gleiche. Es wird nichts gelöscht. | La copie apporte 12 nouveaux jours, 3 qui se joignent aux tiens et 40 identiques. Rien n'est supprimé. |
 | `importAction`* | | Import | Importar | Importar | Importieren | Importer |
 | `importDone` | n | Diary up to date: 15 days updated. | Diario al día: 15 días actualizados. | Diário atualizado: 15 dias atualizados. | Tagebuch aktuell: 15 Tage aktualisiert. | Journal à jour : 15 jours mis à jour. |
+| `importDone` | 0 | Diary up to date: there was nothing to change. | Diario al día: no había nada que cambiar. | Diário atualizado: não havia nada para mudar. | Tagebuch aktuell: es gab nichts zu ändern. | Journal à jour : il n'y avait rien à changer. |
 | `importFailedTitle` | | Couldn't import | No se ha podido importar | Não foi possível importar | Import fehlgeschlagen | Échec de l'import |
 | `importNotBackup` | | That file is not a backup from Purl. | Ese fichero no es una copia de Purl. | Esse arquivo não é uma cópia do Purl. | Diese Datei ist keine Sicherung von Purl. | Ce fichier n'est pas une copie de Purl. |
 | `importDamaged` | | The backup is incomplete or damaged. Your diary wasn't touched. | La copia está incompleta o dañada. Tu diario no se ha tocado. | A cópia está incompleta ou danificada. Seu diário não foi alterado. | Die Sicherung ist unvollständig oder beschädigt. Dein Tagebuch wurde nicht verändert. | La copie est incomplète ou endommagée. Ton journal n'a pas été touché. |
@@ -165,7 +166,8 @@ Todos los textos de la app en los cinco idiomas. De aquí salen `i18n/Strings.kt
 | `exportFailed` | | Couldn't save the backup. | No se ha podido guardar la copia. | Não foi possível salvar a cópia. | Die Sicherung konnte nicht gespeichert werden. | Impossible d'enregistrer la copie. |
 
 `importSummary` con plurales: "1 día nuevo", "1 que se junta", "1 igual"; y los ceros se omiten de la
-frase (si `joined` es 0, no aparece esa parte). `importDone` cuenta `added + joined`.
+frase (si `joined` es 0, no aparece esa parte). `importDone` cuenta `added + joined`, y tiene su propia
+frase cuando sale 0: importar la copia que ya tienes no actualiza nada, y decir "0 días" suena a fallo.
 
 ## 8. Purl Pro
 
