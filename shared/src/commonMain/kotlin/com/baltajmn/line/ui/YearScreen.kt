@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -31,6 +33,8 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.baltajmn.line.data.LineRepository
@@ -131,6 +135,7 @@ private fun YearArrow(glyph: Glyph, label: String, enabled: Boolean, onClick: ()
 
 @Composable
 private fun SearchField(query: String, onChange: (String) -> Unit) {
+    val focus = LocalFocusManager.current
     Row(
         Modifier.fillMaxWidth()
             .height(48.dp)
@@ -143,6 +148,10 @@ private fun SearchField(query: String, onChange: (String) -> Unit) {
         BasicTextField(
             value = query,
             onValueChange = onChange,
+            // Results show as the query is typed: the search key only puts the keyboard away.
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+            keyboardActions = KeyboardActions(onSearch = { focus.clearFocus() }),
             modifier = Modifier.weight(1f).padding(horizontal = 10.dp),
             textStyle = Styles.body,
             cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),

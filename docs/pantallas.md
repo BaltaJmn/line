@@ -236,7 +236,8 @@ H, G, I, J. Se enseña el primero que aplique; el siguiente aparece cuando el an
   responde. Se abre en el año actual.
 - **Buscador**: 48 de alto, radio 24, fondo `surfaceVariant`, `SEARCH` a la izquierda, texto `Body`,
   ayuda `searchPlaceholder` (Buscar en el diario), `CLOSE` a la derecha cuando hay texto (vacía la
-  búsqueda). Buscar no cambia de año.
+  búsqueda). Buscar no cambia de año. Una sola línea: los resultados salen mientras se escribe, y
+  la tecla de buscar del teclado solo lo esconde, para ver la lista entera.
 - **Rejilla** (`YearGrid`, en `Canvas`): 12 columnas (meses) por 31 filas (días). Encima, las
   iniciales de los meses (`monthInitials`) en `Eyebrow`; a la izquierda, 20 de ancho, los números 1,
   10, 20 y 30 en `Eyebrow`. Celda cuadrada: lado = mínimo de 24 y `(ancho - 20 - 11 x 4) / 12`;
