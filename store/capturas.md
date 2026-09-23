@@ -143,9 +143,14 @@ adb shell run-as com.baltajmn.line sh -c 'rm -rf files/photos files/entries.bak.
 adb shell cmd locale set-app-locales com.baltajmn.line --locales es-ES
 ```
 
-iOS (cada simulador tiene su contenedor: se repite en el iPhone y en el iPad):
+iOS (cada simulador tiene su contenedor: se repite en el iPhone y en el iPad). La app se compila
+firmada en local, **sin** `CODE_SIGNING_ALLOWED=NO`: sin firma el simulador no recibe el App Group,
+`widget.json` no se escribe y los widgets de la escena 04 salen vacíos.
 
 ```bash
+xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp \
+  -destination 'generic/platform=iOS Simulator' -derivedDataPath build/ios build
+xcrun simctl install booted build/ios/Build/Products/Debug-iphonesimulator/Purl.app
 xcrun simctl terminate booted com.baltajmn.line
 D="$(xcrun simctl get_app_container booted com.baltajmn.line data)/Library/Application Support"
 rm -rf "$D/photos" "$D/entries.bak.json" && mkdir -p "$D/photos"
