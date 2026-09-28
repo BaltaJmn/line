@@ -604,13 +604,17 @@ bueno.
 A5, 420x595 pt, márgenes de 42 pt.
 
 - Portada: fondo del color de la portada al 100 %; "Purl" en Literata 44 pt `Ink` centrado a 220 pt
-  de arriba; debajo, a 30, el rango de años (`bookYears`: 2026 a 2030) en 16 pt `Ink` al 70 %.
-- Página de día: la fecha (`longDate`, sin año) en sistema 11 pt Medium mayúsculas `Muted` arriba a la
+  de arriba; debajo, a 30, el rango de años (`bookYears`: 2026 a 2030) en 16 pt `Ink` al 70 %. Con un
+  solo año, el año solo (2026), no "2026 a 2026".
+- Página de día: la fecha (`shortDate`: sin año ni día de la semana, que cambia de un año a otro) en sistema 11 pt Medium mayúsculas `Muted` arriba a la
   izquierda; una línea de 0,5 pt `Empty` debajo. Bloques por año, **de más antiguo a más reciente**:
   el año en 9 pt Medium `Muted`, 4, el texto en Literata 12 pt con interlineado 16, `Ink`; si tiene
   foto, una miniatura de 96x72 pt con radio 6 a la derecha del texto (el texto se estrecha). 14 pt
-  entre bloques. Si un día no cabe en una página, sigue en la siguiente con la fecha repetida.
-- Pie: número de página en 8 pt `Muted` centrado a 20 pt del borde inferior.
+  entre bloques. Si un día no cabe en una página, sigue en la siguiente con la fecha repetida: el año
+  que no cabe en lo que queda pasa entero a la siguiente, y solo se parte un año más largo que una
+  página entera, que repite su año arriba de cada trozo.
+- Pie: número de página en 8 pt `Muted` centrado a 20 pt del borde inferior. La portada es la página 1
+  sin número, así que el número impreso coincide con el que enseña el visor.
 - Progreso: diálogo con `bookMaking(n, total)` (Maquetando el libro: 120 de 366) y `cancel`.
 
 ### 15.2 Etiquetas (v1.1)

@@ -449,6 +449,28 @@ object S {
         "Das Sperrbildschirm-Widget",
         "Le widget de l'écran verrouillé",
     )
+    val proBook = t(
+        "The book, laid out as a PDF",
+        "El libro en PDF, maquetado",
+        "O livro em PDF, diagramado",
+        "Das Buch als gestaltetes PDF",
+        "Le livre en PDF, mis en page",
+    )
+    val bookRow = t("Book as PDF", "Libro en PDF", "Livro em PDF", "Buch als PDF", "Livre en PDF")
+    val bookSubtitle = t(
+        "Your diary laid out, one day per page",
+        "Tu diario maquetado, un día por página",
+        "Seu diário diagramado, um dia por página",
+        "Dein Tagebuch gestaltet, ein Tag pro Seite",
+        "Ton journal mis en page, un jour par page",
+    )
+    val bookFailed = t(
+        "Couldn't create the book.",
+        "No se ha podido crear el libro.",
+        "Não foi possível criar o livro.",
+        "Das Buch konnte nicht erstellt werden.",
+        "Impossible de créer le livre.",
+    )
     val proOnce = t(
         "One-time payment, no subscription.",
         "Pago único, sin suscripción.",
@@ -803,6 +825,16 @@ object S {
 
     fun buy(price: String) =
         t("Buy for $price", "Comprar por $price", "Comprar por $price", "Für $price kaufen", "Acheter pour $price")
+
+    fun bookYears(from: Int, to: Int) = t("$from to $to", "$from a $to", "$from a $to", "$from bis $to", "$from à $to")
+
+    fun bookMaking(n: Int, total: Int) = t(
+        "Laying out the book: $n of $total",
+        "Maquetando el libro: $n de $total",
+        "Diagramando o livro: $n de $total",
+        "Buch wird erstellt: $n von $total",
+        "Mise en page du livre : $n sur $total",
+    )
 
     fun cardLines(n: Int) = if (n == 1) {
         t("1 line", "1 línea", "1 linha", "1 Zeile", "1 ligne")

@@ -10,7 +10,7 @@ import kotlinx.coroutines.withContext
 actual object FilePicker {
 
     /** Set by MainActivity: opening and creating a document both need an Activity. */
-    var createDocument: ((String) -> Unit)? = null
+    var createDocument: ((name: String, mime: String) -> Unit)? = null
     var openDocument: (() -> Unit)? = null
 
     /**
@@ -33,8 +33,9 @@ actual object FilePicker {
         answer(uri)
     }
 
-    actual fun exportZip(
+    actual fun exportFile(
         suggestedName: String,
+        mime: String,
         write: (sink: (ByteArray) -> Unit) -> Unit,
         onDone: (PickResult) -> Unit,
     ) {
@@ -61,7 +62,7 @@ actual object FilePicker {
                 }
             }
         }
-        launch(suggestedName)
+        launch(suggestedName, mime)
     }
 
     actual fun importFile(read: (source: (Int) -> ByteArray?) -> Unit, onDone: (PickResult) -> Unit) {

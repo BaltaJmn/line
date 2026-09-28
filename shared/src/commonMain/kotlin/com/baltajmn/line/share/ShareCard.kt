@@ -35,10 +35,11 @@ import kotlinx.datetime.LocalDate
 private const val CARD_W = 1080
 private const val CARD_H = 1350
 
-private val Cream = Color(0xFFFBF8F3)
-private val Ink = Color(0xFF39352E)
-private val Muted = Color(0xFF8B8479)
-private val Empty = Color(0xFFEDE7DC)
+// The paper of the family, shared with the book: both are read away from the app, always in light.
+internal val Cream = Color(0xFFFBF8F3)
+internal val Ink = Color(0xFF39352E)
+internal val Muted = Color(0xFF8B8479)
+internal val Empty = Color(0xFFEDE7DC)
 
 fun renderYearCard(
     journal: Journal,

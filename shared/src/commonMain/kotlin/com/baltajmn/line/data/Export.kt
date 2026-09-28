@@ -15,6 +15,7 @@ import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonObject
 
 const val EXPORT_PREFIX = "purl"
+const val ZIP_MIME = "application/zip"
 
 const val ENTRIES_NAME = "entries.json"
 const val JOURNAL_NAME = "journal.md"
@@ -29,7 +30,7 @@ fun exportName(today: LocalDate) = "$EXPORT_PREFIX-$today.zip"
 fun startExport(today: LocalDate, onResult: (PickResult) -> Unit) {
     LineRepository.saveNow()
     val snapshot = LineRepository.file
-    FilePicker.exportZip(exportName(today), { sink -> exportZip(snapshot, sink) }) { result ->
+    FilePicker.exportFile(exportName(today), ZIP_MIME, { sink -> exportZip(snapshot, sink) }) { result ->
         if (result == PickResult.Done) {
             LineRepository.updateSettings { it.copy(lastBackup = today.toString(), backupNoticeDone = true) }
         }

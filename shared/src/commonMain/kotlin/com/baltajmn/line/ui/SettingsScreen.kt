@@ -42,6 +42,11 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.baltajmn.line.book.BookWriter
+import com.baltajmn.line.book.PDF_MIME
+import com.baltajmn.line.book.bookDays
+import com.baltajmn.line.book.bookName
+import com.baltajmn.line.book.makeBook
 import com.baltajmn.line.data.AppInfo
 import com.baltajmn.line.data.Backup
 import com.baltajmn.line.data.abandonImport
@@ -65,6 +70,8 @@ import com.baltajmn.line.i18n.S
 import com.baltajmn.line.ui.theme.Cover
 import com.baltajmn.line.ui.theme.MAX_CONTENT_WIDTH
 import com.baltajmn.line.ui.theme.Styles
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 
@@ -84,6 +91,9 @@ fun SettingsScreen(onBack: () -> Unit) {
     var imported by remember { mutableStateOf<Int?>(null) }
     var restoring by remember { mutableStateOf(false) }
     var restored by remember { mutableStateOf<String?>(null) }
+    // Days laid out and days in all while the book is being made; null the rest of the time.
+    var making by remember { mutableStateOf<Pair<Int, Int>?>(null) }
+    var book by remember { mutableStateOf<Job?>(null) }
     val scope = rememberCoroutineScope()
 
     Column(
@@ -188,6 +198,41 @@ fun SettingsScreen(onBack: () -> Unit) {
                         }
                     },
                 )
+                SettingRow(
+                    title = S.bookRow,
+                    subtitle = S.bookSubtitle,
+                    enabled = !empty && FilePicker.available && !busy && making == null,
+                    onClick = {
+                        if (!settings.pro) {
+                            Paywall.open = true
+                        } else {
+                            val journal = LineRepository.journal
+                            making = 0 to bookDays(journal).size
+                            book = scope.launch {
+                                val made = try {
+                                    makeBook(journal, Cover.of(settings.cover).color) { n, total -> making = n to total }
+                                } catch (e: CancellationException) {
+                                    throw e
+                                } catch (e: Exception) {
+                                    false
+                                } finally {
+                                    // Here and not on the button: the drawing thread may still report
+                                    // one last page after a cancel, and this runs only once it is done.
+                                    making = null
+                                }
+                                if (!made) {
+                                    failure = null to S.bookFailed
+                                } else {
+                                    // Made first, then asked where: the picker never waits on a book.
+                                    FilePicker.exportFile(bookName(today()), PDF_MIME, { sink -> BookWriter.deliver(sink) }) { result ->
+                                        BookWriter.discard()
+                                        if (result == PickResult.Failed) failure = null to S.bookFailed
+                                    }
+                                }
+                            }
+                        }
+                    },
+                )
             }
 
             Section(S.sectionPro) {
@@ -230,6 +275,11 @@ fun SettingsScreen(onBack: () -> Unit) {
     }
 
     restored?.let { Ask(null, it, S.ok, onConfirm = { restored = null }) }
+
+    making?.let { (n, total) ->
+        // Stopping is the only answer while the book is made, so closing the dialog stops it too.
+        Ask(null, S.bookMaking(n, total), S.cancel, onConfirm = { book?.cancel() })
+    }
 
     pending?.let { (result, delivered) ->
         Ask(

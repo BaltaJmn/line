@@ -105,4 +105,17 @@ class StringsTest {
         assertEquals(12, S.monthNames().size)
         assertEquals(7, S.weekdayShort().size)
     }
+
+    @Test
+    fun book() {
+        each({ S.bookYears(2026, 2030) }, "2026 to 2030", "2026 a 2030", "2026 a 2030", "2026 bis 2030", "2026 à 2030")
+        each(
+            { S.bookMaking(120, 366) },
+            "Laying out the book: 120 of 366",
+            "Maquetando el libro: 120 de 366",
+            "Diagramando o livro: 120 de 366",
+            "Buch wird erstellt: 120 von 366",
+            "Mise en page du livre : 120 sur 366",
+        )
+    }
 }

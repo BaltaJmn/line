@@ -35,8 +35,10 @@ actual object FilePicker {
 
     actual val available: Boolean get() = rootController != null
 
-    actual fun exportZip(
+    // The type goes by the name here: the export picker moves a file, whatever it is.
+    actual fun exportFile(
         suggestedName: String,
+        mime: String,
         write: (sink: (ByteArray) -> Unit) -> Unit,
         onDone: (PickResult) -> Unit,
     ) {
@@ -87,7 +89,7 @@ actual object FilePicker {
                     val unlocked = url.startAccessingSecurityScopedResource()
                     val handle = NSFileHandle.fileHandleForReadingAtPath(path)
                     if (handle != null) {
-                        read { n -> handle.read(n)?.takeIf { it.isNotEmpty() } }
+                        read { n -> handle.readChunk(n)?.takeIf { it.isNotEmpty() } }
                         handle.closeFile()
                     }
                     if (unlocked) url.stopAccessingSecurityScopedResource()
@@ -145,7 +147,7 @@ private fun NSFileHandle.write(bytes: ByteArray): Boolean = memScoped {
 }
 
 @OptIn(ExperimentalForeignApi::class)
-private fun NSFileHandle.read(n: Int): ByteArray? = memScoped {
+internal fun NSFileHandle.readChunk(n: Int): ByteArray? = memScoped {
     val error = alloc<ObjCObjectVar<NSError?>>()
     val data: NSData? = readDataUpToLength(n.toULong(), error.ptr)
     data?.toByteArray()

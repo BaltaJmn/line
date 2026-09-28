@@ -12,10 +12,16 @@ expect object FilePicker {
     val available: Boolean
 
     /**
-     * Asks where to put the backup and hands [write] a sink into that destination. [onDone] is Done
-     * only once the system confirms the file is written, which is the only moment lastBackup moves.
+     * Asks where to put a file of type [mime] (the backup, the book) and hands [write] a sink into
+     * that destination. [onDone] is Done only once the system confirms the file is written, which is
+     * the only moment lastBackup moves.
      */
-    fun exportZip(suggestedName: String, write: (sink: (ByteArray) -> Unit) -> Unit, onDone: (PickResult) -> Unit)
+    fun exportFile(
+        suggestedName: String,
+        mime: String,
+        write: (sink: (ByteArray) -> Unit) -> Unit,
+        onDone: (PickResult) -> Unit,
+    )
 
     /**
      * Asks for a file and calls [read] with a pull source while it is open: the source hands back up

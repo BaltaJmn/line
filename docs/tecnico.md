@@ -1284,13 +1284,18 @@ Fechas siempre fijas y pasadas como parámetro.
 
 ### 12.1 Libro en PDF
 
-`book/Book.kt` (común) calcula las páginas; `expect object BookRenderer` las dibuja: Android con
+`book/Book.kt` (común) calcula las páginas y dónde va cada palabra; `expect object BookWriter` solo
+mide texto y dibuja lo que se le dice, así que los dos PDF salen iguales página a página. Android con
 `PdfDocument` y un `Typeface` cargado de la misma Literata; iOS con `UIGraphicsPDFRenderer` y la fuente
 registrada con `CTFontManagerRegisterFontsForURL`. A5 de 420x595 puntos. Páginas: portada, y una por
 fecha del calendario (1 de enero a 31 de diciembre, 29 de febrero incluido si existe) con al menos una
 entrada, con un bloque por año en orden **ascendente**. Se dibuja página a página, sin montar el libro
-en memoria, en un fichero temporal que luego se entrega al selector del sistema. Nombre
-`purl-book-AAAA-MM-DD.pdf`. Cancelable entre páginas. Maqueta en `docs/pantallas.md`.
+en memoria, en un fichero temporal (`cacheDir` en Android, `NSTemporaryDirectory` en iOS) que luego se
+entrega al selector del sistema (`FilePicker.exportFile` con `application/pdf`) y se borra elija lo que
+elija el usuario. Primero se hace el libro y después se pregunta dónde: el selector no espera nunca a
+que se maquete. Las fotos entran como miniatura recortada a 4:3 al doble del tamaño impreso, no el
+original. Una foto ilegible deja su texto en la página. Nombre `purl-book-AAAA-MM-DD.pdf`. Cancelable
+entre páginas. Maqueta en `docs/pantallas.md`.
 
 ### 12.2 Siri
 
