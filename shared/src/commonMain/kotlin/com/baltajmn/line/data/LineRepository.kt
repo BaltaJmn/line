@@ -70,8 +70,16 @@ object LineRepository {
     private var saveJob: Job? = null
     private var written: JournalFile? = null
 
+    private var loaded = false
+
+    /** For a caller that may run before the app did (Siri): reads the diary only the first time. */
+    fun loadOnce() {
+        if (!loaded) load()
+    }
+
     /** Reads the diary, falling back to the backup, and never writes over a file it could not read. */
     fun load() {
+        loaded = true
         val main = Storage.read()
         var loaded = decode(main)
         var previous: String? = null

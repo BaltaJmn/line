@@ -852,6 +852,13 @@ object S {
         "Une question quand la page est vide",
     )
 
+    val proSiri = t(
+        "Dictate the line with Siri",
+        "Dictar la línea con Siri",
+        "Ditar a linha com a Siri",
+        "Die Zeile mit Siri diktieren",
+        "Dicter la ligne avec Siri",
+    )
     val proMemoryWidget = t(
         "The memory widget",
         "El widget del recuerdo",

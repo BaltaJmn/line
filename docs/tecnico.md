@@ -1308,6 +1308,11 @@ descripción literales en inglés, y `perform()` que llama a `LineBridge.shared.
 - Sin Pro: devuelve `NeedsPro` y el intent responde con el diálogo `siriNeedsPro`.
 - Con Pro: si hoy no tiene entrada, la crea con ese texto; si la tiene, añade `"\n" + text`. Nunca
   recorta. Guarda con `flush()`. Responde `siriSaved`.
+- `dictate` es `suspend` y corre en el hilo principal. Puede llegar sin ventana (Siri lanza la app en
+  segundo plano), así que lee el diario con `LineRepository.loadOnce()`: la primera vez lo carga y
+  si la app ya estaba abierta no pisa lo que haya en memoria sin guardar.
+- En Swift el enum llega como `DictateResult.saved` y `DictateResult.needspro` (Kotlin/Native baja a
+  minúsculas el nombre entero), y el resultado de un `suspend`, opcional.
 
 `AppShortcutsProvider` con las frases de `docs/textos.md`, siempre con `\(.applicationName)`.
 
