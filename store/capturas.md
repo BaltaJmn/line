@@ -43,7 +43,8 @@ Espera dentro `01_hoy.png` a `06_ajustes.png` y deja el resultado en
 | `05_tarjeta` | Compartir, tarjeta del año | La tarjeta de 1080x1350 en la vista previa, antes de la hoja del sistema |
 | `06_ajustes` | Ajustes | Bloqueo encendido, recordatorio a las 21:00, la fila de portadas con salvia elegida |
 
-La 06 necesita un bloqueo de dispositivo para poder encender el de Purl: en el emulador, un PIN en
+La 06 necesita un bloqueo de dispositivo para poder encender el de Purl, y encenderlo otra vez en
+cada idioma, porque el diario generado lo trae apagado. El del dispositivo: en el emulador, un PIN en
 los ajustes del sistema; en el simulador, *Features > Face ID > Enrolled* y *Matching Face* cuando lo
 pida.
 
@@ -69,7 +70,8 @@ Fondos, uno por escena, los seis primeros pasteles de la paleta aclarados como e
 python3 tools/demo/generar.py --idioma es-ES [--hoy AAAA-MM-DD]
 ```
 
-`--hoy` es por defecto el día en que se ejecuta: el diario se construye alrededor de la fecha del
+Entre las 00:00 y las 03:00 el día lógico de la app aún es el anterior: ahí `--hoy` va con la fecha de
+ayer, o Hoy enseña un día de relleno. `--hoy` es por defecto el día en que se ejecuta: el diario se construye alrededor de la fecha del
 dispositivo, así que no hay que tocar el reloj del emulador ni del simulador. Deja
 `tools/demo/salida/<idioma>/entries.json` y `tools/demo/salida/<idioma>/photos/`. `tools/demo/salida/`
 va en `.gitignore`.
