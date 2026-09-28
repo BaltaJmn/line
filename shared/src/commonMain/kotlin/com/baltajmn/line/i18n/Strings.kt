@@ -407,11 +407,25 @@ object S {
         "La copie ne contient aucune ligne.",
     )
     val importIsMoodTraker = t(
-        "This is a backup from MoodTraker. You'll be able to bring its notes in the next version.",
-        "Es una copia de MoodTraker. Podrás traer sus notas en la próxima versión.",
-        "Isso é uma cópia do MoodTraker. Você vai poder trazer as notas dele na próxima versão.",
-        "Das ist eine Sicherung von MoodTraker. Du kannst die Notizen in der nächsten Version übernehmen.",
-        "C'est une copie de MoodTraker. Tu pourras importer ses notes dans la prochaine version.",
+        "This is a backup from MoodTraker. Bring its notes in with Import from MoodTraker.",
+        "Es una copia de MoodTraker. Trae sus notas con Importar de MoodTraker.",
+        "Isso é uma cópia do MoodTraker. Traga as notas dele com Importar do MoodTraker.",
+        "Das ist eine Sicherung von MoodTraker. Ihre Notizen holst du mit \"Von MoodTraker importieren\".",
+        "C'est une copie de MoodTraker. Récupère ses notes avec Importer depuis MoodTraker.",
+    )
+    val importMoodRow = t(
+        "Import from MoodTraker",
+        "Importar de MoodTraker",
+        "Importar do MoodTraker",
+        "Von MoodTraker importieren",
+        "Importer depuis MoodTraker",
+    )
+    val importMoodNotBackup = t(
+        "That file is not a backup from MoodTraker.",
+        "Ese fichero no es una copia de MoodTraker.",
+        "Esse arquivo não é uma cópia do MoodTraker.",
+        "Diese Datei ist keine Sicherung von MoodTraker.",
+        "Ce fichier n'est pas une copie de MoodTraker.",
     )
     val exportFailed = t(
         "Couldn't save the backup.",
@@ -906,6 +920,44 @@ object S {
         t("What small detail don't you want to forget?", "¿Qué detalle pequeño no quieres olvidar?", "Que detalhe pequeno você não quer esquecer?", "Welches kleine Detail möchtest du nicht vergessen?", "Quel petit détail ne veux-tu pas oublier ?"),
         t("How would you sum up today in five words?", "¿Cómo contarías hoy en cinco palabras?", "Como você resumiria hoje em cinco palavras?", "Wie würdest du den heutigen Tag in fünf Wörtern beschreiben?", "Comment résumerais-tu aujourd'hui en cinq mots ?"),
     )[i]
+
+    fun importMoodCount(added: Int, skipped: Int): String {
+        val came = if (added == 1) {
+            t(
+                "1 note comes in from MoodTraker.",
+                "Entra 1 nota de MoodTraker.",
+                "Entra 1 nota do MoodTraker.",
+                "1 Notiz aus MoodTraker kommt dazu.",
+                "1 note de MoodTraker est importée.",
+            )
+        } else {
+            t(
+                "$added notes come in from MoodTraker.",
+                "Entran $added notas de MoodTraker.",
+                "Entram $added notas do MoodTraker.",
+                "$added Notizen aus MoodTraker kommen dazu.",
+                "$added notes de MoodTraker sont importées.",
+            )
+        }
+        val stayed = when (skipped) {
+            0 -> return came
+            1 -> t(
+                "1 day already had a line and stays as it is.",
+                "1 día ya tenía línea y se queda como está.",
+                "1 dia já tinha linha e fica como está.",
+                "1 Tag hatte schon eine Zeile und bleibt, wie er ist.",
+                "1 jour avait déjà une ligne et reste tel quel.",
+            )
+            else -> t(
+                "$skipped days already had a line and stay as they are.",
+                "$skipped días ya tenían línea y se quedan como están.",
+                "$skipped dias já tinham linha e ficam como estão.",
+                "$skipped Tage hatten schon eine Zeile und bleiben, wie sie sind.",
+                "$skipped jours avaient déjà une ligne et restent tels quels.",
+            )
+        }
+        return "$came $stayed"
+    }
 
     fun bookYears(from: Int, to: Int) = t("$from to $to", "$from a $to", "$from a $to", "$from bis $to", "$from à $to")
 

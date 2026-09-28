@@ -50,6 +50,8 @@ import com.baltajmn.line.book.makeBook
 import com.baltajmn.line.data.AppInfo
 import com.baltajmn.line.data.Backup
 import com.baltajmn.line.data.abandonImport
+import com.baltajmn.line.data.mergeMood
+import com.baltajmn.line.data.readMoodBackup
 import com.baltajmn.line.data.FilePicker
 import com.baltajmn.line.data.ImportFailed
 import com.baltajmn.line.data.ImportProblem
@@ -67,6 +69,7 @@ import com.baltajmn.line.data.today
 import com.baltajmn.line.data.SIBLINGS
 import com.baltajmn.line.data.storeUrl
 import com.baltajmn.line.i18n.S
+import com.baltajmn.line.model.Journal
 import com.baltajmn.line.ui.theme.Cover
 import com.baltajmn.line.ui.theme.MAX_CONTENT_WIDTH
 import com.baltajmn.line.ui.theme.Styles
@@ -86,6 +89,8 @@ fun SettingsScreen(onBack: () -> Unit) {
     var busy by remember { mutableStateOf(false) }
     var applying by remember { mutableStateOf(false) }
     var pending by remember { mutableStateOf<Pair<MergeResult, Set<String>>?>(null) }
+    // The pending import came from MoodTraker: same dialog, its own sentence.
+    var fromMood by remember { mutableStateOf(false) }
     // Title and text together: an export that fails is not an import that fails (pantallas 9.3).
     var failure by remember { mutableStateOf<Pair<String?, String>?>(null) }
     var imported by remember { mutableStateOf<Int?>(null) }
@@ -193,12 +198,44 @@ fun SettingsScreen(onBack: () -> Unit) {
                                     failure = S.importFailedTitle to S.importDamaged
                                 }
                                 else -> answer.fold(
-                                    onSuccess = { pending = merge(LineRepository.journal, it.journal) to it.photos },
+                                    onSuccess = {
+                                        fromMood = false
+                                        pending = merge(LineRepository.journal, it.journal) to it.photos
+                                    },
                                     onFailure = {
                                         // The photos it had already parked go with the refusal.
                                         abandonImport()
                                         failure = S.importFailedTitle to importText(it)
                                     },
+                                )
+                            }
+                        }
+                    },
+                )
+                SettingRow(
+                    title = S.importMoodRow,
+                    enabled = FilePicker.available && !busy,
+                    onClick = {
+                        busy = true
+                        var read: Result<Journal>? = null
+                        FilePicker.importFile({ source -> read = runCatching { readMoodBackup(source) } }) { result ->
+                            busy = false
+                            val answer = read
+                            when {
+                                result == PickResult.Cancelled -> Unit
+                                answer == null -> failure = S.importFailedTitle to S.importDamaged
+                                else -> answer.fold(
+                                    onSuccess = { notes ->
+                                        val merged = mergeMood(LineRepository.journal, notes)
+                                        // Nothing new is not a question: it is the "already up to date" answer.
+                                        if (merged.added == 0) {
+                                            imported = 0
+                                        } else {
+                                            fromMood = true
+                                            pending = merged to emptySet()
+                                        }
+                                    },
+                                    onFailure = { failure = S.importFailedTitle to importText(it) },
                                 )
                             }
                         }
@@ -290,7 +327,7 @@ fun SettingsScreen(onBack: () -> Unit) {
     pending?.let { (result, delivered) ->
         Ask(
             title = S.importTitle,
-            text = S.importSummary(result.added, result.joined, result.same),
+            text = if (fromMood) S.importMoodCount(result.added, result.same) else S.importSummary(result.added, result.joined, result.same),
             // The button says so while the photos are copied and the diary rewritten (pantallas 9.2).
             confirm = if (applying) S.working else S.importAction,
             onConfirm = {
@@ -411,6 +448,7 @@ private fun importText(e: Throwable): String = when ((e as? ImportFailed)?.probl
     ImportProblem.TooNew -> S.importTooNew
     ImportProblem.Empty -> S.importEmpty
     ImportProblem.IsMoodTraker -> S.importIsMoodTraker
+    ImportProblem.MoodNotBackup -> S.importMoodNotBackup
     // A file that broke while being read is damaged as far as the user is concerned.
     ImportProblem.Damaged, null -> S.importDamaged
 }

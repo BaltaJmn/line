@@ -6,6 +6,7 @@ import com.baltajmn.line.model.Journal
 import com.baltajmn.line.model.JournalFile
 import com.baltajmn.line.model.JournalJson
 import com.baltajmn.line.model.LineEntry
+import com.baltajmn.line.model.addTag
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.JsonObject
@@ -78,6 +79,7 @@ enum class ImportProblem(val key: String) {
     TooNew("importTooNew"),
     Empty("importEmpty"),
     IsMoodTraker("importIsMoodTraker"),
+    MoodNotBackup("importMoodNotBackup"),
 }
 
 class ImportFailed(val problem: ImportProblem) : Exception(problem.key)
@@ -163,7 +165,10 @@ private fun journalOf(text: String): Journal {
         throw ImportFailed(ImportProblem.Damaged)
     }
     // Pro is never restored from a backup: what was paid for is asked of the store, not of a file.
-    return file.entries.mapValues { (_, e) -> LineEntry(e.text, e.photo, e.late) }
+    // Tags go through addTag again: a hand edited backup could bring six, or two spellings of one.
+    return file.entries.mapValues { (_, e) ->
+        LineEntry(e.text, e.photo, e.late, e.tags.fold(emptyList()) { acc, raw -> addTag(acc, raw) })
+    }
 }
 
 // --- reading the picked file ---------------------------------------------------------------------
@@ -191,7 +196,7 @@ private fun replay(head: ByteArray, source: (Int) -> ByteArray?): (Int) -> ByteA
     }
 }
 
-private fun drain(source: (Int) -> ByteArray?): ByteArray {
+internal fun drain(source: (Int) -> ByteArray?): ByteArray {
     var out = ByteArray(0)
     while (true) {
         val chunk = source(64 * 1024) ?: return out

@@ -1328,8 +1328,12 @@ widget recorta al pintar). Sin Pro: estado bloqueado, toque al paywall.
 
 ### 12.5 Importar de MoodTraker
 
-Botón en Ajustes, sección de copia. Lee 4.5, añade solo fechas nuevas con `late = false`, confirma con
-`importMoodCount(nuevas, saltadas)` y guarda.
+Botón en Ajustes, sección de copia. Lee 4.5 (`data/MoodImport.kt`: `readMoodBackup` y `mergeMood`),
+añade solo fechas nuevas con `late = false`, confirma con `importMoodCount(nuevas, saltadas)` y guarda.
+Las etiquetas pasan por `addTag`, así que llegan normalizadas y como mucho cinco. Un fichero que no es
+de MoodTraker da `importMoodNotBackup`; uno sin ninguna nota con texto, `importEmpty`. Si ninguna fecha
+es nueva no hay pregunta: sale `importDone(0)`. Una copia de MoodTraker en la fila de importar normal
+sigue dando `importIsMoodTraker`, que ahora manda a esta fila.
 
 ### 12.6 Etiquetas
 

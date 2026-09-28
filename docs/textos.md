@@ -162,8 +162,15 @@ Todos los textos de la app en los cinco idiomas. De aquí salen `i18n/Strings.kt
 | `importDamaged` | | The backup is incomplete or damaged. Your diary wasn't touched. | La copia está incompleta o dañada. Tu diario no se ha tocado. | A cópia está incompleta ou danificada. Seu diário não foi alterado. | Die Sicherung ist unvollständig oder beschädigt. Dein Tagebuch wurde nicht verändert. | La copie est incomplète ou endommagée. Ton journal n'a pas été touché. |
 | `importTooNew` | | This backup is from a newer version of Purl. Update the app and try again. | Esta copia es de una versión más nueva de Purl. Actualiza la app y vuelve a probar. | Esta cópia é de uma versão mais nova do Purl. Atualize o app e tente de novo. | Diese Sicherung stammt aus einer neueren Version von Purl. Aktualisiere die App und versuch es erneut. | Cette copie vient d'une version plus récente de Purl. Mets à jour l'app et réessaie. |
 | `importEmpty` | | The backup has no lines. | La copia no tiene ninguna línea. | A cópia não tem nenhuma linha. | Die Sicherung enthält keine Zeile. | La copie ne contient aucune ligne. |
-| `importIsMoodTraker` | | This is a backup from MoodTraker. You'll be able to bring its notes in the next version. | Es una copia de MoodTraker. Podrás traer sus notas en la próxima versión. | Isso é uma cópia do MoodTraker. Você vai poder trazer as notas dele na próxima versão. | Das ist eine Sicherung von MoodTraker. Du kannst die Notizen in der nächsten Version übernehmen. | C'est une copie de MoodTraker. Tu pourras importer ses notes dans la prochaine version. |
+| `importIsMoodTraker` | | This is a backup from MoodTraker. Bring its notes in with Import from MoodTraker. | Es una copia de MoodTraker. Trae sus notas con Importar de MoodTraker. | Isso é uma cópia do MoodTraker. Traga as notas dele com Importar do MoodTraker. | Das ist eine Sicherung von MoodTraker. Ihre Notizen holst du mit "Von MoodTraker importieren". | C'est une copie de MoodTraker. Récupère ses notes avec Importer depuis MoodTraker. |
 | `exportFailed` | | Couldn't save the backup. | No se ha podido guardar la copia. | Não foi possível salvar a cópia. | Die Sicherung konnte nicht gespeichert werden. | Impossible d'enregistrer la copie. |
+
+`importIsMoodTraker` cambia en v1.1: hasta entonces decía que las notas llegarían en la próxima
+versión (You'll be able to bring its notes in the next version. / Podrás traer sus notas en la
+próxima versión.).
+
+`importMoodCount` con plurales ("Entra 1 nota", "1 día ya tenía línea y se queda como está"); con
+`skipped` a 0 se queda en la primera frase. Con `added` a 0 no hay pregunta: sale `importDone(0)`.
 
 `importSummary` con plurales: "1 día nuevo", "1 que se junta", "1 igual"; y los ceros se omiten de la
 frase (si `joined` es 0, no aparece esa parte). `importDone` cuenta `added + joined`, y tiene su propia
