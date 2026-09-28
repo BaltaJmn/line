@@ -852,6 +852,16 @@ object S {
         "Une question quand la page est vide",
     )
 
+    val tileLabel = t("Today's line", "Línea de hoy", "Linha de hoje", "Heutige Zeile", "Ligne du jour")
+    val tileWritten = t("Written", "Escrita", "Escrita", "Geschrieben", "Écrite")
+    val tileNotWritten = t("Not written yet", "Por escribir", "Por escrever", "Noch nicht geschrieben", "À écrire")
+    val proTile = t(
+        "Access from Quick Settings",
+        "El acceso desde Ajustes rápidos",
+        "O acesso pelas Configurações rápidas",
+        "Der Zugriff über die Schnelleinstellungen",
+        "L'accès depuis les réglages rapides",
+    )
     val addTag = t("+ tag", "+ etiqueta", "+ etiqueta", "+ Etikett", "+ étiquette")
 
     fun a11yRemoveTag(tag: String) =

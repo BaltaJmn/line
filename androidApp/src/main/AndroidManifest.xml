@@ -53,6 +53,18 @@
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/year_widget_info" />
         </receiver>
 
+        <!-- Baldosa de Ajustes rapidos (v1.1): abre Hoy con el foco en el campo. -->
+        <service
+            android:name="com.baltajmn.line.widget.QuickTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_launcher_monochrome"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
         <!-- La hoja de compartir solo puede leer la tarjeta por aqui: nada mas sale de la cache. -->
         <provider
             android:name="androidx.core.content.FileProvider"

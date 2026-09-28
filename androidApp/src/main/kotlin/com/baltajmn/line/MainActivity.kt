@@ -59,6 +59,7 @@ class MainActivity : FragmentActivity() {
             pickPhoto.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         }
         Route.pending = intent?.getStringExtra("screen")
+        Route.focusToday = intent?.getBooleanExtra("focus", false) == true
         setContent { App() }
     }
 
@@ -67,6 +68,7 @@ class MainActivity : FragmentActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         Route.pending = intent.getStringExtra("screen")
+        Route.focusToday = intent.getBooleanExtra("focus", false)
     }
 
     // The launchers belong to this instance's registry: leaving them in a process wide object would

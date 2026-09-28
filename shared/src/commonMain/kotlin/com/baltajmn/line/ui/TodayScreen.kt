@@ -42,6 +42,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.baltajmn.line.data.LineRepository
+import com.baltajmn.line.data.Route
 import com.baltajmn.line.data.PickResult
 import com.baltajmn.line.data.Reminder
 import com.baltajmn.line.data.startExport
@@ -100,12 +101,13 @@ fun TodayScreen(today: LocalDate, onYear: () -> Unit, onSettings: () -> Unit, on
             key(today) {
                 val focus = remember { FocusRequester() }
                 val keyboard = LocalSoftwareKeyboardController.current
-                // Unwritten, zero taps before writing. Written, it opens reading.
-                LaunchedEffect(Unit) {
-                    if (text.isEmpty()) {
+                // Unwritten, zero taps before writing. Written, it opens reading, unless the tile asked.
+                LaunchedEffect(Route.focusToday) {
+                    if (text.isEmpty() || Route.focusToday) {
                         focus.requestFocus()
                         keyboard?.show()
                     }
+                    Route.focusToday = false
                 }
                 Spacer(Modifier.height(16.dp))
                 LineField(

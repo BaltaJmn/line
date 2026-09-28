@@ -11,4 +11,7 @@ import androidx.compose.runtime.setValue
 object Route {
     /** "today", "year" or "pro". Anything else is ignored rather than guessed at. */
     var pending by mutableStateOf<String?>(null)
+
+    /** Today opens with the keyboard up even when the day is written: the tile's whole point. */
+    var focusToday by mutableStateOf(false)
 }

@@ -1324,7 +1324,10 @@ widget recorta al pintar). Sin Pro: estado bloqueado, toque al paywall.
 `QuickTileService` (A `HabitTracker/.../QuickToggleTileService.kt`): etiqueta `tileLabel`, subtítulo
 `tileWritten` o `tileNotWritten` (API 29+), estado `STATE_ACTIVE` si hoy está escrito. Al tocar:
 `startActivityAndCollapse` con el extra `screen=today` y `focus=true` (en API 34+, la variante con
-`PendingIntent`). Sin Pro, `screen=pro`.
+`PendingIntent`). Sin Pro, `screen=pro`. Lee `widget.json` con `widgetView`, como los widgets, y no el
+diario: la cortina se abre en la pantalla de bloqueo. Abre dentro de `unlockAndRun`, para que nadie
+llegue a Hoy desde un teléfono bloqueado. `focus` llega a `Route.focusToday`, que Hoy consume al
+componerse: con el día escrito también sube el teclado.
 
 ### 12.5 Importar de MoodTraker
 
