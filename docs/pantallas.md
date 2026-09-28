@@ -296,7 +296,9 @@ Pantalla completa sobre la actual, fondo `background`, mismo `verticalScroll` m�
 
 Burbuja sobre la celda: fondo `surface`, borde 1 dp, radio 12, relleno 12, ancho máximo 240; la
 fecha corta en `Eyebrow` y los primeros 60 puntos de código en `UserSmall` con `...` si se cortan.
-Se va al soltar.
+Se va al soltar. Encima de la celda, centrada sobre ella y dentro del ancho de la rejilla; debajo solo
+si arriba no cabe (las primeras filas). Solo en un día escrito: la pulsación larga en un hueco no hace
+nada, y un día con foto y sin texto enseña solo la fecha.
 
 ---
 
