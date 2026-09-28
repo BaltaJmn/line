@@ -185,8 +185,9 @@ Capturas crudas: `adb exec-out screencap -p > 01_hoy.png` y `xcrun simctl io boo
 
 ## 7. Gráfico de cabecera de Play e icono de la ficha
 
-`tools/store/cabecera.py` deja `store/feature/<idioma>.png` (1024x500, los cinco idiomas) y
-`store/icon-512.png`. Fondo crema, "Purl" en Literata a la izquierda, la línea de abajo debajo, y a
+`tools/store/cabecera.py` deja `store/play/icon-512.png` y `store/play/feature-1024x500.png` (en-US,
+el idioma por defecto de la ficha), que es donde los busca `~/keys/play.sh ficha`, y
+`store/feature/<idioma>.png` para los otros cuatro (1024x500). Fondo crema, "Purl" en Literata a la izquierda, la línea de abajo debajo, y a
 la derecha las cinco vueltas de cápsulas del icono (`docs/pantallas.md` 13) sobre crema.
 
 | Idioma | Línea |
@@ -199,10 +200,12 @@ la derecha las cinco vueltas de cápsulas del icono (`docs/pantallas.md` 13) sob
 
 ## 8. Dónde se suben
 
-Todo **a mano**: la API de listings solo escribe texto.
+Play, **por API** con `~/keys/play.sh ficha` (`ci.md`): textos de `listings/`, icono, cabecera de
+en-US y las capturas de `store/screenshots/play/<idioma>/`. Las cabeceras de los otros cuatro idiomas
+van a mano. App Store, **a mano**.
 
-- Play Console, *Crecer > Presencia en la tienda > Ficha principal*: icono, cabecera por idioma y las
-  seis de `play/` en en-US y es-ES. Sin capturas de tablet en v1.0: Play marca la app como "no
+- Play Console, *Crecer > Presencia en la tienda > Ficha principal*: solo las cabeceras de es-ES,
+  pt-BR, de-DE y fr-FR; el resto lo sube `play.sh`. Sin capturas de tablet en v1.0: Play marca la app como "no
   optimizada para tablets" en pantallas grandes, que es asumible.
 - App Store Connect, página de la versión, por idioma: las seis de `iphone/` en el hueco de 6,9" y las
   seis de `ipad/` en el de 13".

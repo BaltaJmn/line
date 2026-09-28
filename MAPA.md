@@ -45,13 +45,14 @@ El árbol completo del código, fichero a fichero y con el origen de cada uno, e
 | `iosApp/LineWidget` | Extensión de widgets: `Info.plist`, `LineWidget.entitlements`, `LineWidget.swift` (hoy y pantalla de bloqueo), `LineYearWidget.swift` (el año, Pro) |
 | `iosApp/Configuration/Config.xcconfig` | Versión, identificador y Team ID de iOS |
 | `iosApp/iosApp.xcodeproj/xcshareddata/xcschemes` | El esquema `iosApp`, compartido: sin él el CI no puede archivar |
-| `.github/workflows` | `tests.yml`, `release.yml` (Play), `release-ios.yml` (TestFlight), `listings.yml` (ficha) |
+| `.github/workflows` | `tests.yml`, `release.yml` (Play), `release-ios.yml` (TestFlight), `listings.yml` (ficha), `pages.yml` (política) |
 | `tools/play-listing/subir.py` | Comprueba los topes de la ficha de Play y la sube |
 | `tools/demo/generar.py` | El diario de demostración de las capturas, con reglas fijas |
 | `tools/store/capturas.py` | Monta las capturas crudas en las láminas de Play, iPhone y iPad |
 | `tools/store/cabecera.py` | Cabecera de Play de los cinco idiomas y el icono de 512 |
 | `tools/generate_icons.py`, `tools/icon-master.svg` | El icono de las dos plataformas, generado de una geometría |
-| `store/feature/<idioma>.png`, `store/icon-512.png` | Lo que genera `cabecera.py`, listo para subir a mano |
+| `store/play/icon-512.png`, `store/play/feature-1024x500.png` | Icono y cabecera de en-US, donde los busca `~/keys/play.sh ficha` |
+| `store/feature/<idioma>.png` | Cabeceras de los otros cuatro idiomas, a mano |
 
 ## Documentos para programar
 
@@ -73,7 +74,7 @@ El árbol completo del código, fichero a fichero y con el origen de cada uno, e
 | `store/listings/<idioma>/` | Ficha de Play: `title.txt` (30), `short.txt` (80), `full.txt` (4000) |
 | `store/app-store/<idioma>/` | Ficha de App Store: `name.txt` (30), `subtitle.txt` (30), `keywords.txt` (100), `promo.txt` (170), `description.txt` (4000) |
 | `store/whatsnew/whatsnew-<idioma>` | Novedades de la versión, tope 500, las sube `release.yml` |
-| `store/privacy/index.html` | La política de privacidad, inglés y español. Es el original: lo publicado en `BaltaJmn/line-privacy` es una copia |
+| `store/privacy/index.html` | La política de privacidad, inglés y español. La publica `pages.yml` en `line.baltajmn.dev` |
 | `store/privacy/README.md` | Dónde se publica, cómo se monta el DNS y sobre qué hechos del código está escrita |
 
 Idiomas de las dos fichas: `en-US` (el de por defecto), `es-ES`, `pt-BR`, `de-DE`, `fr-FR`.
@@ -91,7 +92,7 @@ Resumen de `docs/tecnico.md` 3, para saber dónde buscar cuando exista:
 | `androidApp/` | `MainActivity.kt`, manifiesto, `res/xml`, previsualizaciones de widgets, `strings.xml`, icono |
 | `iosApp/iosApp`, `iosApp/LineWidget`, `iosApp/Configuration` | App, widgets de WidgetKit y `Config.xcconfig` |
 | `tools/` | `play-listing/subir.py`, `store/capturas.py`, `store/cabecera.py`, `demo/generar.py`, `generate_icons.py`, `check-linestore.swift` |
-| `.github/workflows/` | `tests.yml`, `release.yml`, `release-ios.yml`, `listings.yml` |
+| `.github/workflows/` | `tests.yml`, `release.yml`, `release-ios.yml`, `listings.yml`, `pages.yml` |
 
 Los pasos de cuenta que son idénticos en las tres apps (Play Console, cuenta de Apple, Google Cloud,
 RevenueCat) están contados largo en `../HabitTracker/store/`.

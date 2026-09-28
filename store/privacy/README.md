@@ -8,9 +8,9 @@ dependencias externas: se abre igual en local que alojado.
 **https://line.baltajmn.dev/**, con el slug interno igual que `mood.baltajmn.dev`: el dominio no se
 ve en la ficha y no hace falta comprar otro.
 
-Por GitHub Pages desde el repositorio **público** `BaltaJmn/line-privacy`. Ese repositorio es una
-**copia**: el original es este fichero. Para cambiarla, se edita aquí y se copia allí en el mismo
-momento, o los dos divergen y gana el publicado.
+Por GitHub Pages desde **este mismo repositorio**, con `.github/workflows/pages.yml`, que publica solo
+este `index.html` cada vez que cambia en `main`. Es como están Quilt y Chroma (`~/keys/LEEME.md`,
+Cloudflare): un solo original, sin una copia en otro repositorio que pueda divergir.
 
 La misma URL va en cuatro sitios, y los cuatro tienen que coincidir: la Play Console (*Contenido de la
 aplicación > Política de privacidad*), App Store Connect (política y URL de soporte), la ficha de
@@ -19,35 +19,31 @@ Play (sitio web) y la app (`PRIVACY_URL` en `data/AppInfo.kt`, fila de Ajustes).
 El correo de contacto de la página es `baltajmn@gmail.com`, el de las hermanas. Tiene que ser el
 mismo que el de contacto de las dos fichas, o la revisión lo marca como incoherencia.
 
-`baltajmn.dev` se registra en Porkbun, pero **la zona la sirve Cloudflare**
-(`rory.ns.cloudflare.com`, `virginia.ns.cloudflare.com`): el registro DNS va en Cloudflare. Si el
-dominio caduca, muere la URL y con ella las dos fichas: auto-renew puesto.
+`baltajmn.dev` se registra en Porkbun, pero **la zona la sirve Cloudflare**: el registro DNS va en
+Cloudflare. Si el dominio caduca, muere la URL y con ella las dos fichas: auto-renew puesto.
 
 ## Cómo se monta
 
-1. Crear el repositorio público `BaltaJmn/line-privacy` y subir `index.html` a la raíz.
-2. *Settings > Pages > Build and deployment > Deploy from a branch*, rama `main`, carpeta `/ (root)`.
-   Queda en `https://baltajmn.github.io/line-privacy/`.
-3. En **Cloudflare**, zona `baltajmn.dev`: registro `CNAME`, nombre `line`, destino
-   `baltajmn.github.io`, **sin proxy** (nube gris), para que GitHub pueda emitir el certificado.
-4. Esperar a que resuelva:
+Una vez, con el token de Cloudflare de `~/keys` (`LEEME.md`, "Web de cada app"):
+
+1. Pages con despliegue por workflow, y la primera publicación:
 
    ```bash
-   dig +short line.baltajmn.dev
+   gh api -X POST repos/BaltaJmn/line/pages -f build_type=workflow
+   gh workflow run pages.yml --repo BaltaJmn/line --ref main
    ```
 
-5. Con el DNS resolviendo, dominio propio y HTTPS forzado:
+2. En Cloudflare, zona `baltajmn.dev`: `CNAME` `line` a `baltajmn.github.io`, **con proxy**. El HTTPS
+   lo pone Cloudflare; *Enforce HTTPS* de GitHub se queda sin marcar, porque detrás del proxy no puede
+   emitir certificado y no hace falta.
+3. Dominio propio en Pages:
 
    ```bash
-   gh api -X PUT repos/BaltaJmn/line-privacy/pages -f cname=line.baltajmn.dev
-   gh api -X PUT repos/BaltaJmn/line-privacy/pages -F https_enforced=true
+   gh api -X PUT repos/BaltaJmn/line/pages -f cname=line.baltajmn.dev
    ```
 
-El orden importa: con el dominio puesto antes de que el DNS resuelva, Pages redirige la URL de
-`github.io` a un dominio que todavía no existe y la política queda inaccesible, que es justo la URL
-de la que depende la publicación.
-
-Comprobación final: `curl -sI https://line.baltajmn.dev/` devuelve 200.
+Comprobación final: `curl -sI https://line.baltajmn.dev/` devuelve 200. Si alterna 404 y 200, el CDN
+de GitHub guardó un 404 viejo: otro `gh workflow run pages.yml` lo purga.
 
 ## Qué dice, y los hechos que la sostienen
 
