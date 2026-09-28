@@ -118,4 +118,22 @@ class StringsTest {
             "Mise en page du livre : 120 sur 366",
         )
     }
+
+    @Test
+    fun questions() {
+        each(
+            { S.question(0) },
+            "What did you eat today that you liked?",
+            "¿Qué has comido hoy que te haya gustado?",
+            "O que você comeu hoje que gostou?",
+            "Was hast du heute gegessen, das dir geschmeckt hat?",
+            "Qu'as-tu mangé aujourd'hui qui t'a plu ?",
+        )
+        each({ S.question(QUESTION_COUNT - 1).take(8) }, "How woul", "¿Cómo co", "Como voc", "Wie würd", "Comment ")
+        // Sixty in every language, none of them blank: the index wraps on the count, not on a list size.
+        SUPPORTED.forEach { code ->
+            S.lang = code
+            assertEquals(QUESTION_COUNT, (0 until QUESTION_COUNT).map { S.question(it) }.filter { it.isNotBlank() }.toSet().size, code)
+        }
+    }
 }

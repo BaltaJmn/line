@@ -31,6 +31,7 @@ data class Settings(
     val backupNoticeDone: Boolean = false,
     /** RevenueCat's last answer, so Pro survives an offline start. */
     val pro: Boolean = false,
+    val questionsOn: Boolean = false,
 )
 
 /** Local ISO date ("2027-01-17") of the logical day to its entry. */

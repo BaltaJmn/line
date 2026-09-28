@@ -358,7 +358,7 @@ fila responde.
 | Versión | `version(v)` (Versión 1.0), no responde |
 
 v1.1 añade en COPIA la fila `importMoodRow` (Importar de MoodTraker) y una sección `sectionWriting`
-(ESCRITURA) con el interruptor `questionsRow` (Una pregunta cuando el día está en blanco). v1.2 añade
+(ESCRITURA), entre RECORDATORIO y PRIVACIDAD, con el interruptor `questionsRow` (Una pregunta cuando el día está en blanco). v1.2 añade
 ahí `moodRow` (Anotar el ánimo).
 
 ---

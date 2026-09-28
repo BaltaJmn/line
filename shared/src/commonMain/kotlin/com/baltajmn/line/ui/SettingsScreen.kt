@@ -125,6 +125,12 @@ fun SettingsScreen(onBack: () -> Unit) {
                 }
             }
 
+            Section(S.sectionWriting) {
+                SettingRow(title = S.questionsRow) {
+                    SoftSwitch(settings.questionsOn) { on -> LineRepository.updateSettings { it.copy(questionsOn = on) } }
+                }
+            }
+
             Section(S.sectionPrivacy) {
                 val canLock = remember { Lock.isAvailable() }
                 SettingRow(

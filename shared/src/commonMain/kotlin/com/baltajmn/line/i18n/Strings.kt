@@ -5,6 +5,8 @@ import kotlinx.datetime.LocalDate
 /** Two-letter code of the device language. */
 expect fun systemLanguage(): String
 
+const val QUESTION_COUNT = 60
+
 /** The languages the app ships. Anything else falls back to English. */
 internal val SUPPORTED = listOf("en", "es", "pt", "de", "fr")
 
@@ -825,6 +827,80 @@ object S {
 
     fun buy(price: String) =
         t("Buy for $price", "Comprar por $price", "Comprar por $price", "Für $price kaufen", "Acheter pour $price")
+
+    // 15. Writing (v1.1)
+    val sectionWriting = t("Writing", "Escritura", "Escrita", "Schreiben", "Écriture")
+    val questionsRow = t(
+        "A question when the day is blank",
+        "Una pregunta cuando el día está en blanco",
+        "Uma pergunta quando o dia está em branco",
+        "Eine Frage, wenn der Tag leer ist",
+        "Une question quand la page est vide",
+    )
+
+    /** The question of the day, in the order of docs/textos.md: [i] is today.toEpochDays() mod [QUESTION_COUNT]. */
+    fun question(i: Int): String = listOf(
+        t("What did you eat today that you liked?", "¿Qué has comido hoy que te haya gustado?", "O que você comeu hoje que gostou?", "Was hast du heute gegessen, das dir geschmeckt hat?", "Qu'as-tu mangé aujourd'hui qui t'a plu ?"),
+        t("Who did you talk to today?", "¿Con quién has hablado hoy?", "Com quem você falou hoje?", "Mit wem hast du heute gesprochen?", "À qui as-tu parlé aujourd'hui ?"),
+        t("What made you laugh?", "¿Qué te ha hecho reír?", "O que te fez rir?", "Was hat dich zum Lachen gebracht?", "Qu'est-ce qui t'a fait rire ?"),
+        t("What did you learn today?", "¿Qué has aprendido hoy?", "O que você aprendeu hoje?", "Was hast du heute gelernt?", "Qu'as-tu appris aujourd'hui ?"),
+        t("Where were you today?", "¿Dónde has estado hoy?", "Onde você esteve hoje?", "Wo warst du heute?", "Où as-tu été aujourd'hui ?"),
+        t("What was the best part of the morning?", "¿Qué ha sido lo mejor de la mañana?", "Qual foi a melhor parte da manhã?", "Was war das Beste am Morgen?", "Quel a été le meilleur moment de la matinée ?"),
+        t("What song got stuck in your head?", "¿Qué canción se te ha quedado en la cabeza?", "Que música ficou na sua cabeça?", "Welches Lied ist dir im Kopf geblieben?", "Quelle chanson t'est restée en tête ?"),
+        t("What did you see out the window?", "¿Qué has visto por la ventana?", "O que você viu pela janela?", "Was hast du aus dem Fenster gesehen?", "Qu'as-tu vu par la fenêtre ?"),
+        t("What was the weather like?", "¿Qué tiempo ha hecho?", "Que tempo fez?", "Wie war das Wetter?", "Quel temps a-t-il fait ?"),
+        t("What would you like to remember about today in a year?", "¿Qué te gustaría recordar de hoy dentro de un año?", "O que você gostaria de lembrar de hoje daqui a um ano?", "Was möchtest du dir von heute in einem Jahr merken?", "Que voudrais-tu te rappeler d'aujourd'hui dans un an ?"),
+        t("What did you read today?", "¿Qué has leído hoy?", "O que você leu hoje?", "Was hast du heute gelesen?", "Qu'as-tu lu aujourd'hui ?"),
+        t("What did you make with your hands?", "¿Qué has hecho con las manos?", "O que você fez com as mãos?", "Was hast du mit den Händen gemacht?", "Qu'as-tu fait de tes mains ?"),
+        t("What did you use for the first time today?", "¿Qué has estrenado hoy?", "O que você estreou hoje?", "Was hast du heute zum ersten Mal benutzt?", "Qu'as-tu inauguré aujourd'hui ?"),
+        t("What surprised you?", "¿Qué te ha sorprendido?", "O que te surpreendeu?", "Was hat dich überrascht?", "Qu'est-ce qui t'a surpris ?"),
+        t("What conversation did you enjoy?", "¿Qué conversación te ha gustado?", "Que conversa você gostou de ter?", "Welches Gespräch hat dir gefallen?", "Quelle conversation t'a plu ?"),
+        t("What did you finish today?", "¿Qué has terminado hoy?", "O que você terminou hoje?", "Was hast du heute fertiggestellt?", "Qu'as-tu terminé aujourd'hui ?"),
+        t("What did you start today?", "¿Qué has empezado hoy?", "O que você começou hoje?", "Was hast du heute angefangen?", "Qu'as-tu commencé aujourd'hui ?"),
+        t("What smell do you remember from today?", "¿Qué olor recuerdas de hoy?", "Que cheiro você lembra de hoje?", "An welchen Geruch erinnerst du dich von heute?", "Quelle odeur te rappelles-tu d'aujourd'hui ?"),
+        t("What caught your eye on the street?", "¿Qué te ha llamado la atención por la calle?", "O que chamou sua atenção na rua?", "Was ist dir auf der Straße aufgefallen?", "Qu'est-ce qui a attiré ton attention dans la rue ?"),
+        t("What did you cook, or who cooked for you?", "¿Qué has cocinado, o quién ha cocinado para ti?", "O que você cozinhou, ou quem cozinhou para você?", "Was hast du gekocht, oder wer hat für dich gekocht?", "Qu'as-tu cuisiné, ou qui a cuisiné pour toi ?"),
+        t("What's the plan for tomorrow?", "¿Qué plan tienes para mañana?", "Qual é o plano para amanhã?", "Was hast du für morgen geplant?", "Quel est le plan pour demain ?"),
+        t("What did you buy today?", "¿Qué has comprado hoy?", "O que você comprou hoje?", "Was hast du heute gekauft?", "Qu'as-tu acheté aujourd'hui ?"),
+        t("Where did you walk?", "¿Por dónde has caminado?", "Por onde você caminhou?", "Wo bist du gelaufen?", "Où as-tu marché ?"),
+        t("What went well for you?", "¿Qué te ha salido bien?", "O que deu certo para você?", "Was ist dir gut gelungen?", "Qu'est-ce qui a bien marché pour toi ?"),
+        t("What did you decide today?", "¿Qué has decidido hoy?", "O que você decidiu hoje?", "Was hast du heute entschieden?", "Qu'as-tu décidé aujourd'hui ?"),
+        t("What did you watch on a screen that was worth it?", "¿Qué has visto en una pantalla que valga la pena?", "O que você viu numa tela que valeu a pena?", "Was hast du auf einem Bildschirm gesehen, das sich gelohnt hat?", "Qu'as-tu vu sur un écran qui en valait la peine ?"),
+        t("What message were you glad to receive?", "¿Qué mensaje te ha gustado recibir?", "Que mensagem você gostou de receber?", "Über welche Nachricht hast du dich gefreut?", "Quel message as-tu aimé recevoir ?"),
+        t("What did you do for the first time?", "¿Qué has hecho por primera vez?", "O que você fez pela primeira vez?", "Was hast du zum ersten Mal gemacht?", "Qu'as-tu fait pour la première fois ?"),
+        t("What did you do for someone?", "¿Qué has hecho por alguien?", "O que você fez por alguém?", "Was hast du für jemanden getan?", "Qu'as-tu fait pour quelqu'un ?"),
+        t("What did someone do for you?", "¿Qué ha hecho alguien por ti?", "O que alguém fez por você?", "Was hat jemand für dich getan?", "Qu'est-ce que quelqu'un a fait pour toi ?"),
+        t("What was playing at home?", "¿Qué sonaba en casa?", "O que estava tocando em casa?", "Was lief bei dir zu Hause?", "Qu'est-ce qui passait chez toi ?"),
+        t("What was the calmest moment?", "¿Cuál ha sido el momento más tranquilo?", "Qual foi o momento mais tranquilo?", "Was war der ruhigste Moment?", "Quel a été le moment le plus calme ?"),
+        t("What took longer than you thought?", "¿Qué te ha llevado más tiempo del que pensabas?", "O que levou mais tempo do que você pensava?", "Was hat länger gedauert, als du dachtest?", "Qu'est-ce qui t'a pris plus de temps que prévu ?"),
+        t("What were you looking forward to?", "¿Qué te ha hecho ilusión?", "O que te deixou animado?", "Worauf hast du dich gefreut?", "Qu'est-ce qui t'a fait plaisir ?"),
+        t("What did you find without looking for it?", "¿Qué has encontrado sin buscarlo?", "O que você encontrou sem procurar?", "Was hast du gefunden, ohne danach zu suchen?", "Qu'as-tu trouvé sans le chercher ?"),
+        t("What phrase did you hear today?", "¿Qué frase has oído hoy?", "Que frase você ouviu hoje?", "Welchen Satz hast du heute gehört?", "Quelle phrase as-tu entendue aujourd'hui ?"),
+        t("What did you fix?", "¿Qué has arreglado?", "O que você consertou?", "Was hast du repariert?", "Qu'as-tu réparé ?"),
+        t("What did you see in the sky?", "¿Qué has visto en el cielo?", "O que você viu no céu?", "Was hast du am Himmel gesehen?", "Qu'as-tu vu dans le ciel ?"),
+        t("What time did you get up, and why?", "¿A qué hora te has levantado, y por qué?", "A que horas você acordou, e por quê?", "Wann bist du aufgestanden, und warum?", "À quelle heure t'es-tu levé, et pourquoi ?"),
+        t("What did you celebrate, even something small?", "¿Qué has celebrado, aunque sea algo pequeño?", "O que você comemorou, mesmo que pequeno?", "Was hast du gefeiert, und sei es etwas Kleines?", "Qu'as-tu fêté, même un petit quelque chose ?"),
+        t("What would you carry from today into tomorrow?", "¿Qué te llevarías de hoy a mañana?", "O que você levaria de hoje para amanhã?", "Was würdest du von heute mit in den morgigen Tag nehmen?", "Qu'emporterais-tu d'aujourd'hui vers demain ?"),
+        t("What did you move to a new spot?", "¿Qué has cambiado de sitio?", "O que você mudou de lugar?", "Was hast du umgestellt?", "Qu'as-tu déplacé ?"),
+        t("What did you write today, besides this?", "¿Qué has escrito hoy, aparte de esto?", "O que você escreveu hoje, além disso?", "Was hast du heute geschrieben, außer diesem hier?", "Qu'as-tu écrit aujourd'hui, à part ça ?"),
+        t("What animal did you see?", "¿Qué animal has visto?", "Que animal você viu?", "Welches Tier hast du gesehen?", "Quel animal as-tu vu ?"),
+        t("What flavor did you try for the first time?", "¿Qué sabor has probado por primera vez?", "Que sabor você provou pela primeira vez?", "Welchen Geschmack hast du zum ersten Mal probiert?", "Quelle saveur as-tu goûtée pour la première fois ?"),
+        t("What question were you asked?", "¿Qué pregunta te han hecho?", "Que pergunta fizeram para você?", "Welche Frage hat man dir gestellt?", "Quelle question t'a-t-on posée ?"),
+        t("What kept you busy?", "¿Qué te ha tenido ocupado?", "O que te manteve ocupado?", "Was hat dich beschäftigt?", "Qu'est-ce qui t'a occupé ?"),
+        t("What part of the day went by the fastest?", "¿Qué parte del día se ha pasado más rápido?", "Que parte do dia passou mais rápido?", "Welcher Teil des Tages ist am schnellsten vergangen?", "Quel moment de la journée est passé le plus vite ?"),
+        t("What did you give, or what were you given?", "¿Qué has regalado, o qué te han regalado?", "O que você deu de presente, ou o que te deram?", "Was hast du verschenkt, oder was hast du geschenkt bekommen?", "Qu'as-tu offert, ou qu'est-ce qu'on t'a offert ?"),
+        t("What did you photograph?", "¿Qué has fotografiado?", "O que você fotografou?", "Was hast du fotografiert?", "Qu'as-tu photographié ?"),
+        t("What plan turned out different than expected?", "¿Qué plan ha salido distinto de lo previsto?", "Que plano saiu diferente do previsto?", "Welcher Plan ist anders gelaufen als gedacht?", "Quel plan s'est déroulé différemment que prévu ?"),
+        t("What did you hear on the street?", "¿Qué has oído en la calle?", "O que você ouviu na rua?", "Was hast du auf der Straße gehört?", "Qu'as-tu entendu dans la rue ?"),
+        t("What did you find beautiful?", "¿Qué te ha parecido bonito?", "O que você achou bonito?", "Was fandest du schön?", "Qu'as-tu trouvé beau ?"),
+        t("What news did you talk about?", "¿De qué noticia has hablado?", "De que notícia você falou?", "Über welche Nachricht hast du gesprochen?", "De quelle actualité as-tu parlé ?"),
+        t("What game or sport happened today?", "¿Qué juego o deporte ha habido hoy?", "Que jogo ou esporte houve hoje?", "Welches Spiel oder welcher Sport war heute?", "Quel jeu ou sport y a-t-il eu aujourd'hui ?"),
+        t("What made you feel at home?", "¿Qué te ha hecho sentir en casa?", "O que te fez sentir em casa?", "Was hat dir das Gefühl gegeben, zu Hause zu sein?", "Qu'est-ce qui t'a fait te sentir chez toi ?"),
+        t("What did you leave for another day?", "¿Qué has dejado para otro día?", "O que você deixou para outro dia?", "Was hast du auf einen anderen Tag verschoben?", "Qu'as-tu laissé pour un autre jour ?"),
+        t("What did you see on the way somewhere?", "¿Qué has visto de camino a algún sitio?", "O que você viu a caminho de algum lugar?", "Was hast du auf dem Weg irgendwohin gesehen?", "Qu'as-tu vu en allant quelque part ?"),
+        t("What small detail don't you want to forget?", "¿Qué detalle pequeño no quieres olvidar?", "Que detalhe pequeno você não quer esquecer?", "Welches kleine Detail möchtest du nicht vergessen?", "Quel petit détail ne veux-tu pas oublier ?"),
+        t("How would you sum up today in five words?", "¿Cómo contarías hoy en cinco palabras?", "Como você resumiria hoje em cinco palavras?", "Wie würdest du den heutigen Tag in fünf Wörtern beschreiben?", "Comment résumerais-tu aujourd'hui en cinq mots ?"),
+    )[i]
 
     fun bookYears(from: Int, to: Int) = t("$from to $to", "$from a $to", "$from a $to", "$from bis $to", "$from à $to")
 

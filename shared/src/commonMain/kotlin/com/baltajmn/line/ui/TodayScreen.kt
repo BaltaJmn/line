@@ -45,6 +45,7 @@ import com.baltajmn.line.data.LineRepository
 import com.baltajmn.line.data.PickResult
 import com.baltajmn.line.data.Reminder
 import com.baltajmn.line.data.startExport
+import com.baltajmn.line.i18n.QUESTION_COUNT
 import com.baltajmn.line.i18n.S
 import com.baltajmn.line.model.COUNTER_FROM
 import com.baltajmn.line.model.Journal
@@ -110,7 +111,11 @@ fun TodayScreen(today: LocalDate, onYear: () -> Unit, onSettings: () -> Unit, on
                 LineField(
                     text = text,
                     onChange = { LineRepository.setText(today, it, today) },
-                    placeholder = S.todayPlaceholder,
+                    placeholder = if (settings.questionsOn) {
+                        S.question(today.toEpochDays().mod(QUESTION_COUNT))
+                    } else {
+                        S.todayPlaceholder
+                    },
                     modifier = Modifier.fillMaxWidth().focusRequester(focus).onFocusChanged { editing = it.isFocused },
                 )
             }
