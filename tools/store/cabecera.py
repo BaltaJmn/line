@@ -49,6 +49,8 @@ def main():
     raiz = pathlib.Path(__file__).resolve().parents[2]
     salida = raiz / "store" / "feature"
     salida.mkdir(parents=True, exist_ok=True)
+    play = raiz / "store" / "play"
+    play.mkdir(parents=True, exist_ok=True)
     for idioma, linea in LINEAS.items():
         # Literata es la del texto del diario; si no esta instalada, cualquier serifa de la casa.
         svg = """<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="500" viewBox="0 0 1024 500">
@@ -58,16 +60,15 @@ def main():
         fill="{gris}">{linea}</text>
   {puntos}
 </svg>""".format(crema=CREMA, tinta=TINTA, gris=GRIS, linea=linea, puntos=puntos())
+        # El idioma por defecto de la ficha va donde lo busca ~/keys/play.sh; los otros cuatro, a mano.
+        png = play / "feature-1024x500.png" if idioma == "en-US" else salida / (idioma + ".png")
         tmp = salida / (idioma + ".svg")
         tmp.write_text(svg, encoding="utf-8")
-        subprocess.run(
-            ["rsvg-convert", "-w", "1024", "-h", "500", str(tmp), "-o", str(salida / (idioma + ".png"))],
-            check=True,
-        )
+        subprocess.run(["rsvg-convert", "-w", "1024", "-h", "500", str(tmp), "-o", str(png)], check=True)
         tmp.unlink()
-        print(salida / (idioma + ".png"))
+        print(png)
 
-    icono = raiz / "store" / "icon-512.png"
+    icono = play / "icon-512.png"
     subprocess.run(
         ["rsvg-convert", "-w", "512", "-h", "512", str(raiz / "tools" / "icon-master.svg"), "-o", str(icono)],
         check=True,

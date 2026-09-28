@@ -1,8 +1,9 @@
 # Lanzamiento, paso a paso
 
-Checklist de Purl. **[tú]** es lo que solo puedes hacer tú (cuentas, contraseñas, formularios,
-subidas por la Console) y **[yo]** lo que queda hecho desde el repositorio. Cada paso lleva la issue
-que lo cierra.
+Checklist de Purl. **[tú]** es lo que solo puedes hacer tú (cuentas, contraseñas, pagos) y **[yo]**
+lo que hago yo: desde el repositorio, por API con las credenciales de `~/keys` o en el navegador con
+tu sesión de Play Console ya abierta, siempre con tu sí sobre la lista antes de escribir fuera
+(`~/keys/LEEME.md`, "App nueva, de principio a fin"). Cada paso lleva la issue que lo cierra.
 
 Regla de la familia: **el código no marca la fecha de salida, la marcan los trámites.** La prueba
 cerrada de 14 días y la verificación de Apple son las dos latencias largas; todo lo que es código
@@ -65,9 +66,9 @@ Arrancar todo esto antes de escribir una línea de código. Ninguno depende del 
 - [ ] **[tú] Declarar la condición de comerciante (DSA)** en las dos consolas si no se hizo ya con
       Quilt. Es de cuenta, no de app: si ya está, se hereda. Apple retira de la UE las apps sin ella.
       (#27)
-- [ ] **[tú] Registro DNS de la política**: en **Cloudflare**, que sirve la zona `baltajmn.dev`
+- [ ] **[yo] Registro DNS de la política**: en **Cloudflare**, que sirve la zona `baltajmn.dev`
       aunque el dominio se registre en Porkbun, un `CNAME` con host `line` y destino
-      `baltajmn.github.io`. Pasos completos en `privacy/README.md`. (#27)
+      `baltajmn.github.io`, con proxy. Pasos completos en `privacy/README.md`. (#27)
 - [ ] **[tú] Reclutar 16 probadores**, no 12. Empieza por los de Quilt y MoodTraker: ya dijeron que
       sí una vez. El requisito de Play es **por app** (comprobado en la ayuda de Play el 22/09/2026:
       "must run a closed test for their app"), así que Purl hace su propia prueba cerrada aunque
@@ -79,21 +80,20 @@ Arrancar todo esto antes de escribir una línea de código. Ninguno depende del 
 - [x] Repositorio `BaltaJmn/line`, público. Los minutos de Actions no se facturan.
 - [ ] **[yo] Andamiaje y CI**: los cuatro workflows de MoodTraker con los cambios de
       `docs/tecnico.md` 9. (#4)
-- [ ] **[tú] Crear el almacén de subida.** Un comando, y el `CN=Baltasar` no es opcional: es lo que
-      comprueba el workflow compartido (`ci.md`).
-
-      ```bash
-      keytool -genkeypair -v -keystore ~/keys/purl-upload.jks -alias upload -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Baltasar, O=BaltaJmn, C=ES"
-      ```
-
-      Después, `keystore.properties` en la raíz del repositorio (git-ignorado) con `storeFile`,
-      `storePassword`, `keyAlias=upload` y `keyPassword`. Apunta aquí la huella SHA-256 que
-      imprime `keytool -list -v -keystore ~/keys/purl-upload.jks -J-Duser.language=en
-      -J-Duser.country=US`, para contrastarla con la que enseñe Play al subir el primer AAB. Copia
-      del `.jks` fuera de este Mac. (#3)
-- [ ] **[tú] Los cinco secretos de firma y publicación** en GitHub (`ci.md`). (#3)
-- [ ] **[tú] Publicar la política**: repositorio público `BaltaJmn/line-privacy` con
-      `privacy/index.html` y GitHub Pages (`privacy/README.md`). (#27)
+- [x] **[yo] Almacén de subida** `~/keys/purl-upload.jks` (29/09/2026), RSA 4096, alias `upload`,
+      `CN=Baltasar, O=BaltaJmn, C=ES`: el `CN=Baltasar` no es opcional, es lo que comprueba el
+      workflow compartido (`ci.md`). La contraseña vive solo en `keystore.properties` (git-ignorado,
+      permisos 600). Huella SHA-256 del certificado de subida, para contrastarla con la que enseñe
+      Play al primer AAB:
+      `60:60:94:55:15:0B:0F:02:C1:F2:EB:14:5F:85:38:7C:50:03:E1:3E:09:FC:C8:BA:B3:FE:AF:B7:20:1D:D1:2D`.
+      El primer `bundleRelease` ya sale firmado con ella (8,1 MB).
+- [ ] **[tú] Copia del `.jks` y su contraseña** en tu gestor de contraseñas, fuera de este Mac. Si se
+      pierde, Play solo deja cambiar la clave de subida con una petición al soporte. (#3)
+- [ ] **[yo] Los cinco secretos de firma y publicación** en GitHub (`ci.md`), y `line` en `PLAY_REPOS`
+      de `~/keys/credenciales.sh`, para que rotar la cuenta de servicio actualice también este repo.
+      (#3)
+- [ ] **[yo] Publicar la política** con GitHub Pages desde este repositorio (`pages.yml`,
+      `privacy/README.md`). (#27)
 
 ## Fase 3. Play
 
