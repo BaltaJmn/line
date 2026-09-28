@@ -1,6 +1,8 @@
 package com.baltajmn.line.data
 
+import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.updateAll
+import com.baltajmn.line.widget.MemoryWidget
 import com.baltajmn.line.widget.TodayWidget
 import com.baltajmn.line.widget.YearWidget
 import java.io.File
@@ -26,7 +28,16 @@ fun readWidgetState(): WidgetState? {
 actual fun refreshWidgets() {
     val context = AndroidContext.value
     CoroutineScope(Dispatchers.Default).launch {
+        val placed = GlanceAppWidgetManager(context).getGlanceIds(MemoryWidget::class.java).isNotEmpty()
+        if (placed != memoryWidgetPlaced) {
+            memoryWidgetPlaced = placed
+            // The line may now travel, or has to stop: written again before any widget paints, and
+            // that second pass is the one that refreshes them.
+            syncWidgets(LineRepository.journal, LineRepository.settings, today())
+            return@launch
+        }
         TodayWidget().updateAll(context)
         YearWidget().updateAll(context)
+        MemoryWidget().updateAll(context)
     }
 }

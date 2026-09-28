@@ -852,6 +852,25 @@ object S {
         "Une question quand la page est vide",
     )
 
+    val proMemoryWidget = t(
+        "The memory widget",
+        "El widget del recuerdo",
+        "O widget da lembrança",
+        "Das Erinnerungs-Widget",
+        "Le widget du souvenir",
+    )
+    val widgetNoMemory = t(
+        "There's no memory from a year ago today.",
+        "Hoy no hay recuerdo de hace un año.",
+        "Hoje não há lembrança de um ano atrás.",
+        "Heute gibt es keine Erinnerung von vor einem Jahr.",
+        "Aujourd'hui, il n'y a pas de souvenir d'il y a un an.",
+    )
+    val widgetLocked = t("Diary locked.", "Diario bloqueado.", "Diário bloqueado.", "Tagebuch gesperrt.", "Journal verrouillé.")
+
+    fun widgetMemoryLabel(year: Int) =
+        t("A year ago, $year", "Hace un año, $year", "Há um ano, $year", "Vor einem Jahr, $year", "Il y a un an, $year")
+
     val tileLabel = t("Today's line", "Línea de hoy", "Linha de hoje", "Heutige Zeile", "Ligne du jour")
     val tileWritten = t("Written", "Escrita", "Escrita", "Geschrieben", "Écrite")
     val tileNotWritten = t("Not written yet", "Por escribir", "Por escrever", "Noch nicht geschrieben", "À écrire")

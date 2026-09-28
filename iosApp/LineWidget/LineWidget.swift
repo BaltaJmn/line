@@ -26,6 +26,18 @@ enum L {
         t("There's a memory", "Hay recuerdo", "Há uma lembrança", "Es gibt eine Erinnerung", "Il y a un souvenir")
     }
     static var proTitle: String { "Purl Pro" }
+    static var noMemory: String {
+        t("There's no memory from a year ago today.", "Hoy no hay recuerdo de hace un año.",
+          "Hoje não há lembrança de um ano atrás.", "Heute gibt es keine Erinnerung von vor einem Jahr.",
+          "Aujourd'hui, il n'y a pas de souvenir d'il y a un an.")
+    }
+    static var locked: String {
+        t("Diary locked.", "Diario bloqueado.", "Diário bloqueado.", "Tagebuch gesperrt.", "Journal verrouillé.")
+    }
+    static func memoryLabel(_ year: Int) -> String {
+        t("A year ago, \(year)", "Hace un año, \(year)", "Há um ano, \(year)", "Vor einem Jahr, \(year)",
+          "Il y a un an, \(year)")
+    }
     static var unlock: String {
         t("Tap to turn it on", "Toca para activarlo", "Toque para ativar", "Tippen zum Aktivieren",
           "Touche pour l'activer")
@@ -228,5 +240,6 @@ struct LineWidgetBundle: WidgetBundle {
     var body: some Widget {
         LineTodayWidget()
         LineYearWidget()
+        LineMemoryWidget()
     }
 }

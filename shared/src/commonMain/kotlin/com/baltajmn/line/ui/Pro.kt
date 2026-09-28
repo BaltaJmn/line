@@ -56,6 +56,7 @@ fun ProDialog(onDismiss: () -> Unit) {
                     S.proYearWidget,
                     S.proLockWidget.takeIf { onIos },
                     S.proBook,
+                    S.proMemoryWidget,
                     S.proTile.takeUnless { onIos },
                 )
                 lines.forEach { Text("- $it", style = Styles.body) }

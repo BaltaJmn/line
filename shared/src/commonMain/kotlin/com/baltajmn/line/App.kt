@@ -35,6 +35,8 @@ import com.baltajmn.line.ui.theme.LineTheme
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeSource
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.minus
+import kotlinx.datetime.DateTimeUnit
 
 /** Three screens do not justify a navigation library. */
 enum class Screen { Today, Year, Settings }
@@ -79,19 +81,23 @@ fun App() {
     LaunchedEffect(proCheck) { Billing.refresh() }
     // A widget or a link asked for a screen, maybe before the app existed.
     LaunchedEffect(Route.pending) {
-        when (Route.pending) {
+        val asked = Route.pending ?: return@LaunchedEffect
+        openDay = null
+        when (asked) {
             "today" -> screen = Screen.Today
             "year" -> screen = Screen.Year
             "pro" -> {
                 screen = Screen.Today
                 Paywall.open = true
             }
+            // The memory widget opens the day it quotes, a year back from today.
+            "memory" -> {
+                screen = Screen.Today
+                openDay = today().minus(1, DateTimeUnit.YEAR)
+            }
             else -> Unit
         }
-        if (Route.pending != null) {
-            openDay = null
-            Route.pending = null
-        }
+        Route.pending = null
     }
     // The task switcher takes its picture without asking, so the window is told in advance.
     LaunchedEffect(LineRepository.settings.lockOn) { Lock.setHidesPreview(LineRepository.settings.lockOn) }

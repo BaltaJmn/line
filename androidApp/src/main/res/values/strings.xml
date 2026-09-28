@@ -6,4 +6,6 @@
     <string name="widget_preview_year">2026</string>
     <string name="widget_preview_pro">Purl Pro</string>
     <string name="widget_preview_state">Not written yet</string>
+    <string name="widget_memory_name">Memory</string>
+    <string name="widget_memory_description">What you wrote a year ago</string>
 </resources>

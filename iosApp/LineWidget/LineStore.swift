@@ -12,6 +12,8 @@ struct LineState: Decodable {
     let days: String
     let cover: String
     let pro: Bool
+    /// Optional: a widget.json written before v1.1 does not have it.
+    let locked: Bool?
     let line: String?
     let lineNext: String?
 }
@@ -43,6 +45,7 @@ enum LineStore {
                 days: state.days,
                 cover: state.cover,
                 pro: state.pro,
+                locked: state.locked,
                 line: state.date == yesterday ? state.lineNext : nil,
                 lineNext: state.lineNext
             )
@@ -51,7 +54,7 @@ enum LineStore {
         return LineState(
             date: seen.date, written: seen.written, memory: seen.memory, memoryNext: seen.memoryNext,
             year: year, days: String(repeating: "0", count: 366), cover: seen.cover, pro: seen.pro,
-            line: seen.line, lineNext: seen.lineNext
+            locked: seen.locked, line: seen.line, lineNext: seen.lineNext
         )
     }
 

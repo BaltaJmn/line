@@ -30,6 +30,8 @@ data class WidgetState(
     val days: String,
     val cover: String,
     val pro: Boolean,
+    /** The diary lock is on: the memory widget says so instead of quoting it. */
+    val locked: Boolean = false,
     val line: String? = null,
     val lineNext: String? = null,
 )
@@ -42,8 +44,13 @@ val WidgetJson = Json {
     explicitNulls = false
 }
 
-fun widgetState(j: Journal, s: Settings, today: LocalDate): WidgetState {
+/**
+ * [memoryPlaced] is the consent: the one year old line only travels while the memory widget is on
+ * a home screen, with Pro and with the lock off (docs/tecnico.md 12.3). The widget cuts it itself.
+ */
+fun widgetState(j: Journal, s: Settings, today: LocalDate, memoryPlaced: Boolean = false): WidgetState {
     val tomorrow = today.plus(1, DateTimeUnit.DAY)
+    val quote = memoryPlaced && s.pro && !s.lockOn
     val days = CharArray(366) { '0' }
     j.keys.forEach { k -> LocalDate.parse(k).takeIf { it.year == today.year }?.let { days[it.dayOfYear - 1] = '1' } }
     return WidgetState(
@@ -55,6 +62,9 @@ fun widgetState(j: Journal, s: Settings, today: LocalDate): WidgetState {
         days = days.concatToString(),
         cover = s.cover,
         pro = s.pro,
+        locked = s.lockOn,
+        line = if (quote) memorySnippet(j, today, limit = null) else null,
+        lineNext = if (quote) memorySnippet(j, tomorrow, limit = null) else null,
     )
 }
 

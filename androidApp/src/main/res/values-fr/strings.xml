@@ -2,4 +2,6 @@
     <string name="widget_today_description">Si aujourd\'hui a déjà une ligne et s\'il y a un souvenir</string>
     <string name="widget_preview_date">SAM 17 JANV</string>
     <string name="widget_preview_state">À écrire</string>
+    <string name="widget_memory_name">Souvenir</string>
+    <string name="widget_memory_description">Ce que tu as écrit il y a un an</string>
 </resources>

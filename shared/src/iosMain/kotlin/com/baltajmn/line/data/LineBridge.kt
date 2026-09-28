@@ -11,6 +11,16 @@ object LineBridge {
     /** Assigned by iOSApp.swift: WidgetCenter belongs to Swift, and Kotlin only asks. */
     var reloadWidgets: (() -> Unit)? = null
 
+    /**
+     * Swift asks WidgetCenter whether the memory widget is on a home screen when the app starts and
+     * each time it comes back, and hands the answer over. Only a change rewrites widget.json.
+     */
+    fun setMemoryWidgetPlaced(placed: Boolean) {
+        if (placed == memoryWidgetPlaced) return
+        memoryWidgetPlaced = placed
+        syncWidgets(LineRepository.journal, LineRepository.settings, today())
+    }
+
     /** com.baltajmn.line://today from a widget. Anything else is left alone rather than guessed. */
     fun open(url: String) {
         Route.pending = url.substringAfterLast('/').takeIf { it.isNotEmpty() }

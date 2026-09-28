@@ -303,4 +303,22 @@ class DataTest {
             }
         }
     }
+
+    // 12.3: the line of a year ago travels only with the widget placed, Pro and the lock off.
+    @Test
+    fun theMemoryLineNeedsTheWidgetProAndNoLock() {
+        val long = "palabra ".repeat(40).trim()
+        val j = mapOf("2026-01-17" to LineEntry(long), "2026-01-18" to LineEntry("Manana"))
+        val pro = Settings(pro = true)
+        val placed = widgetState(j, pro, today, memoryPlaced = true)
+        assertEquals(long, placed.line)
+        assertEquals("Manana", placed.lineNext)
+        assertNull(widgetState(j, pro, today).line)
+        assertNull(widgetState(j, Settings(), today, memoryPlaced = true).line)
+        val locked = widgetState(j, pro.copy(lockOn = true), today, memoryPlaced = true)
+        assertNull(locked.line)
+        assertTrue(locked.locked)
+        // After 03:00 the widget moves to tomorrow's line on its own.
+        assertEquals("Manana", widgetView(placed, LocalDate.parse("2027-01-18")).line)
+    }
 }

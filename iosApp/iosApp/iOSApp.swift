@@ -25,6 +25,19 @@ struct iOSApp: App {
                 }
             }
             .onOpenURL { LineBridge.shared.open(url: $0.absoluteString) }
+            .onChange(of: scenePhase, initial: true) { _, phase in
+                if phase == .active { Self.checkMemoryWidget() }
+            }
+        }
+    }
+
+    /// The memory widget is the consent to put a line in widget.json, so Kotlin has to know whether
+    /// it is placed (docs/tecnico.md 12.3). Asked on every return: it may have been added meanwhile.
+    private static func checkMemoryWidget() {
+        WidgetCenter.shared.getCurrentConfigurations { result in
+            guard case .success(let widgets) = result else { return }
+            let placed = widgets.contains { $0.kind == "LineMemoryWidget" }
+            DispatchQueue.main.async { LineBridge.shared.setMemoryWidgetPlaced(placed: placed) }
         }
     }
 }

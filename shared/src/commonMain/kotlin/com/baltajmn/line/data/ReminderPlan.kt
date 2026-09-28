@@ -54,13 +54,16 @@ fun reminderPlan(j: Journal, s: Settings, now: LocalDateTime): List<Planned> {
     }
 }
 
-/** The line of exactly one year back, or null. 29 February has none: the subtraction clips to the 28th. */
-fun memorySnippet(j: Journal, day: LocalDate): String? {
+/**
+ * The line of exactly one year back, or null. 29 February has none: the subtraction clips to the
+ * 28th. Cut at a word near [limit] code points; a null [limit] hands the whole line over.
+ */
+fun memorySnippet(j: Journal, day: LocalDate, limit: Int? = MEMORY_SNIPPET_MAX): String? {
     val y = day.minus(1, DateTimeUnit.YEAR)
     if (y.day != day.day) return null
     val text = j[y.toString()]?.text?.trim()?.takeIf { it.isNotEmpty() } ?: return null
-    if (text.codePointCount() <= MEMORY_SNIPPET_MAX) return text.replace('\n', ' ')
-    val cut = text.clampCodePoints(MEMORY_SNIPPET_MAX)
+    if (limit == null || text.codePointCount() <= limit) return text.replace('\n', ' ')
+    val cut = text.clampCodePoints(limit)
     val space = cut.lastIndexOf(' ')
     return (if (space > 0) cut.substring(0, space) else cut).replace('\n', ' ') + "..."
 }

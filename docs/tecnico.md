@@ -274,6 +274,7 @@ data class WidgetState(
     val days: String,          // 366 caracteres '0'/'1', índice dayOfYear - 1 del año `year`
     val cover: String,         // id de portada
     val pro: Boolean,
+    val locked: Boolean = false,   // v1.1, el bloqueo del diario: el recuerdo lo dice en vez de citar
     val line: String? = null,      // v1.1, widget del recuerdo
     val lineNext: String? = null,  // v1.1
 )
@@ -283,6 +284,7 @@ data class WidgetState(
 struct LineState: Decodable {
     let date: String; let written: Bool; let memory: Bool; let memoryNext: Bool
     let year: Int; let days: String; let cover: String; let pro: Bool
+    let locked: Bool?  // opcional: un widget.json de v1.0 no lo trae y el widget no puede quedarse en blanco
     let line: String?; let lineNext: String?
 }
 ```
@@ -1316,8 +1318,19 @@ Kind `LineMemoryWidget` (iOS, `systemSmall` y `systemMedium`, `.privacySensitive
 colocado: Android con `GlanceAppWidgetManager(context).getGlanceIds(MemoryWidget::class.java)`; iOS con
 `WidgetCenter.shared.getCurrentConfigurations`, que `iOSApp.swift` consulta al arrancar y pasa a
 `LineBridge.setMemoryWidgetPlaced`. Solo entonces, con `pro` y sin `lockOn`, `widgetState` rellena
-`line = memorySnippet(j, today)` y `lineNext = memorySnippet(j, tomorrow)`, sin el recorte de 120 (el
-widget recorta al pintar). Sin Pro: estado bloqueado, toque al paywall.
+`line = memorySnippet(j, today, limit = null)` y `lineNext = memorySnippet(j, tomorrow, limit = null)`,
+sin el recorte de 120 (el widget recorta al pintar). Sin Pro: estado bloqueado, toque al paywall.
+
+- La marca vive en `memoryWidgetPlaced` (`data/Widgets.kt`), que lee `syncWidgets`. Android la mira
+  en cada `refreshWidgets`; si cambió, reescribe `widget.json` antes de repintar.
+  `MemoryWidgetReceiver.onEnabled` y `onDisabled` recargan el diario para que colocar o quitar el
+  último widget se note sin abrir la app. iOS la pregunta cada vez que la escena vuelve a `.active`,
+  así que tras colocarlo el recuerdo sale la próxima vez que se abre la app: la extensión no puede
+  pedírselo a la app.
+- Tocar con recuerdo abre `com.baltajmn.line://memory` (Android: `screen=memory`), que abre el día de
+  hace un año sobre Hoy. Sin recuerdo, Hoy. Sin Pro, el paywall.
+- La extensión de iOS lleva su copia de `literata_regular.ttf` en `UIAppFonts`: no ve los recursos de
+  la app.
 
 ### 12.4 Baldosa
 

@@ -9,7 +9,7 @@ import androidx.compose.runtime.setValue
  * because the app may not be running yet, and App picks it up whenever it does.
  */
 object Route {
-    /** "today", "year" or "pro". Anything else is ignored rather than guessed at. */
+    /** "today", "year", "pro" or "memory". Anything else is ignored rather than guessed at. */
     var pending by mutableStateOf<String?>(null)
 
     /** Today opens with the keyboard up even when the day is written: the tile's whole point. */
