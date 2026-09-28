@@ -12,7 +12,12 @@ Hechos de partida, todos de `docs/tecnico.md`:
 - Lo único que sale del teléfono es lo de **RevenueCat**: un identificador anónimo de instalación
   (se configura sin `appUserID`), el historial de compras y datos técnicos del dispositivo.
 - Los widgets leen `widget.json`, que en v1.0 lleva solo la estructura (qué días hay escritos, si hoy
-  lo está, la portada), nunca el texto.
+  lo está, la portada), nunca el texto. Desde v1.1 lleva además la línea de hace un año, solo mientras
+  el widget del recuerdo está colocado, con Pro y sin bloqueo (`docs/tecnico.md` 12.3). Sigue siendo
+  un fichero del dispositivo (App Group en iOS, `filesDir` en Android): no cambia ninguna respuesta de
+  estos formularios, porque nada sale del teléfono.
+- Siri (v1.1, iOS): la voz la procesa Apple; la app recibe texto y lo escribe en local. No añade
+  ningún dato recogido.
 - La notificación puede llevar un trozo de 120 puntos de código de una entrada de otro año, generado
   en el teléfono. Con el bloqueo encendido no lleva cuerpo.
 

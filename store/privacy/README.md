@@ -59,7 +59,9 @@ Escrita contra `docs/tecnico.md`, no contra una plantilla:
 - Fotos con el selector del sistema (`PickVisualMedia` en Android, `PHPicker` en iOS): sin permiso
   de lectura de la galería.
 - RevenueCat se configura sin `appUserID`: el identificador es anónimo.
-- `widget.json` lleva la estructura, no el texto (`docs/tecnico.md` 4.2).
+- `widget.json` lleva la estructura, no el texto (`docs/tecnico.md` 4.2), salvo la línea de hace un
+  año mientras el widget del recuerdo está colocado, con Pro y sin bloqueo (v1.1, 12.3).
+- Siri (v1.1) solo le da texto a la app.
 - La notificación puede llevar un trozo de 120 puntos de código de otro año; con `lockOn`, ninguna
   lleva cuerpo (`docs/tecnico.md` 6.10).
 - La copia del sistema: `data_extraction_rules.xml` y `backup_rules.xml` de `docs/tecnico.md` 8.2.
