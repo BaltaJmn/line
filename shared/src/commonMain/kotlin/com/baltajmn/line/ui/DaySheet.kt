@@ -112,6 +112,8 @@ fun DaySheet(date: LocalDate, today: LocalDate, onClose: () -> Unit, onShare: (L
                 }
             }
 
+            TagRow(date, entry)
+
             entry?.photo?.let {
                 DayPhoto(it)
                 Row(

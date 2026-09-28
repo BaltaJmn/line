@@ -48,6 +48,7 @@ fun journalMarkdown(journal: Journal): String = buildString {
         val entry = journal.getValue(key)
         append("\n## ").append(key).append("\n")
         if (entry.text.isNotEmpty()) append(entry.text).append("\n")
+        if (entry.tags.isNotEmpty()) append(entry.tags.joinToString(" ") { "#$it" }).append("\n")
         entry.photo?.let { append("\n![](").append(PHOTOS_DIR).append(it).append(")\n") }
     }
 }

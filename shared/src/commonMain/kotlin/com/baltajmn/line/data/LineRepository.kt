@@ -137,6 +137,13 @@ object LineRepository {
         edit { it.copy(entries = next) }
     }
 
+    /** Tags only ever go on a day that has a line or a photo: they describe it, they do not make it. */
+    fun setTags(date: LocalDate, tags: List<String>) {
+        val key = date.isoKey()
+        val entry = journal[key] ?: return
+        if (entry.tags != tags) edit { it.copy(entries = it.entries + (key to entry.copy(tags = tags))) }
+    }
+
     /**
      * A date with no photo yet needs room under the free limit; replacing the one it already has
      * never does. Three is a knob to measure, not a wall (docs/tecnico.md 6.13).

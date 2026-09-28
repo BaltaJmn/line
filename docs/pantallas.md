@@ -621,7 +621,11 @@ A5, 420x595 pt, márgenes de 42 pt.
 
 Bajo la fila de apoyo, en Hoy y en el día abierto: chips de 32 de alto, radio 16, borde 1 dp, texto
 13 sp con `#`. El último chip es `addTag` (+ etiqueta), que abre un campo en línea. Con el campo
-abierto, debajo, las sugerencias como chips al 60 %.
+abierto, debajo, las sugerencias como chips al 60 %. Tocar una etiqueta la quita (`a11yRemoveTag`);
+tocar una sugerencia la añade; Hecho en el teclado añade lo escrito y deja el campo abierto para la
+siguiente, y salir del campo añade lo que hubiera. Con cinco (`TAGS_PER_ENTRY`) desaparecen `addTag` y
+las sugerencias. La fila solo sale en un día con entrada: una etiqueta describe una línea, no hace
+escrito un día, así que un día que se queda sin texto ni foto se va con sus etiquetas.
 
 ### 15.3 Pregunta del día (v1.1)
 

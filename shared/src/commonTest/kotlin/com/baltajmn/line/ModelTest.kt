@@ -93,7 +93,7 @@ class ModelTest {
     @Test
     fun filesWithoutNewFieldsOrWithUnknownOnesStillRead() {
         val old = """{"version":1,"entries":{"2026-05-01":{"text":"old"}}}"""
-        val future = """{"version":1,"entries":{"2026-05-01":{"text":"old","mood":"m3","tags":["x"]}},"sync":{"on":true}}"""
+        val future = """{"version":1,"entries":{"2026-05-01":{"text":"old","mood":"m3"}},"sync":{"on":true}}"""
         for (json in listOf(old, future)) {
             val f = JournalJson.decodeFromString(JournalFile.serializer(), json)
             assertEquals(LineEntry(text = "old"), f.entries["2026-05-01"])

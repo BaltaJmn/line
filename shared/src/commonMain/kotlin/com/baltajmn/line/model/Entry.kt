@@ -16,6 +16,8 @@ data class LineEntry(
     val photo: String? = null,
     /** Created after its own logical day. Counts as a line, never towards the streak. */
     val late: Boolean = false,
+    /** Normalised with [normalizeTag]: "mi-madre", never "#Mi madre". */
+    val tags: List<String> = emptyList(),
 )
 
 @Serializable

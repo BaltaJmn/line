@@ -13,7 +13,7 @@ import kotlinx.datetime.LocalDate
 fun search(j: Journal, query: String): List<Pair<LocalDate, LineEntry>> {
     val q = fold(query.trim())
     if (q.isEmpty()) return emptyList()
-    return j.filter { (_, e) -> fold(e.text).contains(q) }
+    return j.filter { (_, e) -> fold(e.text).contains(q) || e.tags.any { fold(it).contains(q) } }
         .map { (k, e) -> LocalDate.parse(k) to e }
         .sortedByDescending { it.first }
 }

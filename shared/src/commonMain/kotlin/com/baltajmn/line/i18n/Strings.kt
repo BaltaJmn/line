@@ -838,6 +838,11 @@ object S {
         "Une question quand la page est vide",
     )
 
+    val addTag = t("+ tag", "+ etiqueta", "+ etiqueta", "+ Etikett", "+ étiquette")
+
+    fun a11yRemoveTag(tag: String) =
+        t("Remove #$tag", "Quitar #$tag", "Remover #$tag", "#$tag entfernen", "Retirer #$tag")
+
     /** The question of the day, in the order of docs/textos.md: [i] is today.toEpochDays() mod [QUESTION_COUNT]. */
     fun question(i: Int): String = listOf(
         t("What did you eat today that you liked?", "¿Qué has comido hoy que te haya gustado?", "O que você comeu hoje que gostou?", "Was hast du heute gegessen, das dir geschmeckt hat?", "Qu'as-tu mangé aujourd'hui qui t'a plu ?"),

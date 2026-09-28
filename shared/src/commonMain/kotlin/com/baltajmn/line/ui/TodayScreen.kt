@@ -138,6 +138,8 @@ fun TodayScreen(today: LocalDate, onYear: () -> Unit, onSettings: () -> Unit, on
                 }
             }
 
+            TagRow(today, entry)
+
             entry?.photo?.let {
                 Spacer(Modifier.height(12.dp))
                 DayPhoto(it) { onOpenDay(today) }

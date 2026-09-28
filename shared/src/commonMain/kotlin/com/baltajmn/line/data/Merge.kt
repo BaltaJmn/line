@@ -50,7 +50,8 @@ fun merge(device: Journal, incoming: Journal): MergeResult {
         if (mine.photo == null) from.photo?.let(photos::add)
 
         // late stays as this phone recorded it: the backup does not get to say when you wrote.
-        val merged = mine.copy(text = text, photo = photo)
+        val tags = (mine.tags + from.tags).distinct()
+        val merged = mine.copy(text = text, photo = photo, tags = tags)
         out[key] = merged
         if (merged == mine) same++ else joined++
     }

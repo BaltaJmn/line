@@ -283,6 +283,7 @@ Los nombres y descripciones que ve el selector de widgets: en Android, `strings.
 | `questionsRow` | | A question when the day is blank | Una pregunta cuando el día está en blanco | Uma pergunta quando o dia está em branco | Eine Frage, wenn der Tag leer ist | Une question quand la page est vide |
 | `addTag`* | | + tag | + etiqueta | + etiqueta | + Etikett | + étiquette |
 | `tagsLabel` | | Tags | Etiquetas | Etiquetas | Etiketten | Étiquettes |
+| `a11yRemoveTag` | tag | Remove #viaje | Quitar #viaje | Remover #viaje | #viaje entfernen | Retirer #viaje |
 | `widgetMemoryName` | | Memory | Recuerdo | Lembrança | Erinnerung | Souvenir |
 | `widgetMemoryDescription` | | What you wrote a year ago | Lo que escribiste hace un año | O que você escreveu há um ano | Was du vor einem Jahr geschrieben hast | Ce que tu as écrit il y a un an |
 | `widgetMemoryLabel` | year | A year ago, 2026 | Hace un año, 2026 | Há um ano, 2026 | Vor einem Jahr, 2026 | Il y a un an, 2026 |

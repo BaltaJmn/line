@@ -2,6 +2,36 @@ package com.baltajmn.line.model
 
 const val LINE_LIMIT = 280
 const val COUNTER_FROM = 250
+const val TAG_MAX = 24
+const val TAGS_PER_ENTRY = 5
+const val TAG_SUGGESTIONS = 10
+
+/**
+ * One way to write a tag, so "#Mi madre" and "mi-madre" are the same one: trimmed, lower case,
+ * inner spaces to "-", no leading "#", at most [TAG_MAX] code points. Null when nothing is left.
+ */
+fun normalizeTag(raw: String): String? {
+    val tag = raw.trim().removePrefix("#").trim().lowercase()
+        .split(Regex("\\s+")).filter { it.isNotEmpty() }.joinToString("-")
+        .clampCodePoints(TAG_MAX)
+    return tag.ifEmpty { null }
+}
+
+/** [tags] with [raw] added at the end, unless it is empty, already there or the entry is full. */
+fun addTag(tags: List<String>, raw: String): List<String> {
+    val tag = normalizeTag(raw) ?: return tags
+    return if (tag in tags || tags.size >= TAGS_PER_ENTRY) tags else tags + tag
+}
+
+/** The [TAG_SUGGESTIONS] tags the diary uses most, most used first, minus the ones in [have]. */
+fun tagSuggestions(j: Journal, have: List<String>): List<String> =
+    j.values.flatMap { it.tags }
+        .groupingBy { it }.eachCount()
+        .entries.filter { it.key !in have }
+        // Ties by name, so the row does not reshuffle between two openings of the same diary.
+        .sortedWith(compareByDescending<Map.Entry<String, Int>> { it.value }.thenBy { it.key })
+        .take(TAG_SUGGESTIONS)
+        .map { it.key }
 
 /** Characters as a person counts them: a surrogate pair (most emoji) is one. */
 fun String.codePointCount(): Int {
