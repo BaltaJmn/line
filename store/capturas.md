@@ -45,7 +45,9 @@ Espera dentro `01_hoy.png` a `06_ajustes.png` y deja el resultado en
 
 La 06 necesita un bloqueo de dispositivo para poder encender el de Purl: en el emulador, un PIN en
 los ajustes del sistema; en el simulador, *Features > Face ID > Enrolled* y *Matching Face* cuando lo
-pida.
+pida. Va la última: volver a meter el diario apaga el bloqueo, porque el de demostración no lo lleva.
+La 06 del otro idioma no necesita su diario, Ajustes no enseña ninguna línea: se cierra la app, se
+cambia el idioma como en el apartado 5 y al abrirla se desbloquea.
 
 ## 3. Titulares
 
