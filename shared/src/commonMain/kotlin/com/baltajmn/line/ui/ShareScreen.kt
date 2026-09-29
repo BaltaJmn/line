@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.widthIn
@@ -76,7 +77,7 @@ fun ShareScreen(target: ShareTarget, today: LocalDate, onClose: () -> Unit) {
     ) {
         Column(Modifier.widthIn(max = MAX_CONTENT_WIDTH).fillMaxWidth().padding(horizontal = 24.dp)) {
             Row(Modifier.fillMaxWidth().height(56.dp), verticalAlignment = Alignment.CenterVertically) {
-                GlyphButton(Glyph.CLOSE, S.a11yClose, onClose)
+                GlyphButton(Glyph.CLOSE, S.a11yClose, onClose, Modifier.offset(x = (-12).dp))
             }
             Box(Modifier.fillMaxWidth().padding(vertical = 24.dp), contentAlignment = Alignment.Center) {
                 Image(
@@ -92,10 +93,11 @@ fun ShareScreen(target: ShareTarget, today: LocalDate, onClose: () -> Unit) {
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
             ) {
-                OutlinedAction(S.share, onClick = { Sharing.sharePng(card.encodeToPng()) })
+                PillAction(S.share, onClick = { Sharing.sharePng(card.encodeToPng()) })
                 if (Sharing.canSaveToPhotos) {
-                    OutlinedAction(
+                    PillAction(
                         S.saveToPhotos,
+                        tonal = true,
                         onClick = {
                             Sharing.savePngToPhotos(card.encodeToPng()) { ok ->
                                 saved = if (ok) S.saved else S.saveFailed

@@ -47,6 +47,10 @@ class StringsTest {
         )
         each({ S.widgetDate(jan17) }, "SAT 17 JAN", "SÁB 17 ENE", "SÁB 17 JAN", "SA 17 JAN", "SAM 17 JANV")
         each(
+            { S.monthYear(jan17) },
+            "January 2026", "enero de 2026", "janeiro de 2026", "Januar 2026", "janvier 2026",
+        )
+        each(
             { S.returnsOn(LocalDate(2028, 1, 17)) },
             "This page will come back on January 17, 2028.", "Esta página volverá el 17 de enero de 2028.",
             "Esta página vai voltar em 17 de janeiro de 2028.", "Diese Seite kommt am 17. Januar 2028 wieder.",
@@ -62,10 +66,10 @@ class StringsTest {
     @Test
     fun plurals() {
         each(
-            { S.pastYearLabel(2026, 1) + " / " + S.pastYearLabel(2025, 2) },
-            "2026, a year ago / 2025, 2 years ago", "2026, hace un año / 2025, hace 2 años",
-            "2026, há um ano / 2025, há 2 anos", "2026, vor einem Jahr / 2025, vor 2 Jahren",
-            "2026, il y a un an / 2025, il y a 2 ans",
+            { S.yearsAgo(1) + " / " + S.yearsAgo(2) },
+            "a year ago / 2 years ago", "hace un año / hace 2 años",
+            "há um ano / há 2 anos", "vor einem Jahr / vor 2 Jahren",
+            "il y a un an / il y a 2 ans",
         )
         each(
             { S.yearCount(1, 2027) + " / " + S.yearCount(212, 2027) },

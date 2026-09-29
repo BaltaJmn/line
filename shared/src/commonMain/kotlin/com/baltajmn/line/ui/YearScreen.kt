@@ -2,7 +2,6 @@ package com.baltajmn.line.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
@@ -41,8 +42,10 @@ import com.baltajmn.line.data.LineRepository
 import com.baltajmn.line.data.search
 import com.baltajmn.line.i18n.S
 import com.baltajmn.line.model.isoKey
+import com.baltajmn.line.ui.theme.Cover
 import com.baltajmn.line.ui.theme.MAX_CONTENT_WIDTH
 import com.baltajmn.line.ui.theme.Styles
+import com.baltajmn.line.ui.theme.coverWash
 import kotlinx.datetime.LocalDate
 
 @Composable
@@ -53,6 +56,7 @@ fun YearScreen(
     onShare: (Int) -> Unit,
 ) {
     val journal = LineRepository.journal
+    val cover = Cover.of(LineRepository.settings.cover).color
     var year by remember { mutableStateOf(today.year) }
     var query by remember { mutableStateOf("") }
     val firstYear = remember(journal) { journal.keys.minOrNull()?.take(4)?.toInt() ?: today.year }
@@ -65,7 +69,7 @@ fun YearScreen(
     ) {
         Column(Modifier.widthIn(max = MAX_CONTENT_WIDTH).fillMaxWidth().padding(horizontal = 24.dp)) {
             Row(Modifier.fillMaxWidth().height(56.dp), verticalAlignment = Alignment.CenterVertically) {
-                GlyphButton(Glyph.BACK, S.a11yBack, onBack)
+                GlyphButton(Glyph.BACK, S.a11yBack, onBack, Modifier.offset(x = (-12).dp))
                 Spacer(Modifier.weight(1f))
                 // A year with nothing in it has no card worth sharing.
                 if (journal.keys.any { it.startsWith("$year-") }) {
@@ -73,28 +77,21 @@ fun YearScreen(
                 }
             }
 
-            Row(
-                Modifier.fillMaxWidth().height(48.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-            ) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f).semantics(mergeDescendants = true) { heading() }) {
+                    Text(year.toString(), style = Styles.display)
+                    val lines = journal.keys.count { it.startsWith("$year-") }
+                    Text(if (journal.isEmpty()) S.yearEmpty else S.cardLines(lines), style = Styles.secondary)
+                }
                 YearArrow(Glyph.BACK, S.a11yPreviousYear, year > firstYear) { year-- }
-                Text(year.toString(), style = Styles.title, modifier = Modifier.padding(horizontal = 16.dp))
                 YearArrow(Glyph.FORWARD, S.a11yNextYear, year < today.year) { year++ }
             }
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(20.dp))
             SearchField(query) { query = it }
 
             Spacer(Modifier.height(24.dp))
             YearGrid(year, journal, today, matching, onOpenDay)
-
-            Spacer(Modifier.height(16.dp))
-            val lines = journal.keys.count { it.startsWith("$year-") }
-            Text(
-                if (journal.isEmpty()) S.yearEmpty else S.yearCount(lines, year),
-                style = Styles.secondary,
-            )
 
             if (query.isNotBlank()) {
                 Spacer(Modifier.height(24.dp))
@@ -105,9 +102,12 @@ fun YearScreen(
                     results.forEach { (date, entry) ->
                         Column(
                             Modifier.fillMaxWidth()
-                                .padding(top = 16.dp)
+                                .padding(top = 12.dp)
+                                .clip(MaterialTheme.shapes.medium)
+                                .background(coverWash(cover))
                                 .clickable(role = Role.Button) { onOpenDay(date) }
-                                .semantics { contentDescription = S.a11yOpenDay },
+                                .semantics { contentDescription = S.a11yOpenDay }
+                                .padding(16.dp),
                         ) {
                             Text(S.longDateWithYear(date).uppercase(), style = Styles.eyebrow)
                             Spacer(Modifier.height(4.dp))

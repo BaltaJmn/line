@@ -1,24 +1,27 @@
 package com.baltajmn.line.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,9 +41,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.baltajmn.line.data.AppInfo
 import com.baltajmn.line.data.Backup
@@ -64,6 +70,7 @@ import com.baltajmn.line.data.storeUrl
 import com.baltajmn.line.i18n.S
 import com.baltajmn.line.ui.theme.Cover
 import com.baltajmn.line.ui.theme.MAX_CONTENT_WIDTH
+import com.baltajmn.line.ui.theme.OnCover
 import com.baltajmn.line.ui.theme.Styles
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
@@ -92,9 +99,9 @@ fun SettingsScreen(onBack: () -> Unit) {
     ) {
         Column(Modifier.widthIn(max = MAX_CONTENT_WIDTH).fillMaxWidth().padding(horizontal = 24.dp)) {
             Row(Modifier.fillMaxWidth().height(56.dp), verticalAlignment = Alignment.CenterVertically) {
-                GlyphButton(Glyph.BACK, S.a11yBack, onBack, Modifier.padding(end = 8.dp))
-                Text(S.settingsTitle, style = Styles.title)
+                GlyphButton(Glyph.BACK, S.a11yBack, onBack, Modifier.offset(x = (-12).dp))
             }
+            Text(S.settingsTitle, style = Styles.heading, modifier = Modifier.semantics { heading() })
 
             Section(S.sectionReminder) {
                 SettingRow(
@@ -137,9 +144,11 @@ fun SettingsScreen(onBack: () -> Unit) {
             }
 
             Section(S.sectionCover) {
-                Covers(settings.cover, settings.pro)
-                if (!settings.pro) {
-                    Text(S.coverProHint, style = Styles.secondary, modifier = Modifier.padding(top = 12.dp))
+                Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(16.dp)) {
+                    Covers(settings.cover, settings.pro)
+                    if (!settings.pro) {
+                        Text(S.coverProHint, style = Styles.secondary, modifier = Modifier.padding(top = 12.dp))
+                    }
                 }
             }
 
@@ -275,12 +284,21 @@ fun SettingsScreen(onBack: () -> Unit) {
     }
 }
 
+/**
+ * A label and a card of rows. The rows sit 1 apart on the divider colour, which is what draws the
+ * lines between them.
+ */
 @Composable
 private fun Section(label: String, content: @Composable () -> Unit) {
-    Spacer(Modifier.height(32.dp))
-    Text(label.uppercase(), style = Styles.eyebrow)
-    Spacer(Modifier.height(12.dp))
-    content()
+    Spacer(Modifier.height(28.dp))
+    Text(label.uppercase(), style = Styles.eyebrow, modifier = Modifier.padding(start = 4.dp))
+    Spacer(Modifier.height(10.dp))
+    Column(
+        Modifier.fillMaxWidth()
+            .clip(MaterialTheme.shapes.medium)
+            .background(MaterialTheme.colorScheme.outlineVariant),
+        verticalArrangement = Arrangement.spacedBy(1.dp),
+    ) { content() }
 }
 
 /** A row of the list: title, subtitle and whatever sits at the end. The whole row answers. */
@@ -294,12 +312,14 @@ private fun SettingRow(
 ) {
     Row(
         Modifier.fillMaxWidth()
-            .heightIn(min = 56.dp)
+            .background(MaterialTheme.colorScheme.surface)
+            .heightIn(min = 60.dp)
             .then(if (onClick != null && enabled) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier)
-            .alpha(if (enabled) 1f else 0.4f),
+            .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(Modifier.weight(1f).padding(vertical = 8.dp)) {
+        // Faded, not hidden: the card keeps its colour and only what is written in it steps back.
+        Column(Modifier.weight(1f).padding(vertical = 10.dp).alpha(if (enabled) 1f else 0.4f)) {
             Text(title, style = Styles.body)
             if (subtitle != null) Text(subtitle, style = Styles.secondary)
         }
@@ -320,32 +340,52 @@ private fun SoftSwitch(checked: Boolean, enabled: Boolean = true, onChange: (Boo
     )
 }
 
-/** The eight pastels of the family. Sage is free; the rest come with Pro (docs/tecnico.md 6.17). */
-@OptIn(ExperimentalLayoutApi::class)
+/**
+ * The eight pastels of the family, as the notebooks they colour: two rows of four, the spine on the
+ * left. Sage is free; the rest carry a padlock until Pro (docs/tecnico.md 6.17).
+ */
 @Composable
 private fun Covers(selected: String, pro: Boolean) {
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Cover.entries.forEach { cover ->
-            val chosen = cover.id == selected
-            Box(
-                Modifier.size(32.dp)
-                    .clip(CircleShape)
-                    .background(cover.color)
-                    // A locked cover sells Pro instead of changing anything (docs/tecnico.md 6.17).
-                    .clickable(role = Role.Button) {
-                        if (pro || cover == Cover.SAGE) {
-                            LineRepository.updateSettings { it.copy(cover = cover.id) }
-                        } else {
-                            Paywall.open = true
-                        }
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        val gap = 12.dp
+        val width = minOf(72.dp, (maxWidth - gap * 3) / 4)
+        Column(verticalArrangement = Arrangement.spacedBy(gap)) {
+            Cover.entries.chunked(4).forEach { row ->
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    row.forEach { cover ->
+                        Notebook(cover, chosen = cover.id == selected, locked = !pro && cover != Cover.SAGE, width = width)
                     }
-                    .semantics {
-                        contentDescription = S.coverName(cover.id) + if (chosen) ", ${S.a11ySelected}" else ""
-                    },
-                contentAlignment = Alignment.Center,
-            ) {
-                if (chosen) GlyphIcon(Glyph.CHECK, tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f))
+                }
             }
+        }
+    }
+}
+
+@Composable
+private fun Notebook(cover: Cover, chosen: Boolean, locked: Boolean, width: Dp) {
+    val shape = RoundedCornerShape(topStart = 4.dp, bottomStart = 4.dp, topEnd = 10.dp, bottomEnd = 10.dp)
+    Box(
+        Modifier.size(width, width * 4 / 3)
+            .clip(shape)
+            .background(cover.color)
+            .border(2.dp, if (chosen) MaterialTheme.colorScheme.onBackground else Color.Transparent, shape)
+            // A locked cover sells Pro instead of changing anything (docs/tecnico.md 6.17).
+            .clickable(role = Role.Button) {
+                if (locked) {
+                    Paywall.open = true
+                } else {
+                    LineRepository.updateSettings { it.copy(cover = cover.id) }
+                }
+            }
+            .semantics {
+                contentDescription = S.coverName(cover.id) + if (chosen) ", ${S.a11ySelected}" else ""
+            },
+        contentAlignment = Alignment.Center,
+    ) {
+        Box(Modifier.align(Alignment.CenterStart).fillMaxHeight().width(7.dp).background(OnCover.copy(alpha = 0.08f)))
+        when {
+            chosen -> GlyphIcon(Glyph.CHECK, size = 22.dp, tint = OnCover)
+            locked -> GlyphIcon(Glyph.LOCK, size = 18.dp, tint = OnCover.copy(alpha = 0.5f))
         }
     }
 }

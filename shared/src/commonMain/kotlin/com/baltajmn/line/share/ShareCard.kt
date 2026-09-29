@@ -1,6 +1,5 @@
 package com.baltajmn.line.share
 
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
@@ -23,6 +22,8 @@ import com.baltajmn.line.i18n.S
 import com.baltajmn.line.model.Journal
 import com.baltajmn.line.model.isoKey
 import com.baltajmn.line.model.longestStreak
+import com.baltajmn.line.ui.stitch
+import com.baltajmn.line.ui.stitchTilt
 import kotlinx.datetime.LocalDate
 
 /**
@@ -69,7 +70,7 @@ fun renderLineCard(
     literata: FontFamily,
     measurer: TextMeasurer,
 ): ImageBitmap = card { scope ->
-    scope.drawCircle(cover, radius = 18f, center = Offset(126f, 150f))
+    scope.stitch(Offset(126f, 150f), STITCH_W, STITCH_H, stitchTilt(0), cover)
     scope.text(
         measurer,
         S.longDateWithYear(date).uppercase(),
@@ -117,20 +118,25 @@ private const val GAP = 6f
 private const val GRID_X = 109f
 private const val GRID_Y = 520f
 
-/** Twelve rows of thirty-one: the year as a block, without the month initials of the screen. */
+/** The cover's mark, the size of the old dot: a stitch of 44 by 24. */
+private const val STITCH_W = 44f
+private const val STITCH_H = 24f
+
+/**
+ * Twelve rows of thirty-one, the year as a swatch: each month a row of stitches turned its own way,
+ * as on the icon, without the month initials of the screen.
+ */
 private fun DrawScope.grid(journal: Journal, year: Int, today: LocalDate, cover: Color) {
-    val radius = CornerRadius(5f)
-    val box = Size(CELL, CELL)
     for (month in 1..12) {
         for (day in 1..31) {
             val date = runCatching { LocalDate(year, month, day) }.getOrNull() ?: continue
-            val at = Offset(GRID_X + (CELL + GAP) * (day - 1), GRID_Y + (CELL + GAP) * (month - 1))
+            val center = Offset(GRID_X + (CELL + GAP) * (day - 1) + CELL / 2, GRID_Y + (CELL + GAP) * (month - 1) + CELL / 2)
             val color = when {
                 date.isoKey() in journal -> cover
                 date > today -> Empty.copy(alpha = 0.5f)
                 else -> Empty
             }
-            drawRoundRect(color, at, box, radius)
+            stitch(center, CELL, CELL * 0.55f, stitchTilt(month - 1), color)
         }
     }
 }
@@ -159,9 +165,9 @@ private fun DrawScope.line(measurer: TextMeasurer, text: String, literata: FontF
 private fun lineStyle(literata: FontFamily, size: Int) =
     TextStyle(fontFamily = literata, fontSize = size.sp, lineHeight = (size * 1.4f).sp, color = Ink)
 
-/** The same on both cards: the name, what the app is, and the cover as a dot. */
+/** The same on both cards: the name, what the app is, and the cover as a stitch. */
 private fun DrawScope.footer(measurer: TextMeasurer, literata: FontFamily, cover: Color) {
     text(measurer, "Purl", TextStyle(fontFamily = literata, fontSize = 52.sp, color = Ink), 108f, 1210f)
     text(measurer, S.cardTagline, TextStyle(fontSize = 34.sp, color = Muted), 108f, 1262f)
-    drawCircle(cover, radius = 18f, center = Offset(954f, 1196f))
+    stitch(Offset(954f, 1196f), STITCH_W, STITCH_H, stitchTilt(0), cover)
 }

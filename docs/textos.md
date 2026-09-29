@@ -47,6 +47,7 @@ Todos los textos de la app en los cinco idiomas. De aquí salen `i18n/Strings.kt
 | `longDateWithYear` | fecha | Tuesday, January 20, 2026 | Martes, 20 de enero de 2026 | Terça-feira, 20 de janeiro de 2026 | Dienstag, 20. Januar 2026 | Mardi 20 janvier 2026 |
 | `shortDate` | fecha | January 10 | 10 de enero | 10 de janeiro | 10. Januar | 10 janvier |
 | `dayMonthYear` | fecha | January 17, 2027 | 17 de enero de 2027 | 17 de janeiro de 2027 | 17. Januar 2027 | 17 janvier 2027 |
+| `monthYear` | fecha | January 2026 | enero de 2026 | janeiro de 2026 | Januar 2026 | janvier 2026 |
 | `abbrDateWithYear` | fecha | Jan 17, 2027 | 17 ene 2027 | 17 jan 2027 | 17. Jan. 2027 | 17 janv. 2027 |
 | `widgetDate` | fecha | SAT 17 JAN | SÁB 17 ENE | SÁB 17 JAN | SA 17 JAN | SAM 17 JANV |
 
@@ -58,10 +59,9 @@ Todos los textos de la app en los cinco idiomas. De aquí salen `i18n/Strings.kt
 | `firstHelp` | | One line a day. In a year, on this same day, you'll read it again. | Una línea al día. Dentro de un año, este mismo día, volverás a leerla. | Uma linha por dia. Daqui a um ano, neste mesmo dia, você vai reler. | Eine Zeile am Tag. In einem Jahr, an genau diesem Tag, liest du sie wieder. | Une ligne par jour. Dans un an, ce même jour, tu la reliras. |
 | `streakDays` | n (>= 2) | 5 days in a row | 5 días seguidos | 5 dias seguidos | 5 Tage in Folge | 5 jours d'affilée |
 | `counter` | n, max | 263/280 | 263/280 | 263/280 | 263/280 | 263/280 |
-| `pastYearLabel` | year, n | 2026, a year ago / 2025, 2 years ago | 2026, hace un año / 2025, hace 2 años | 2026, há um ano / 2025, há 2 anos | 2026, vor einem Jahr / 2025, vor 2 Jahren | 2026, il y a un an / 2025, il y a 2 ans |
+| `yearsAgo` | n | a year ago / 2 years ago | hace un año / hace 2 años | há um ano / há 2 anos | vor einem Jahr / vor 2 Jahren | il y a un an / il y a 2 ans |
 | `echoWeek` | | A week ago | Hace una semana | Há uma semana | Vor einer Woche | Il y a une semaine |
 | `echoMonth` | | A month ago | Hace un mes | Há um mês | Vor einem Monat | Il y a un mois |
-| `echoLabel` | label, fecha | A week ago, January 10 | Hace una semana, 10 de enero | Há uma semana, 10 de janeiro | Vor einer Woche, 10. Januar | Il y a une semaine, 10 janvier |
 | `dayNumber` | n | Day 12 of your diary. | Día 12 de tu diario. | Dia 12 do seu diário. | Tag 12 deines Tagebuchs. | Jour 12 de ton journal. |
 | `returnsOn` | fecha | This page will come back on January 17, 2028. | Esta página volverá el 17 de enero de 2028. | Esta página vai voltar em 17 de janeiro de 2028. | Diese Seite kommt am 17. Januar 2028 wieder. | Cette page reviendra le 17 janvier 2028. |
 | `milestoneFirst` | | Your first line. | Tu primera línea. | Sua primeira linha. | Deine erste Zeile. | Ta première ligne. |
@@ -241,6 +241,9 @@ Los nombres y descripciones que ve el selector de widgets: en Android, `strings.
 | `a11ySelected` | | selected | elegida | selecionada | ausgewählt | sélectionnée |
 | `a11yDay` | fecha, escrita | January 17, written / January 17, not written | 17 de enero, escrita / 17 de enero, sin escribir | 17 de janeiro, escrita / 17 de janeiro, sem escrever | 17. Januar, geschrieben / 17. Januar, nicht geschrieben | 17 janvier, écrite / 17 janvier, pas écrite |
 | `a11yOpenDay` | | Open this day | Abrir este día | Abrir este dia | Diesen Tag öffnen | Ouvrir ce jour |
+
+`a11yPhoto` es también la etiqueta visible del botón de foto (`docs/pantallas.md` 4.1): el mismo
+texto dicho y escrito.
 
 ## 13. iOS: `InfoPlist.strings`
 

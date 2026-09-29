@@ -8,6 +8,8 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -37,6 +39,9 @@ enum class Cover(val id: String, val color: Color) {
         fun of(id: String?): Cover = entries.firstOrNull { it.id == id } ?: SAGE
     }
 }
+
+/** Glyphs on a pastel, in either theme: the light ink of the dark theme would vanish on them. */
+val OnCover = Color(0xFF39352E)
 
 // error points at the secondary text colour: nothing in the app is ever painted red, not even by a
 // Material component that reaches for it on its own.
@@ -88,8 +93,18 @@ fun LineTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable (
 }
 
 /**
- * The ten styles of docs/pantallas.md 1.2. Literata is only for what the user wrote; everything
- * around it is the system font, lighter and smaller, so the line is what the eye lands on.
+ * The page of the diary in the cover's colour: the cover mixed into the background, lighter in the
+ * dark so the pastel does not glow (docs/pantallas.md 1.1).
+ */
+@Composable
+fun coverWash(cover: Color): Color {
+    val background = MaterialTheme.colorScheme.background
+    return lerp(background, cover, if (background.luminance() < 0.5f) 0.16f else 0.30f)
+}
+
+/**
+ * The styles of docs/pantallas.md 1.2. Literata is for what the user wrote and for the one number or
+ * name that heads each page; everything around it is the system font, lighter and smaller.
  */
 object Styles {
     val literata: FontFamily @Composable get() = FontFamily(Font(Res.font.literata_regular))
@@ -97,12 +112,12 @@ object Styles {
     val userLarge: TextStyle @Composable get() = user(22.sp, 32.sp)
     val userMedium: TextStyle @Composable get() = user(18.sp, 27.sp)
     val userSmall: TextStyle @Composable get() = user(16.sp, 24.sp)
+    val display: TextStyle @Composable get() = user(44.sp, 48.sp)
+    val heading: TextStyle @Composable get() = user(28.sp, 34.sp)
 
     val title: TextStyle @Composable get() = system(20.sp, 26.sp, FontWeight.Medium, colors.onBackground)
-    val dateLine: TextStyle @Composable get() = system(15.sp, 20.sp, FontWeight.Medium, colors.onSurfaceVariant)
     val body: TextStyle @Composable get() = system(15.sp, 22.sp, FontWeight.Normal, colors.onBackground)
     val secondary: TextStyle @Composable get() = system(13.sp, 18.sp, FontWeight.Normal, colors.onSurfaceVariant)
-    val light: TextStyle @Composable get() = system(13.sp, 18.sp, FontWeight.Light, colors.onSurfaceVariant)
     val action: TextStyle @Composable get() = system(15.sp, 20.sp, FontWeight.Medium, colors.primary)
 
     /** Block and section labels. The caller passes the text through uppercase(). */
