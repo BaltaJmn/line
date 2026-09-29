@@ -128,8 +128,12 @@ que el producto va antes que esas tres declaraciones (`formularios.md` §3).
 8. [x] **[yo] Canales**: prueba cerrada *Alpha* con los 178 países, el grupo
    `quilt-testers@googlegroups.com` y `baltajmn@gmail.com` para comentarios; prueba interna con la
    lista *Cuentas propias*, que también está en *Licencia para testing*. (#29)
-9. [ ] **[yo]** etiquetar `v1.0` con la clave `goog_` dentro: `git tag v1.0 && git push origin v1.0`,
-   que publica en `alpha`, y enviar a revisión. (#29)
+9. [x] **[yo] Beta cerrada en borrador** (29/09/2026): `release.yml` sobre `main` con `track`
+   `alpha` y `status` `draft`, versionCode 2, sin la clave `goog_`: va entera en modo gratis y la
+   compra todavía no se puede probar. `main` pasa a versionCode 3. **[tú]** Publicarla en *Probar y
+   publicar > Prueba cerrada* cuando esté hecho el paso 7, que la revisión necesita. (#29)
+10. [ ] **[yo]** etiquetar `v1.0` con la clave `goog_` dentro: `git tag v1.0 && git push origin v1.0`,
+   que publica en `alpha` con el versionCode 3, y enviar a revisión. (#29)
 
 ## Fase 4. RevenueCat
 
