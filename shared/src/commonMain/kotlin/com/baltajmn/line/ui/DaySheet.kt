@@ -2,20 +2,17 @@ package com.baltajmn.line.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
@@ -28,9 +25,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import com.baltajmn.line.data.LineRepository
@@ -57,6 +54,8 @@ fun DaySheet(date: LocalDate, today: LocalDate, onClose: () -> Unit, onShare: (L
     val text = entry?.text.orEmpty()
     var confirmDelete by remember { mutableStateOf(false) }
 
+    var editing by remember { mutableStateOf(false) }
+
     Column(
         Modifier.fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
@@ -66,7 +65,7 @@ fun DaySheet(date: LocalDate, today: LocalDate, onClose: () -> Unit, onShare: (L
     ) {
         Column(Modifier.widthIn(max = MAX_CONTENT_WIDTH).fillMaxWidth().padding(horizontal = 24.dp)) {
             Row(Modifier.fillMaxWidth().height(56.dp), verticalAlignment = Alignment.CenterVertically) {
-                GlyphButton(Glyph.CLOSE, S.a11yClose, onClose)
+                GlyphButton(Glyph.CLOSE, S.a11yClose, onClose, Modifier.offset(x = (-12).dp))
                 Spacer(Modifier.weight(1f))
                 // The card of a line is only offered for a day that has one.
                 if (text.isNotBlank()) GlyphButton(Glyph.SHARE, S.a11yShare, { onShare(date) })
@@ -75,12 +74,8 @@ fun DaySheet(date: LocalDate, today: LocalDate, onClose: () -> Unit, onShare: (L
                 }
             }
 
-            Spacer(Modifier.height(16.dp))
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(8.dp).clip(CircleShape).background(Cover.of(settings.cover).color))
-                Spacer(Modifier.width(8.dp))
-                Text(S.longDateWithYear(date), style = Styles.dateLine)
-            }
+            Spacer(Modifier.height(8.dp))
+            DayHeader(date, S.monthYear(date), S.longDateWithYear(date))
 
             val focus = remember { FocusRequester() }
             val keyboard = LocalSoftwareKeyboardController.current
@@ -90,43 +85,36 @@ fun DaySheet(date: LocalDate, today: LocalDate, onClose: () -> Unit, onShare: (L
                     keyboard?.show()
                 }
             }
-            Spacer(Modifier.height(16.dp))
-            LineField(
-                text = text,
-                onChange = { LineRepository.setText(date, it, today) },
-                placeholder = S.todayPlaceholder,
-                modifier = Modifier.fillMaxWidth().focusRequester(focus),
-            )
-
-            Spacer(Modifier.height(8.dp))
-            Row(
-                Modifier.fillMaxWidth().height(48.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.End,
-            ) {
-                if (entry?.photo == null) PhotoButton(date, today)
-                val count = text.codePointCount()
-                if (count >= COUNTER_FROM) {
-                    Spacer(Modifier.width(8.dp))
-                    Text(S.counter(count, LINE_LIMIT), style = Styles.light)
+            Spacer(Modifier.height(20.dp))
+            Page(Cover.of(settings.cover).color, editing) {
+                LineField(
+                    text = text,
+                    onChange = { LineRepository.setText(date, it, today) },
+                    placeholder = S.todayPlaceholder,
+                    modifier = Modifier.fillMaxWidth().focusRequester(focus).onFocusChanged { editing = it.isFocused },
+                )
+                entry?.photo?.let {
+                    Spacer(Modifier.height(12.dp))
+                    DayPhoto(it)
+                    Row(Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.End) {
+                        TextAction(
+                            S.changePhoto,
+                            onClick = {
+                                PhotoPicker.pick { bytes -> bytes?.let { b -> LineRepository.setPhoto(date, b, today) } }
+                            },
+                        )
+                        TextAction(S.removePhoto, onClick = { LineRepository.setPhoto(date, null, today) })
+                    }
                 }
-            }
-
-            TagRow(date, entry)
-
-            entry?.photo?.let {
-                DayPhoto(it)
+                TagRow(date, entry)
                 Row(
-                    Modifier.fillMaxWidth().padding(top = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                    Modifier.fillMaxWidth().height(56.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    TextAction(
-                        S.changePhoto,
-                        onClick = {
-                            PhotoPicker.pick { bytes -> bytes?.let { b -> LineRepository.setPhoto(date, b, today) } }
-                        },
-                    )
-                    TextAction(S.removePhoto, onClick = { LineRepository.setPhoto(date, null, today) })
+                    val count = text.codePointCount()
+                    if (count >= COUNTER_FROM) Text(S.counter(count, LINE_LIMIT), style = Styles.secondary)
+                    Spacer(Modifier.weight(1f))
+                    if (entry?.photo == null) PhotoButton(date, today)
                 }
             }
             Spacer(Modifier.height(32.dp))

@@ -1,5 +1,6 @@
 package com.baltajmn.line.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -26,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -64,10 +66,10 @@ fun TagRow(date: LocalDate, entry: LineEntry?) {
         draft = ""
     }
 
-    Spacer(Modifier.height(4.dp))
+    Spacer(Modifier.height(12.dp))
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         tags.forEach { tag ->
-            Chip("#$tag", Modifier.semantics { contentDescription = S.a11yRemoveTag(tag) }) {
+            Chip("#$tag", Modifier.semantics { contentDescription = S.a11yRemoveTag(tag) }, quiet = false) {
                 LineRepository.setTags(date, tags - tag)
             }
         }
@@ -104,22 +106,27 @@ fun TagRow(date: LocalDate, entry: LineEntry?) {
             }
         }
     }
-    Spacer(Modifier.height(8.dp))
 }
 
 private val ChipShape = RoundedCornerShape(16.dp)
 
+/**
+ * A tag on the page: paper on the cover's colour, like the photo button, with no border to draw.
+ * A tag reads in ink; the add chip and the suggestions stay [quiet].
+ */
 @Composable
-private fun Chip(label: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
+private fun Chip(label: String, modifier: Modifier = Modifier, quiet: Boolean = true, onClick: () -> Unit) {
+    val colors = MaterialTheme.colorScheme
     Box(
         modifier
             .heightIn(min = 32.dp)
-            .border(1.dp, MaterialTheme.colorScheme.outline, ChipShape)
+            .clip(ChipShape)
+            .background(colors.background)
             .clickable(role = Role.Button, onClick = onClick)
             .padding(horizontal = 12.dp),
         contentAlignment = Alignment.Center,
     ) {
-        Text(label, style = Styles.secondary.copy(fontSize = 13.sp))
+        Text(label, style = Styles.secondary.copy(color = if (quiet) colors.onSurfaceVariant else colors.onBackground))
     }
 }
 
@@ -130,6 +137,8 @@ private fun TagField(text: String, onChange: (String) -> Unit, onDone: () -> Uni
     LaunchedEffect(Unit) { focus.requestFocus() }
     Box(
         Modifier.heightIn(min = 32.dp).widthIn(min = 96.dp)
+            .clip(ChipShape)
+            .background(MaterialTheme.colorScheme.background)
             .border(1.dp, MaterialTheme.colorScheme.primary, ChipShape)
             .padding(horizontal = 12.dp),
         contentAlignment = Alignment.CenterStart,

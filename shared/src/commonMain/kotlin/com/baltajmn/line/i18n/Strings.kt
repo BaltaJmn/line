@@ -651,6 +651,13 @@ object S {
 
     fun dayMonthYear(d: LocalDate) = shortDate(d) + yearSuffix(d.year)
 
+    /** The line under the day's number in an open day: the month and its year. */
+    fun monthYear(d: LocalDate): String {
+        val m = monthNames()[d.month.ordinal]
+        val y = d.year
+        return t("$m $y", "$m de $y", "$m de $y", "$m $y", "$m $y")
+    }
+
     fun longDateWithYear(d: LocalDate) = longDate(d) + yearSuffix(d.year)
 
     fun abbrDateWithYear(d: LocalDate): String {
@@ -676,16 +683,11 @@ object S {
 
     fun counter(n: Int, max: Int) = "$n/$max"
 
-    fun pastYearLabel(year: Int, n: Int): String {
-        val ago = if (n == 1) {
-            t("a year ago", "hace un año", "há um ano", "vor einem Jahr", "il y a un an")
-        } else {
-            t("$n years ago", "hace $n años", "há $n anos", "vor $n Jahren", "il y a $n ans")
-        }
-        return "$year, $ago"
+    fun yearsAgo(n: Int) = if (n == 1) {
+        t("a year ago", "hace un año", "há um ano", "vor einem Jahr", "il y a un an")
+    } else {
+        t("$n years ago", "hace $n años", "há $n anos", "vor $n Jahren", "il y a $n ans")
     }
-
-    fun echoLabel(label: String, d: LocalDate) = "$label, ${shortDate(d)}"
 
     fun dayNumber(n: Int) = t(
         "Day $n of your diary.",

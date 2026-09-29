@@ -12,12 +12,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.DrawStyle
+import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -29,7 +34,63 @@ import androidx.compose.ui.unit.dp
  * angle quote as colour emoji and Android as plain text, so typed glyphs ship two icon sets.
  * Coordinates are fractions of the side (docs/pantallas.md 2).
  */
-enum class Glyph { BACK, FORWARD, SHARE, SETTINGS, YEAR, CLOSE, PHOTO, TRASH, SEARCH, CHECK }
+enum class Glyph { BACK, FORWARD, SHARE, SETTINGS, YEAR, CLOSE, PHOTO, TRASH, SEARCH, CHECK, LOCK }
+
+/**
+ * The stitch of the icon, and of everything that counts days: a capsule turned a few degrees, one
+ * way on one row and the other way on the next, like the purl side of a knit (pantallas 1.5).
+ */
+const val STITCH_TILT = 8f
+
+/** Row 0 turns anticlockwise, as the top row of the icon does. */
+fun stitchTilt(row: Int): Float = if (row % 2 == 0) -STITCH_TILT else STITCH_TILT
+
+fun DrawScope.stitch(center: Offset, width: Float, height: Float, tilt: Float, color: Color, style: DrawStyle = Fill) =
+    rotate(tilt, center) {
+        drawRoundRect(
+            color,
+            topLeft = Offset(center.x - width / 2, center.y - height / 2),
+            size = Size(width, height),
+            cornerRadius = CornerRadius(height / 2),
+            style = style,
+        )
+    }
+
+/**
+ * Rows of stitches as the icon draws them (pantallas 13): each row turns its own way, and a null is
+ * a stitch not yet made, drawn as an outline.
+ */
+@Composable
+fun Swatch(rows: List<List<Color?>>, stitchWidth: Dp, modifier: Modifier = Modifier) {
+    val empty = MaterialTheme.colorScheme.onSurfaceVariant
+    val columns = rows.maxOf { it.size }
+    val gap = stitchWidth * 0.18f
+    val step = stitchWidth * 0.91f
+    Canvas(modifier.size(stitchWidth * columns + gap * (columns - 1), step * rows.size)) {
+        val width = stitchWidth.toPx()
+        val height = width * 0.545f
+        rows.forEachIndexed { r, row ->
+            row.forEachIndexed { c, color ->
+                val center = Offset(c * (width + gap.toPx()) + width / 2, (r + 0.5f) * step.toPx())
+                if (color != null) {
+                    stitch(center, width, height, stitchTilt(r), color)
+                } else {
+                    stitch(center, width, height, stitchTilt(r), empty, Stroke(1.5.dp.toPx()))
+                }
+            }
+        }
+    }
+}
+
+/** One stitch on its own, 20 by 12: the mark of a year, of a line, of a Pro perk. */
+@Composable
+fun StitchMark(color: Color, modifier: Modifier = Modifier, tilt: Float = -STITCH_TILT, filled: Boolean = true) {
+    Canvas(modifier.size(20.dp, 12.dp)) {
+        val width = size.width * 0.88f
+        val style = if (filled) Fill else Stroke(1.2.dp.toPx())
+        stitch(center, width, width * 0.52f, tilt, color, style)
+    }
+}
 
 /** A 48dp tap target with no background: the glyph is the whole control. */
 @Composable
@@ -72,8 +133,9 @@ fun GlyphIcon(glyph: Glyph, size: Dp = 20.dp, tint: Color = MaterialTheme.colorS
                 line(0.14f to y, 0.86f to y)
                 dot(knob, y, 0.11f)
             }
-            Glyph.YEAR -> listOf(0.25f, 0.50f, 0.75f).forEach { y ->
-                listOf(0.25f, 0.50f, 0.75f).forEach { x -> dot(x, y, 0.07f) }
+            // A swatch of the year grid: three rows of two stitches.
+            Glyph.YEAR -> listOf(0.26f, 0.50f, 0.74f).forEachIndexed { row, y ->
+                listOf(0.31f, 0.69f).forEach { x -> stitch(at(x, y), 0.34f * side, 0.17f * side, stitchTilt(row), tint) }
             }
             Glyph.CLOSE -> {
                 line(0.24f to 0.24f, 0.76f to 0.76f)
@@ -100,6 +162,25 @@ fun GlyphIcon(glyph: Glyph, size: Dp = 20.dp, tint: Color = MaterialTheme.colorS
                 line(0.62f to 0.62f, 0.84f to 0.84f)
             }
             Glyph.CHECK -> line(0.22f to 0.52f, 0.42f to 0.72f, 0.78f to 0.30f)
+            Glyph.LOCK -> {
+                drawRoundRect(
+                    tint,
+                    topLeft = at(0.22f, 0.44f),
+                    size = Size(0.56f * side, 0.42f * side),
+                    cornerRadius = CornerRadius(0.08f * side),
+                    style = stroke,
+                )
+                drawPath(
+                    Path().apply {
+                        moveTo(0.34f * side, 0.44f * side)
+                        lineTo(0.34f * side, 0.32f * side)
+                        arcTo(Rect(0.34f * side, 0.16f * side, 0.66f * side, 0.48f * side), 180f, 180f, false)
+                        lineTo(0.66f * side, 0.44f * side)
+                    },
+                    tint,
+                    style = stroke,
+                )
+            }
         }
     }
 }

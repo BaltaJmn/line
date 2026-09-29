@@ -7,6 +7,7 @@ import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.RectF
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -98,8 +99,8 @@ private fun Today(state: WidgetState?) {
             style = TextStyle(color = muted, fontSize = 12.sp, fontWeight = FontWeight.Medium),
         )
         Spacer(GlanceModifier.height(8.dp))
-        // Glance has no border and no canvas of its own, so the circle is drawn into a bitmap.
-        Image(ImageProvider(circle(28, cover, outline, filled = state?.written == true)), null)
+        // Glance has no border and no canvas of its own, so the stitch is drawn into a bitmap.
+        Image(ImageProvider(stitch(40, cover, outline, filled = state?.written == true)), null)
         Spacer(GlanceModifier.height(6.dp))
         Text(
             if (state?.written == true) S.widgetWritten else S.widgetNotWritten,
@@ -108,7 +109,7 @@ private fun Today(state: WidgetState?) {
         if (state?.memory == true && LocalSize.current.height >= 150.dp) {
             Spacer(GlanceModifier.height(6.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(ImageProvider(circle(6, cover, outline, filled = true)), null)
+                Image(ImageProvider(stitch(12, cover, outline, filled = true)), null)
                 Spacer(GlanceModifier.width(6.dp))
                 // English needs two lines at 2x2; without the weight the Row would cut it at one.
                 Text(
@@ -122,20 +123,38 @@ private fun Today(state: WidgetState?) {
     }
 }
 
-/** Filled when the day is written, a ring of 2 when it is not. Sizes are in dp, drawn at 3x. */
-private fun circle(dp: Int, color: Int, outline: Int, filled: Boolean): Bitmap {
-    val size = dp * 3
-    val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
-    val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { this.color = color }
+/**
+ * The app's stitch (docs/pantallas.md 1.5): half as tall as it is wide, turned 8 degrees. Filled
+ * when the day is written, an outline of 2 when it is not. Sizes are in dp, drawn at 3x.
+ */
+private fun stitch(dp: Int, color: Int, outline: Int, filled: Boolean): Bitmap {
+    val width = dp * 3f
+    val height = width * 0.55f
+    val stroke = 2f * 3
+    // The box of the turned capsule, plus the stroke and a pixel either side.
+    val sin = 0.139f
+    val cos = 0.990f
+    val bitmap = Bitmap.createBitmap(
+        (width * cos + height * sin + stroke + 2).toInt(),
+        (width * sin + height * cos + stroke + 2).toInt(),
+        Bitmap.Config.ARGB_8888,
+    )
     val canvas = Canvas(bitmap)
-    if (filled) {
-        canvas.drawCircle(size / 2f, size / 2f, size / 2f, paint)
-    } else {
-        val stroke = 2f * 3
+    val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { this.color = color }
+    if (!filled) {
         paint.color = outline
         paint.style = Paint.Style.STROKE
         paint.strokeWidth = stroke
-        canvas.drawCircle(size / 2f, size / 2f, size / 2f - stroke / 2f, paint)
     }
+    val cx = bitmap.width / 2f
+    val cy = bitmap.height / 2f
+    val inset = if (filled) 0f else stroke / 2
+    canvas.rotate(-8f, cx, cy)
+    canvas.drawRoundRect(
+        RectF(cx - width / 2 + inset, cy - height / 2 + inset, cx + width / 2 - inset, cy + height / 2 - inset),
+        height / 2,
+        height / 2,
+        paint,
+    )
     return bitmap
 }

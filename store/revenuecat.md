@@ -46,17 +46,21 @@ se queda, los widgets Pro se pintan bloqueados. Solo deja de poder añadir lo qu
 Precondiciones: **un AAB subido a algún canal** (`lanzamiento.md`, fase 3) y el perfil de pagos
 verificado, que ya lo está desde Quilt.
 
-1. Play Console, **dentro de Purl**: *Monetizar con Play > Productos > Productos integrados en la
-   aplicación > Crear producto*.
-2. Id `pro_lifetime`. Nombre y descripción por idioma, de la tabla.
-3. Precio, en bloque y **sin IVA**: se teclea **4,95 EUR**, que con el 21 % sale a 5,99 EUR de
-   escaparate (así se comprobó en Chroma y en MoodTraker, donde 3,30 dio 3,99). *Convertir* al resto
-   de países y **Redondear precios**: sin eso salen 6,43 zł y cifras que leen como un error de la
-   tienda.
-4. **Activarlo.** Un producto inactivo no sale por la API y el diálogo se queda sin precio.
-
-Play deriva el id de la opción de compra quitando el guion bajo (`prolifetime`) y la marca
-*Retrocompatible*. Es lo normal y lo que necesita RevenueCat.
+1. Play Console, **dentro de Purl**: *Monetizar con Play > Productos > Productos únicos > Crear
+   producto único*.
+2. Id `pro_lifetime`. Nombre y descripción en en-US, de la tabla. La categoría fiscal por defecto,
+   *Ventas de apps digitales*, es la buena.
+3. Opción de compra `lifetime`, tipo *Comprar*, una unidad, contenido digital. Es la primera, así
+   que Play la marca retrocompatible y RevenueCat ve el producto como `pro_lifetime` a secas, igual
+   que `mood_pro` en MoodTraker.
+4. *Set prices > Editar precios en bloque*, todas las filas, y se teclea **4,95 EUR, sin IVA**. Play
+   convierte y redondea solo. Resultado del 29-09-2026: España, Alemania, Francia, Italia y Portugal
+   5,99 EUR; EE. UU. 5,49 USD; Reino Unido 4,99 GBP; Brasil 28,99 BRL; Polonia 26,99 PLN; Japón
+   980 JPY; México 119,00 MXN.
+5. **Activar.** Un producto inactivo no sale por la API y el diálogo se queda sin precio.
+6. Las otras cuatro traducciones, por *Gestionar traducciones* o por la API (`PATCH
+   .../onetimeproducts/pro_lifetime?updateMask=listings&regionsVersion.version=2026%2F01`, la ruta
+   en minúsculas, como se hizo en MoodTraker).
 
 | Idioma | Nombre | Descripción (tope 200) |
 |---|---|---|
@@ -118,10 +122,12 @@ gratis. Así se puede trabajar y probar todo lo demás antes de tener el panel m
 
 ## 5. Probar una compra de verdad en Android
 
-1. Play Console, nivel de cuenta, *Ajustes > Monetización > Licencia para testing*: el correo de
-   Google del móvil de pruebas. Compra con el diálogo real y sin cargo.
-2. Instalar **desde la prueba interna**, no por `adb`: una compra solo funciona si el binario viene de
-   Play. En el emulador no hay Play Billing.
+1. Play Console, nivel de cuenta, *Ajustes > Licencia para testing*: las listas marcadas son
+   *Cuentas propias* (baltajmn@gmail.com, creada el 29-09-2026), *Cercanos*, *Externos* y *Relleno*.
+   Quien está ahí compra con el diálogo real y sin cargo.
+2. Instalar **desde la prueba interna** (lista *Cuentas propias*), no por `adb`: una compra solo
+   funciona si el binario viene de Play. Vale un emulador con imagen de Play Store (`Medium_Phone`,
+   API 35) con la sesión de Google iniciada; uno sin Play Store no tiene Play Billing.
 3. Comprar, y ver en RevenueCat, *Customer History*, el evento y el derecho `pro` activo.
 4. Desinstalar, reinstalar, *Restaurar compra* desde Ajustes. Es el camino que más se rompe.
 5. Reembolsar desde la Console y comprobar que, al volver a abrir la app, los widgets Pro se pintan

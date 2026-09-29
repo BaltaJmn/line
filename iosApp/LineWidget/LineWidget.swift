@@ -114,6 +114,26 @@ struct TodayProvider: TimelineProvider {
     }
 }
 
+/// The app's stitch (docs/pantallas.md 1.5): a capsule half as tall as it is wide, turned 8 degrees.
+private struct Stitch: View {
+    let width: CGFloat
+    let filled: Bool
+    let cover: Color
+
+    var body: some View {
+        Group {
+            if filled {
+                Capsule().fill(cover)
+            } else {
+                Capsule().stroke(Color.primary.opacity(0.15), lineWidth: 2)
+            }
+        }
+        .frame(width: width, height: width * 0.55)
+        .rotationEffect(.degrees(-8))
+    }
+}
+
+/// Round on purpose: the circular accessory is a dial, and a stitch in it reads as a smudge.
 private struct Dot: View {
     let size: CGFloat
     let filled: Bool
@@ -142,13 +162,13 @@ private struct TodayBody: View {
             Text(L.date(LineStore.logicalDay(entry.date)))
                 .font(.system(size: 12, weight: .medium))
                 .foregroundStyle(.secondary)
-            Dot(size: 28, filled: written, cover: cover)
+            Stitch(width: 40, filled: written, cover: cover)
             Text(written ? L.written : L.notWritten)
                 .font(.system(size: 15, weight: .medium))
                 .multilineTextAlignment(.center)
             if entry.state?.memory == true {
                 HStack(spacing: 6) {
-                    Dot(size: 6, filled: true, cover: cover)
+                    Stitch(width: 12, filled: true, cover: cover)
                     Text(L.memory).font(.system(size: 12)).foregroundStyle(.secondary)
                 }
             }

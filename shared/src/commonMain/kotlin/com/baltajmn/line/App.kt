@@ -1,5 +1,7 @@
 package com.baltajmn.line
 
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,6 +42,8 @@ import kotlinx.datetime.DateTimeUnit
 
 /** Three screens do not justify a navigation library. */
 enum class Screen { Today, Year, Settings }
+
+private const val FADE_MS = 180
 
 /** A minute in the background. Short enough to protect, long enough to answer the door. */
 val RELOCK_AFTER = 60.seconds
@@ -109,23 +113,30 @@ fun App() {
 
     LineTheme {
         Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-            when (screen) {
-                Screen.Today -> TodayScreen(
-                    today = day,
-                    onYear = { screen = Screen.Year },
-                    onSettings = { screen = Screen.Settings },
-                    onOpenDay = { openDay = it },
-                )
-                Screen.Year -> YearScreen(
-                    today = day,
-                    onBack = { screen = Screen.Today },
-                    onOpenDay = { openDay = it },
-                    onShare = { sharing = ShareTarget.Year(it) },
-                )
-                Screen.Settings -> SettingsScreen(onBack = { screen = Screen.Today })
+            // Fades, never slides: a dissolve is what reduced motion asks for anyway (pantallas 1.4).
+            Crossfade(screen, animationSpec = tween(FADE_MS), label = "screen") { shown ->
+                when (shown) {
+                    Screen.Today -> TodayScreen(
+                        today = day,
+                        onYear = { screen = Screen.Year },
+                        onSettings = { screen = Screen.Settings },
+                        onOpenDay = { openDay = it },
+                    )
+                    Screen.Year -> YearScreen(
+                        today = day,
+                        onBack = { screen = Screen.Today },
+                        onOpenDay = { openDay = it },
+                        onShare = { sharing = ShareTarget.Year(it) },
+                    )
+                    Screen.Settings -> SettingsScreen(onBack = { screen = Screen.Today })
+                }
             }
-            openDay?.let { DaySheet(it, day, closeDay) { date -> sharing = ShareTarget.Line(date) } }
-            sharing?.let { ShareScreen(it, day) { sharing = null } }
+            Crossfade(openDay, animationSpec = tween(FADE_MS), label = "day") { shown ->
+                shown?.let { DaySheet(it, day, closeDay) { date -> sharing = ShareTarget.Line(date) } }
+            }
+            Crossfade(sharing, animationSpec = tween(FADE_MS), label = "share") { shown ->
+                shown?.let { ShareScreen(it, day) { sharing = null } }
+            }
             if (Paywall.open) ProDialog { Paywall.open = false }
 
             // Over everything, including the open day and any dialog under it.

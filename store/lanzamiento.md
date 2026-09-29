@@ -120,11 +120,16 @@ que el producto va antes que esas tres declaraciones (`formularios.md` §3).
 5. [x] **[yo] Ficha entera por API** con `~/keys/play.sh ficha` (29/09/2026): textos de `listings/`
    en los cinco idiomas, contacto, icono, cabeceras y capturas de `screenshots/play/`. Categoría
    *Estilo de vida* y etiquetas, en el navegador. (#28)
-6. [ ] **[yo, con tu sí para el precio] Producto `pro_lifetime`** (`revenuecat.md` §1), y con él la
-   promoción de códigos para el revisor, *Datos de inicio de sesión*, *Público objetivo* y el envío
-   de *Seguridad de los datos*. (#23, #27)
-7. [ ] **[tú] Abrir la prueba cerrada** (canal `alpha`) con la lista de probadores como Grupo de Google, y
-   **[yo]** etiquetar: `git tag v1.0 && git push origin v1.0`, que publica en `alpha`. (#29)
+6. [x] **[yo] Producto `pro_lifetime`** (29/09/2026), activo, 5,99 EUR en España (`revenuecat.md`
+   §1), y la promoción de cinco códigos para el revisor (`formularios.md` §3). (#23)
+7. [ ] **[tú] Descargar los códigos** a `~/keys/purl-promo-131210404.csv` desde un navegador normal.
+   Con el primero, **[yo]** *Datos de inicio de sesión*, *Público objetivo* y el envío de *Seguridad
+   de los datos*. (#27)
+8. [x] **[yo] Canales**: prueba cerrada *Alpha* con los 178 países, el grupo
+   `quilt-testers@googlegroups.com` y `baltajmn@gmail.com` para comentarios; prueba interna con la
+   lista *Cuentas propias*, que también está en *Licencia para testing*. (#29)
+9. [ ] **[yo]** etiquetar `v1.0` con la clave `goog_` dentro: `git tag v1.0 && git push origin v1.0`,
+   que publica en `alpha`, y enviar a revisión. (#29)
 
 ## Fase 4. RevenueCat
 

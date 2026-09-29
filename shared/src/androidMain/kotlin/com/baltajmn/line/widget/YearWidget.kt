@@ -177,7 +177,8 @@ private fun yearBitmap(
     val canvas = Canvas(bitmap)
     val left = 0f
     val top = 0f
-    val radius = side / 5
+    val height = side * 0.55f
+    val radius = height / 2
 
     val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = cover }
     val empty = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -190,14 +191,18 @@ private fun yearBitmap(
     for (month in 1..MONTHS) {
         for (day in 1..DAYS) {
             val date = runCatching { LocalDate(year, month, day) }.getOrNull() ?: continue
+            // A stitch per day, each month a row turned its own way (docs/pantallas.md 1.5).
             val x = left + step * (day - 1)
-            val y = top + step * (month - 1)
-            val box = RectF(x, y, x + side, y + side)
+            val y = top + step * (month - 1) + (side - height) / 2
+            val box = RectF(x, y, x + side, y + height)
+            canvas.save()
+            canvas.rotate(if (month % 2 == 1) -8f else 8f, box.centerX(), box.centerY())
             when {
                 days?.getOrNull(date.dayOfYear - 1) == '1' -> canvas.drawRoundRect(box, radius, radius, fill)
                 date > today -> canvas.drawRoundRect(box, radius, radius, ahead)
                 else -> canvas.drawRoundRect(box, radius, radius, empty)
             }
+            canvas.restore()
         }
     }
     return bitmap

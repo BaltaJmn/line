@@ -105,10 +105,14 @@ The lock (Settings > Privacy) is optional, off by default, and uses the device's
 ```
 
 La casilla de acceso completo, contenido de pago incluido, solo se marca con el código puesto. Los
-códigos salen de una promoción de `pro_lifetime` de seis meses (*Monetizar con Play > Códigos
-promocionales*); el CSV se guarda en `~/keys/`, fuera del repositorio, y al caducar se crea otra y
-se cambia el código aquí. Orden que impone Play: esta sección, luego *Público objetivo*, y solo
-entonces se puede enviar *Seguridad de los datos*.
+códigos salen de la promoción "Revision de Google Play" (id 131210404): cinco códigos de
+`pro_lifetime`, del 29-09-2026 a las 9:00 al 29-03-2027 a las 9:00 (*Monetizar con Play > Códigos
+promocionales*). El CSV va a `~/keys/purl-promo-131210404.csv`, fuera del repositorio; el navegador
+integrado no descarga ficheros, así que *Descargar códigos* se pulsa desde un navegador normal. Al
+caducar, promoción nueva y se cambia el código aquí.
+
+Orden que impone Play: esta sección, luego *Público objetivo*, y solo entonces se puede enviar
+*Seguridad de los datos*.
 
 Permisos del manifiesto fusionado, los mismos que Quilt más `USE_BIOMETRIC`: ninguno pide
 declaración. No se usa `SCHEDULE_EXACT_ALARM` (el recordatorio va con `setAndAllowWhileIdle`) ni

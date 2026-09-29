@@ -66,13 +66,18 @@ private struct YearGrid: View {
                           let ordinal = calendar.ordinality(of: .day, in: .year, for: date)
                     else { continue }
 
+                    // A stitch per day, each month a row turned its own way (docs/pantallas.md 1.5).
+                    let height = side * 0.55
                     let box = CGRect(
                         x: left + step * CGFloat(day - 1),
-                        y: top + step * CGFloat(month - 1),
+                        y: top + step * CGFloat(month - 1) + (side - height) / 2,
                         width: side,
-                        height: side
+                        height: height
                     )
-                    let cell = Path(roundedRect: box, cornerRadius: side / 5)
+                    let turn = CGAffineTransform(translationX: box.midX, y: box.midY)
+                        .rotated(by: (month % 2 == 1 ? -8 : 8) * .pi / 180)
+                        .translatedBy(x: -box.midX, y: -box.midY)
+                    let cell = Path(roundedRect: box, cornerRadius: height / 2).applying(turn)
                     if ordinal <= marks.count, marks[ordinal - 1] == "1" {
                         context.fill(cell, with: .color(cover))
                     } else if date > today {

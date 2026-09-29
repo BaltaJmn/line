@@ -26,19 +26,21 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.platform.LocalViewConfiguration
+import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.baltajmn.line.data.LineRepository
@@ -62,10 +64,15 @@ private const val ROWS = 31
 private val BUBBLE_MAX = 240.dp
 const val PREVIEW_CODE_POINTS = 60
 
+/** A stitch is half as tall as it is wide, and the rows sit closer than the columns, as in a knit. */
+private const val STITCH_HEIGHT = 0.5f
+private const val ROW_STEP = 0.8f
+
 /**
- * The year at a glance: written or not, and nothing else. No colour scale and no red, because a
- * blank day is not a failure. Painted in one Canvas; the taps and the screen reader ride on top,
- * one node per day that can be opened (pantallas 5, 14).
+ * The year at a glance, as a swatch: one stitch per day, filled when written, and nothing else. No
+ * colour scale and no red, because a blank day is a stitch not yet made, not a failure. Painted in
+ * one Canvas; the taps and the screen reader ride on top, one node per day that can be opened
+ * (pantallas 5, 14).
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -98,62 +105,76 @@ fun YearGrid(
         val cell = min(CELL_MAX.value, (maxWidth.value - GUTTER.value - 11 * GAP.value) / 12).dp
         val head = 20.dp
         val step = cell + GAP
+        val row = cell * ROW_STEP
         fun x(month: Int) = GUTTER + step * (month - 1)
-        fun y(day: Int) = head + step * (day - 1)
+        fun y(day: Int) = head + row * (day - 1)
 
-        Canvas(Modifier.fillMaxWidth().height(head + cell * ROWS + GAP * (ROWS - 1))) {
-            val side = cell.toPx()
-            val radius = CornerRadius(4.dp.toPx())
+        Canvas(Modifier.fillMaxWidth().height(head + row * ROWS)) {
+            val width = cell.toPx()
+            val height = width * STITCH_HEIGHT
+            val rowPx = row.toPx()
+            val line = Stroke(1.dp.toPx())
             initials.forEachIndexed { i, label ->
                 val laid = measurer.measure(label, eyebrow)
                 drawText(
                     laid,
-                    topLeft = Offset(x(i + 1).toPx() + (side - laid.size.width) / 2, head.toPx() - laid.size.height - 4.dp.toPx()),
+                    topLeft = Offset(x(i + 1).toPx() + (width - laid.size.width) / 2, head.toPx() - laid.size.height - 4.dp.toPx()),
                 )
             }
             listOf(1, 10, 20, 30).forEach { day ->
                 val laid = measurer.measure(day.toString(), eyebrow)
                 drawText(
                     laid,
-                    topLeft = Offset(GUTTER.toPx() - 4.dp.toPx() - laid.size.width, y(day).toPx() + (side - laid.size.height) / 2),
+                    topLeft = Offset(GUTTER.toPx() - 4.dp.toPx() - laid.size.width, y(day).toPx() + (rowPx - laid.size.height) / 2),
                 )
             }
             for (month in 1..12) {
                 for (day in 1..monthDays[month - 1]) {
                     val date = LocalDate(year, month, day)
-                    val at = Offset(x(month).toPx(), y(day).toPx())
-                    val box = Size(side, side)
+                    val center = Offset(x(month).toPx() + width / 2, y(day).toPx() + rowPx / 2)
+                    val tilt = stitchTilt(day - 1)
                     when {
-                        date > today -> drawRoundRect(outline.copy(alpha = 0.4f), at, box, radius, Stroke(1.dp.toPx()))
+                        date > today -> stitch(center, width, height, tilt, outline.copy(alpha = 0.4f), line)
                         date.isoKey() in journal -> {
                             val dim = matching != null && date.isoKey() !in matching
-                            drawRoundRect(cover.copy(alpha = if (dim) 0.25f else 1f), at, box, radius)
+                            stitch(center, width, height, tilt, cover.copy(alpha = if (dim) 0.25f else 1f))
                         }
-                        else -> drawRoundRect(outline, at, box, radius, Stroke(1.dp.toPx()))
+                        else -> stitch(center, width, height, tilt, outline, line)
                     }
-                    if (date == today) ringToday(at, side, ring)
+                    if (date == today) ringToday(center, width, height, tilt, ring)
                 }
             }
         }
 
-        // Future days and days that do not exist are not nodes, so they get no box at all.
-        for (month in 1..12) {
-            for (day in 1..monthDays[month - 1]) {
-                val date = LocalDate(year, month, day)
-                if (date > today) continue
-                Box(
-                    Modifier.offset { IntOffset(x(month).roundToPx(), y(day).roundToPx()) }
-                        .size(cell)
-                        .combinedClickable(
-                            interactionSource = presses,
-                            indication = LocalIndication.current,
-                            role = Role.Button,
-                            // Only a written day has words to show; a blank one just stays put.
-                            onLongClick = { if (date.isoKey() in journal) peek = date },
-                            onClick = { onOpenDay(date) },
-                        )
-                        .semantics { contentDescription = S.a11yDay(date, date.isoKey() in journal) },
-                )
+        // The days touch each other, so the 48 dp that small targets are stretched to would make
+        // each one cover half of the one above: a finger is fine, but the screen reader, reading
+        // what is under the finger, would name the day below. Here a day is exactly its box.
+        val base = LocalViewConfiguration.current
+        val exact = remember(base) {
+            object : ViewConfiguration by base {
+                override val minimumTouchTargetSize = DpSize.Zero
+            }
+        }
+        CompositionLocalProvider(LocalViewConfiguration provides exact) {
+            // Future days and days that do not exist are not nodes, so they get no box at all.
+            for (month in 1..12) {
+                for (day in 1..monthDays[month - 1]) {
+                    val date = LocalDate(year, month, day)
+                    if (date > today) continue
+                    Box(
+                        Modifier.offset { IntOffset(x(month).roundToPx(), y(day).roundToPx()) }
+                            .size(cell, row)
+                            .combinedClickable(
+                                interactionSource = presses,
+                                indication = LocalIndication.current,
+                                role = Role.Button,
+                                // Only a written day has words to show; a blank one just stays put.
+                                onLongClick = { if (date.isoKey() in journal) peek = date },
+                                onClick = { onOpenDay(date) },
+                            )
+                            .semantics { contentDescription = S.a11yDay(date, date.isoKey() in journal) },
+                    )
+                }
             }
         }
 
@@ -170,7 +191,7 @@ fun YearGrid(
                         val left = (cellLeft + cell.roundToPx() / 2 - bubble.width / 2).coerceIn(0, constraints.maxWidth - bubble.width)
                         val above = y(date.day).roundToPx() - gap.roundToPx() - bubble.height
                         // Above the cell, where the finger does not hide it; below only in the first rows.
-                        val top = if (above >= 0) above else (y(date.day) + cell + gap).roundToPx()
+                        val top = if (above >= 0) above else (y(date.day) + row + gap).roundToPx()
                         bubble.place(left, top)
                     }
                 },
@@ -196,13 +217,8 @@ private fun Bubble(date: LocalDate, text: String, modifier: Modifier) {
     }
 }
 
-private fun DrawScope.ringToday(at: Offset, side: Float, color: Color) {
-    val out = 2.dp.toPx()
-    drawRoundRect(
-        color,
-        Offset(at.x - out, at.y - out),
-        Size(side + out * 2, side + out * 2),
-        CornerRadius(6.dp.toPx()),
-        Stroke(1.5.dp.toPx()),
-    )
+/** Today: a ring 2.5 out from its stitch, turned with it. */
+private fun DrawScope.ringToday(center: Offset, width: Float, height: Float, tilt: Float, color: Color) {
+    val out = 2.5.dp.toPx() * 2
+    stitch(center, width + out, height + out, tilt, color, Stroke(1.5.dp.toPx()))
 }
