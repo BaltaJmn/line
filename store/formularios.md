@@ -26,15 +26,20 @@ Hechos de partida, todos de `docs/tecnico.md`:
 |---|---|
 | ¿Tu app recoge o comparte alguno de los tipos de datos obligatorios? | Sí |
 | ¿Se cifran en tránsito todos los datos recogidos? | Sí (HTTPS del SDK de RevenueCat) |
-| ¿Ofreces una forma de pedir que se borren los datos? | Sí: por correo, lo explica la política |
-| ¿Permite la app crear una cuenta? | No. Por eso no hace falta URL de borrado de cuenta |
+| ¿Qué métodos de creación de cuenta admite? | *Mi aplicación no permite que los usuarios creen una cuenta*. Por eso no hace falta URL de borrado de cuenta |
+| ¿Se puede iniciar sesión con cuentas creadas fuera de la app? | No |
+| ¿Ofreces una forma de pedir que se borren los datos? | Sí. URL de eliminación: `https://line.baltajmn.dev/`, que nombra Purl y explica los pasos: borrar una entrada, desinstalar, y para lo de RevenueCat, un correo con el número de pedido |
 
 Tipos de datos, los únicos dos que se marcan:
 
 | Tipo | Recogido | Compartido | Efímero | Obligatorio | Finalidad |
 |---|---|---|---|---|---|
 | Información financiera > Historial de compras | Sí | No | No | Sí | Funcionalidad de la app |
-| Identificadores de dispositivo u otros identificadores | Sí | No | No | Sí | Funcionalidad de la app |
+| IDs de dispositivo o de otro tipo | Sí | No | No | Sí | Funcionalidad de la app |
+
+RevenueCat recibe los datos como encargado del tratamiento, así que no cuenta como "compartido".
+Play no deja enviar este cuestionario hasta que *Público objetivo* (§3) está hecho: mientras, se
+guarda en borrador con todo lo de arriba.
 
 Lo que **no** se marca, y por qué:
 
@@ -74,13 +79,31 @@ Resultado esperado: PEGI 3, ESRB Everyone, USK 0, el más bajo de cada sistema.
 | Grupos de edad | 13-15, 16-17, 18 y más |
 | ¿Atrae a menores de 13? | No |
 | Anuncios | No contiene anuncios |
-| Acceso a la app | Toda la funcionalidad disponible sin restricciones. El bloqueo es opcional, viene apagado y usa el del propio teléfono |
+| Datos de inicio de sesión (antes "Acceso a la app") | **Sí**, aunque no haya cuentas: la redacción de 2026 cuenta como restringido cualquier pago, y el revisor no compra con cuentas personales ni usa pruebas gratis. Se le deja un código promocional de `pro_lifetime` con las instrucciones de abajo. Play no deja empezar *Público objetivo* sin esta sección |
 | App de noticias | No |
 | Salud | No tiene funciones de salud. Es un diario personal |
 | Funciones financieras | No |
 | App de gobierno | No |
 
 13+ deja la app fuera del programa Familias, que trae requisitos que no aplican.
+
+*Datos de inicio de sesión > Añade detalles*: nombre `Purl Pro for review`, usuario y contraseña
+vacíos, y en *Cualquier otra información* (tope 500, en inglés), con el código de la promoción en
+lugar de `CODE`:
+
+```
+Purl has no account and no login: everything stays on the device.
+
+Paid content: Purl Pro, a one-time purchase (pro_lifetime). Redeem this promo code in the Play Store app (profile icon > Payments & subscriptions > Redeem code): CODE. Then open Purl > Settings > Restore purchase, or Settings > Purl Pro.
+
+The lock (Settings > Privacy) is optional, off by default, and uses the device's own screen lock or biometrics.
+```
+
+La casilla de acceso completo, contenido de pago incluido, solo se marca con el código puesto. Los
+códigos salen de una promoción de `pro_lifetime` de seis meses (*Monetizar con Play > Códigos
+promocionales*); el CSV se guarda en `~/keys/`, fuera del repositorio, y al caducar se crea otra y
+se cambia el código aquí. Orden que impone Play: esta sección, luego *Público objetivo*, y solo
+entonces se puede enviar *Seguridad de los datos*.
 
 Permisos del manifiesto fusionado, los mismos que Quilt más `USE_BIOMETRIC`: ninguno pide
 declaración. No se usa `SCHEDULE_EXACT_ALARM` (el recordatorio va con `setAndAllowWhileIdle`) ni
@@ -102,7 +125,7 @@ la aplicación?" es **sí** desde la primera subida aunque las claves sean `null
 |---|---|
 | Tipo | Aplicación |
 | Categoría | **Estilo de vida** |
-| Etiquetas | Del desplegable cerrado de Play, las más cercanas a diario y notas personales |
+| Etiquetas | *Bloc de notas*, *Estilo de vida* y *Productividad*. La lista cerrada de Play no tiene diario; *Autoayuda* se descarta por lo mismo que la categoría de salud |
 | Correo de contacto | `baltajmn@gmail.com`, el mismo de la política |
 | Sitio web | `https://line.baltajmn.dev/` |
 | Teléfono | Vacío |

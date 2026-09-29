@@ -49,8 +49,10 @@ verificado, que ya lo está desde Quilt.
 1. Play Console, **dentro de Purl**: *Monetizar con Play > Productos > Productos integrados en la
    aplicación > Crear producto*.
 2. Id `pro_lifetime`. Nombre y descripción por idioma, de la tabla.
-3. Precio 5,99 EUR, *Convertir* al resto de países y **Redondear precios**: sin eso salen 6,43 zł y
-   cifras que leen como un error de la tienda.
+3. Precio, en bloque y **sin IVA**: se teclea **4,95 EUR**, que con el 21 % sale a 5,99 EUR de
+   escaparate (así se comprobó en Chroma y en MoodTraker, donde 3,30 dio 3,99). *Convertir* al resto
+   de países y **Redondear precios**: sin eso salen 6,43 zł y cifras que leen como un error de la
+   tienda.
 4. **Activarlo.** Un producto inactivo no sale por la API y el diálogo se queda sin precio.
 
 Play deriva el id de la opción de compra quitando el guion bajo (`prolifetime`) y la marca
@@ -170,7 +172,8 @@ iPhone en *Ajustes > App Store > Cuenta de sandbox*, comprar, borrar la app, rei
 
 Se hace **el día que la v1.1 se publica**, no antes: el precio sube porque crece lo que se da.
 
-- **Play**: *Productos integrados*, `pro_lifetime`, precio 8,99 EUR, *Convertir* y *Redondear*.
+- **Play**: *Productos integrados*, `pro_lifetime`, precio sin IVA **7,43 EUR** (8,99 EUR de
+  escaparate), *Convertir* y *Redondear*.
   Cambia en unas horas.
 - **App Store**: *Programación de precios* del producto, *Añadir cambio de precio* con fecha de
   inicio el día de publicación, país base España, 8,99 EUR.

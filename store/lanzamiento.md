@@ -52,8 +52,9 @@ Todas tomadas. El porqué de cada una, en `SPEC.md`.
 
 Arrancar todo esto antes de escribir una línea de código. Ninguno depende del código.
 
-- [ ] **[tú] Crear la app en Play Console** con el nombre Purl, idioma por defecto `en-US`, app
-      gratuita. El paquete se fija con el primer AAB, no aquí. (#3)
+- [x] **[yo] Crear la app en Play Console** (29/09/2026, id `4972311734160178965`): Purl, idioma por
+      defecto `en-US`, aplicación, gratuita. El formulario de 2026 ya pide el paquete al crearla, y
+      `com.baltajmn.line` quedó fijado ahí, no con el primer AAB. (#3)
 - [ ] **[tú] Abrir o comprobar la cuenta de Apple Developer**, 99 USD al año. La verificación tarda
       días y no se acelera. Contratos, fiscalidad y datos bancarios en App Store Connect, y el
       **Small Business Program** pedido el mismo día: si llega tarde, las primeras ventas se cobran
@@ -66,8 +67,8 @@ Arrancar todo esto antes de escribir una línea de código. Ninguno depende del 
 - [ ] **[tú] Declarar la condición de comerciante (DSA)** en las dos consolas si no se hizo ya con
       Quilt. Es de cuenta, no de app: si ya está, se hereda. Apple retira de la UE las apps sin ella.
       (#27)
-- [ ] **[yo] Registro DNS de la política**: en **Cloudflare**, que sirve la zona `baltajmn.dev`
-      aunque el dominio se registre en Porkbun, un `CNAME` con host `line` y destino
+- [x] **[yo] Registro DNS de la política** (29/09/2026): en **Cloudflare**, que sirve la zona
+      `baltajmn.dev` aunque el dominio se registre en Porkbun, un `CNAME` con host `line` y destino
       `baltajmn.github.io`, con proxy. Pasos completos en `privacy/README.md`. (#27)
 - [ ] **[tú] Reclutar 16 probadores**, no 12. Empieza por los de Quilt y MoodTraker: ya dijeron que
       sí una vez. El requisito de Play es **por app** (comprobado en la ayuda de Play el 22/09/2026:
@@ -78,7 +79,7 @@ Arrancar todo esto antes de escribir una línea de código. Ninguno depende del 
 ## Fase 2. Infraestructura
 
 - [x] Repositorio `BaltaJmn/line`, público. Los minutos de Actions no se facturan.
-- [ ] **[yo] Andamiaje y CI**: los cuatro workflows de MoodTraker con los cambios de
+- [x] **[yo] Andamiaje y CI**: los cuatro workflows de MoodTraker con los cambios de
       `docs/tecnico.md` 9. (#4)
 - [x] **[yo] Almacén de subida** `~/keys/purl-upload.jks` (29/09/2026), RSA 4096, alias `upload`,
       `CN=Baltasar, O=BaltaJmn, C=ES`: el `CN=Baltasar` no es opcional, es lo que comprueba el
@@ -86,34 +87,43 @@ Arrancar todo esto antes de escribir una línea de código. Ninguno depende del 
       permisos 600). Huella SHA-256 del certificado de subida, para contrastarla con la que enseñe
       Play al primer AAB:
       `60:60:94:55:15:0B:0F:02:C1:F2:EB:14:5F:85:38:7C:50:03:E1:3E:09:FC:C8:BA:B3:FE:AF:B7:20:1D:D1:2D`.
-      El primer `bundleRelease` ya sale firmado con ella (8,1 MB).
+      El primer `bundleRelease` ya sale firmado con ella (8,1 MB), y Play enseña la misma huella en
+      *Protegida con Play > Firma de aplicaciones > Certificado de clave de subida*.
 - [ ] **[tú] Copia del `.jks` y su contraseña** en tu gestor de contraseñas, fuera de este Mac. Si se
       pierde, Play solo deja cambiar la clave de subida con una petición al soporte. (#3)
-- [ ] **[yo] Los cinco secretos de firma y publicación** en GitHub (`ci.md`), y `line` en `PLAY_REPOS`
+- [x] **[yo] Los cinco secretos de firma y publicación** en GitHub (`ci.md`), y `line` en `PLAY_REPOS`
       de `~/keys/credenciales.sh`, para que rotar la cuenta de servicio actualice también este repo.
       (#3)
-- [ ] **[yo] Publicar la política** con GitHub Pages desde este repositorio (`pages.yml`,
-      `privacy/README.md`). (#27)
+- [x] **[yo] Publicar la política** con GitHub Pages desde este repositorio (`pages.yml`,
+      `privacy/README.md`). `https://line.baltajmn.dev/` responde 200 desde el 29/09/2026. (#27)
 
 ## Fase 3. Play
 
-**El orden importa.** La API de Android Publisher no responde hasta que la app tiene un binario
-subido a mano, así que `release.yml` y `listings.yml` fallan si se ejecutan antes.
+**El orden lo impone la Console, no la API.** La API de Android Publisher respondió nada más crear la
+app, sin binario. Lo que no se puede saltar es *Datos de inicio de sesión* antes de *Público
+objetivo*, y *Público objetivo* antes de enviar *Seguridad de los datos*. Y *Datos de inicio de
+sesión* cuenta como restringido cualquier pago: pide un código promocional de `pro_lifetime`, así
+que el producto va antes que esas tres declaraciones (`formularios.md` §3).
 
-1. **[tú] Contenido de la aplicación** en la Console: política, seguridad de los datos,
-   clasificación, público objetivo, declaraciones. Respuestas una a una en `formularios.md`. (#27)
-2. **[tú] La primera subida, a mano.** `./gradlew :androidApp:bundleRelease` y subir
-   `androidApp/build/outputs/bundle/release/androidApp-release.aab` en *Probar y publicar > Pruebas
-   internas > Crear versión*. Comprobar que la huella del certificado de subida coincide con la
-   apuntada en la fase 2. (#29)
-3. **[yo] Subir el `versionCode` a 2 y commitearlo.** El 1 queda gastado en la prueba interna y Play
-   no lo acepta en ningún otro canal.
-4. **[yo] Ficha**, ya con la API viva: `gh workflow run listings.yml --ref main -f accion=subir`.
-   Textos en `listings/`, con los topes comprobados. (#28)
-5. **[tú] Imágenes**: icono de 512, gráfico de 1024x500 y capturas (`capturas.md`). La API de
-   listings solo escribe texto. (#28)
-6. **[tú] Producto `pro_lifetime`** a 5,99 EUR (`revenuecat.md` §1). (#23)
-7. **[tú] Abrir la prueba cerrada** (canal `alpha`) con la lista de probadores como Grupo de Google, y
+1. [x] **[yo] Contenido de la aplicación**, con las respuestas de `formularios.md` (29/09/2026):
+   política, anuncios, clasificación, ID de publicidad, gobierno, funciones financieras y salud,
+   guardadas. IARC dio PEGI 3, ESRB Everyone, USK 0, IARC 3+ y ClassInd 14+ (por las compras).
+   *Seguridad de los datos*, entera en borrador. Quedan las tres del paso 6. (#27)
+2. [x] **[yo] La primera subida, por CI en borrador** (29/09/2026): `release.yml` con `track`
+   `internal` y `status` `draft`, versionCode 1. La huella del certificado de subida coincide con la
+   de la fase 2. (#29)
+3. [ ] **[tú] Publicar ese borrador una vez** en *Probar y publicar > Pruebas internas*. Una app que
+   nunca ha publicado nada solo admite borradores por la API; después de la primera versión desde la
+   Console, `release.yml` ya publica solo.
+4. [x] **[yo] `versionCode` 2 en `main`.** El 1 queda gastado en la subida interna y Play no acepta
+   otro AAB con él en ningún canal.
+5. [x] **[yo] Ficha entera por API** con `~/keys/play.sh ficha` (29/09/2026): textos de `listings/`
+   en los cinco idiomas, contacto, icono, cabeceras y capturas de `screenshots/play/`. Categoría
+   *Estilo de vida* y etiquetas, en el navegador. (#28)
+6. [ ] **[yo, con tu sí para el precio] Producto `pro_lifetime`** (`revenuecat.md` §1), y con él la
+   promoción de códigos para el revisor, *Datos de inicio de sesión*, *Público objetivo* y el envío
+   de *Seguridad de los datos*. (#23, #27)
+7. [ ] **[tú] Abrir la prueba cerrada** (canal `alpha`) con la lista de probadores como Grupo de Google, y
    **[yo]** etiquetar: `git tag v1.0 && git push origin v1.0`, que publica en `alpha`. (#29)
 
 ## Fase 4. RevenueCat
