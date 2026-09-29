@@ -39,6 +39,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -144,7 +146,9 @@ fun SettingsScreen(onBack: () -> Unit) {
             }
 
             Section(S.sectionPrivacy) {
-                val canLock = remember { Lock.isAvailable() }
+                var canLock by remember { mutableStateOf(Lock.isAvailable()) }
+                // The subtitle sends them off to set a screen lock: coming back has to find it.
+                LifecycleEventEffect(Lifecycle.Event.ON_START) { canLock = Lock.isAvailable() }
                 SettingRow(
                     title = S.lockRow,
                     subtitle = if (canLock) S.lockSubtitle else S.lockUnavailable,
