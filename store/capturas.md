@@ -37,11 +37,11 @@ Espera dentro `01_hoy.png` a `06_ajustes.png` y deja el resultado en
 | Fichero | Pantalla | Qué tiene que verse |
 |---|---|---|
 | `01_hoy` | Hoy, estado D (`docs/pantallas.md` 4.2) | La línea de hoy escrita, la racha, y debajo los dos años anteriores, el de hace un año con foto. Sin teclado |
-| `02_ano` | Año, el año en curso | La rejilla llena hasta hoy con huecos sueltos, y el recuento, que va debajo: desplazada hasta que se vean las 31 filas y el recuento a la vez |
+| `02_ano` | Año, el año en curso | La muestra de puntos llena hasta hoy con huecos sueltos, y el recuento bajo el año: sin desplazar, o lo justo para que se vean las 31 filas |
 | `03_buscar` | Año con la búsqueda abierta | `coffee` en en-US y `cafe` sin tilde en es-ES: salen resultados de tres años, que enseña de paso el plegado de acentos. Sin teclado: la tecla de buscar lo esconde |
 | `04_widgets` | Pantalla de inicio del sistema | El widget de hoy (2x2) y el del año (4x2) sobre un fondo de pantalla liso del sistema |
 | `05_tarjeta` | Compartir, tarjeta del año | La tarjeta de 1080x1350 en la vista previa, antes de la hoja del sistema |
-| `06_ajustes` | Ajustes | Bloqueo encendido, recordatorio a las 21:00, la fila de portadas con salvia elegida |
+| `06_ajustes` | Ajustes | Bloqueo encendido, recordatorio a las 21:00, los cuadernos de portada con salvia elegida |
 
 La 06 necesita un bloqueo de dispositivo para poder encender el de Purl: en el emulador, un PIN en
 los ajustes del sistema; en el simulador, *Features > Face ID > Enrolled* y *Matching Face* cuando lo
