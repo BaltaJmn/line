@@ -23,6 +23,11 @@ class StringsTest {
     }
 
     @Test
+    fun plainTextsFollowTheLanguage() {
+        each({ S.settingsTitle }, "Settings", "Ajustes", "Ajustes", "Einstellungen", "Réglages")
+    }
+
+    @Test
     fun fallsBackToEnglish() {
         assertEquals("es", normalizeLanguage("es-ES"))
         assertEquals("en", normalizeLanguage("it"))
