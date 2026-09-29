@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -19,8 +20,11 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.platform.LocalViewConfiguration
+import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.baltajmn.line.data.LineRepository
@@ -113,17 +117,28 @@ fun YearGrid(
             }
         }
 
-        // Future days and days that do not exist are not nodes, so they get no box at all.
-        for (month in 1..12) {
-            for (day in 1..monthDays[month - 1]) {
-                val date = LocalDate(year, month, day)
-                if (date > today) continue
-                Box(
-                    Modifier.offset { IntOffset(x(month).roundToPx(), y(day).roundToPx()) }
-                        .size(cell, row)
-                        .clickable(role = Role.Button) { onOpenDay(date) }
-                        .semantics { contentDescription = S.a11yDay(date, date.isoKey() in journal) },
-                )
+        // The days touch each other, so the 48 dp that small targets are stretched to would make
+        // each one cover half of the one above: a finger is fine, but the screen reader, reading
+        // what is under the finger, would name the day below. Here a day is exactly its box.
+        val base = LocalViewConfiguration.current
+        val exact = remember(base) {
+            object : ViewConfiguration by base {
+                override val minimumTouchTargetSize = DpSize.Zero
+            }
+        }
+        CompositionLocalProvider(LocalViewConfiguration provides exact) {
+            // Future days and days that do not exist are not nodes, so they get no box at all.
+            for (month in 1..12) {
+                for (day in 1..monthDays[month - 1]) {
+                    val date = LocalDate(year, month, day)
+                    if (date > today) continue
+                    Box(
+                        Modifier.offset { IntOffset(x(month).roundToPx(), y(day).roundToPx()) }
+                            .size(cell, row)
+                            .clickable(role = Role.Button) { onOpenDay(date) }
+                            .semantics { contentDescription = S.a11yDay(date, date.isoKey() in journal) },
+                    )
+                }
             }
         }
     }

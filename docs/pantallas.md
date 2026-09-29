@@ -303,8 +303,10 @@ H, G, I, J. Se enseña el primero que aplique; el siguiente aparece cuando el an
     noviembre): no se pinta.
   - Hoy: anillo de 1,5 dp `onBackground`, un punto 2,5 más grande por cada lado y con el mismo giro.
   - Con búsqueda: los días llenos que no casan bajan al 25 %.
-  - Zona táctil: el ancho del punto por el paso de fila. Tocar un día pasado o de hoy abre
-    `DaySheet`. Pulsación larga (v1.1): 6.2.
+  - Zona táctil: el ancho del punto por el paso de fila, exacta. Aquí no se estira a 48 como
+    cualquier objetivo pequeño: los días se tocan, y estirados cada uno taparía la mitad del de
+    arriba, así que el lector de pantalla nombraría el día de debajo del dedo. Tocar un día pasado o
+    de hoy abre `DaySheet`. Pulsación larga (v1.1): 6.2.
 - **Resultados** (con búsqueda): 24 bajo la rejilla, `resultsCount(n)` (12 resultados) en `Eyebrow`
   y la lista de todos los años, más reciente primero, cada uno en una caja `coverWash` de radio 18 y
   relleno 16, separadas 12: la fecha larga con año en `Eyebrow`, 4, el texto en `UserSmall` hasta 3
