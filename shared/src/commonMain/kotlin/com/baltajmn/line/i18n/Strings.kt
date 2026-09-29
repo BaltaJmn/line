@@ -19,13 +19,19 @@ internal fun normalizeLanguage(code: String): String =
  * Not Compose Resources on purpose: part of these strings are drawn outside a `@Composable` (a
  * BroadcastReceiver, a Glance widget, the Canvas of the share cards, a notification builder).
  *
- * ponytail: the language is read once at first access and the plain texts are resolved then. Both
- * systems restart the app when the language changes, so this only matters if live switching is
- * ever needed. The functions read [lang] on every call, which lets the tests go through the five.
+ * Every text reads the language when it is read. iOS ends the app when its language changes, but
+ * Android only recreates the activity, so a text resolved once would stay in the old language.
  */
 object S {
 
-    internal var lang = normalizeLanguage(systemLanguage())
+    private var forced: String? = null
+
+    /** The device language, unless a test has set one to go through the five. */
+    internal var lang: String
+        get() = forced ?: normalizeLanguage(systemLanguage())
+        set(value) {
+            forced = value
+        }
 
     private fun t(en: String, es: String, pt: String, de: String, fr: String): String = when (lang) {
         "es" -> es
@@ -78,96 +84,96 @@ object S {
     ).split(", ")
 
     // 2. Today
-    val todayPlaceholder = t(
+    val todayPlaceholder get() = t(
         "Whatever you want to remember about today",
         "Lo que quieras recordar de hoy",
         "O que você quiser lembrar de hoje",
         "Was du dir von heute merken willst",
         "Ce que tu veux retenir d'aujourd'hui",
     )
-    val firstHelp = t(
+    val firstHelp get() = t(
         "One line a day. In a year, on this same day, you'll read it again.",
         "Una línea al día. Dentro de un año, este mismo día, volverás a leerla.",
         "Uma linha por dia. Daqui a um ano, neste mesmo dia, você vai reler.",
         "Eine Zeile am Tag. In einem Jahr, an genau diesem Tag, liest du sie wieder.",
         "Une ligne par jour. Dans un an, ce même jour, tu la reliras.",
     )
-    val echoWeek = t(
+    val echoWeek get() = t(
         "A week ago",
         "Hace una semana",
         "Há uma semana",
         "Vor einer Woche",
         "Il y a une semaine",
     )
-    val echoMonth = t("A month ago", "Hace un mes", "Há um mês", "Vor einem Monat", "Il y a un mois")
-    val milestoneFirst = t("Your first line.", "Tu primera línea.", "Sua primeira linha.", "Deine erste Zeile.", "Ta première ligne.")
-    val milestoneThirty = t(
+    val echoMonth get() = t("A month ago", "Hace un mes", "Há um mês", "Vor einem Monat", "Il y a un mois")
+    val milestoneFirst get() = t("Your first line.", "Tu primera línea.", "Sua primeira linha.", "Deine erste Zeile.", "Ta première ligne.")
+    val milestoneThirty get() = t(
         "Your 30th line.",
         "Tu línea número 30.",
         "Sua linha número 30.",
         "Deine 30. Zeile.",
         "Ta 30e ligne.",
     )
-    val milestoneHundred = t(
+    val milestoneHundred get() = t(
         "One hundred lines.",
         "Cien líneas.",
         "Cem linhas.",
         "Hundert Zeilen.",
         "Cent lignes.",
     )
-    val milestoneAnniversary = t(
+    val milestoneAnniversary get() = t(
         "A year ago today, you started this diary.",
         "Hoy hace un año que empezaste este diario.",
         "Hoje faz um ano que você começou este diário.",
         "Heute vor einem Jahr hast du dieses Tagebuch begonnen.",
         "Il y a un an aujourd'hui, tu as commencé ce journal.",
     )
-    val milestoneThreeYears = t(
+    val milestoneThreeYears get() = t(
         "Today marks three years on the same page.",
         "Hoy tienes tres años en la misma página.",
         "Hoje você completa três anos na mesma página.",
         "Heute sind es drei Jahre auf derselben Seite.",
         "Aujourd'hui, trois ans sur la même page.",
     )
-    val noticeSaveFailed = t(
+    val noticeSaveFailed get() = t(
         "Couldn't save. I'll try again with your next change.",
         "No se ha podido guardar. Lo intento otra vez con tu próximo cambio.",
         "Não foi possível salvar. Vou tentar de novo na sua próxima alteração.",
         "Konnte nicht gespeichert werden. Ich versuche es bei deiner nächsten Änderung erneut.",
         "Impossible d'enregistrer. Je réessaierai avec ta prochaine modification.",
     )
-    val noticeCorrupt = t(
+    val noticeCorrupt get() = t(
         "Couldn't read the diary. The files were saved separately and nothing was deleted.",
         "No se ha podido leer el diario. Los ficheros se han guardado aparte y no se ha borrado nada.",
         "Não foi possível ler o diário. Os arquivos foram guardados à parte e nada foi apagado.",
         "Das Tagebuch konnte nicht gelesen werden. Die Dateien wurden separat gesichert, gelöscht wurde nichts.",
         "Impossible de lire le journal. Les fichiers ont été sauvegardés à part, rien n'a été supprimé.",
     )
-    val noticeBackup = t(
+    val noticeBackup get() = t(
         "You've been writing for a month. Save a copy off your phone?",
         "Hace un mes que escribes. ¿Guardas una copia fuera del teléfono?",
         "Já faz um mês que você escreve. Quer guardar uma cópia fora do telefone?",
         "Du schreibst seit einem Monat. Sicherst du eine Kopie außerhalb des Handys?",
         "Ça fait un mois que tu écris. Tu gardes une copie hors du téléphone ?",
     )
-    val makeBackup = t("Make a backup", "Hacer copia", "Fazer cópia", "Kopie erstellen", "Faire une copie")
+    val makeBackup get() = t("Make a backup", "Hacer copia", "Fazer cópia", "Kopie erstellen", "Faire une copie")
 
     // 3. Year
-    val searchPlaceholder = t(
+    val searchPlaceholder get() = t(
         "Search your diary",
         "Buscar en el diario",
         "Buscar no diário",
         "Im Tagebuch suchen",
         "Chercher dans le journal",
     )
-    val yearEmpty = t(
+    val yearEmpty get() = t(
         "Your year will fill in, line by line.",
         "Tu año se irá llenando línea a línea.",
         "Seu ano vai se preenchendo linha a linha.",
         "Dein Jahr füllt sich Zeile für Zeile.",
         "Ton année se remplira ligne après ligne.",
     )
-    val noResults = t(
+    val noResults get() = t(
         "Nothing with those words.",
         "Nada con esas palabras.",
         "Nada com essas palavras.",
@@ -176,169 +182,169 @@ object S {
     )
 
     // 4. Open day
-    val changePhoto = t("Change photo", "Cambiar foto", "Trocar foto", "Foto ändern", "Changer de photo")
-    val removePhoto = t("Remove photo", "Quitar foto", "Remover foto", "Foto entfernen", "Retirer la photo")
-    val deleteTitle = t(
+    val changePhoto get() = t("Change photo", "Cambiar foto", "Trocar foto", "Foto ändern", "Changer de photo")
+    val removePhoto get() = t("Remove photo", "Quitar foto", "Remover foto", "Foto entfernen", "Retirer la photo")
+    val deleteTitle get() = t(
         "Delete this day?",
         "¿Borrar este día?",
         "Excluir este dia?",
         "Diesen Tag löschen?",
         "Supprimer ce jour ?",
     )
-    val deleteText = t(
+    val deleteText get() = t(
         "The line and its photo will be deleted. This cannot be undone.",
         "Se borran la línea y su foto. No se puede deshacer.",
         "A linha e a foto dela serão excluídas. Não é possível desfazer.",
         "Die Zeile und ihr Foto werden gelöscht. Das lässt sich nicht rückgängig machen.",
         "La ligne et sa photo seront supprimées. Cette action est irréversible.",
     )
-    val delete = t("Delete", "Borrar", "Excluir", "Löschen", "Supprimer")
+    val delete get() = t("Delete", "Borrar", "Excluir", "Löschen", "Supprimer")
 
     // 5. Settings
-    val settingsTitle = t("Settings", "Ajustes", "Ajustes", "Einstellungen", "Réglages")
-    val sectionReminder = t("Reminder", "Recordatorio", "Lembrete", "Erinnerung", "Rappel")
-    val sectionPrivacy = t("Privacy", "Privacidad", "Privacidade", "Datenschutz", "Confidentialité")
-    val sectionCover = t("Cover", "Portada", "Capa", "Umschlag", "Couverture")
-    val sectionBackup = t("Backup", "Copia", "Cópia", "Sicherung", "Sauvegarde")
-    val sectionPro = t("Purl Pro", "Purl Pro", "Purl Pro", "Purl Pro", "Purl Pro")
-    val sectionMoreApps = t("More apps", "Más apps", "Mais apps", "Weitere Apps", "Plus d'apps")
-    val sectionAbout = t("About", "Acerca de", "Sobre", "Über", "À propos")
-    val reminderRow = t(
+    val settingsTitle get() = t("Settings", "Ajustes", "Ajustes", "Einstellungen", "Réglages")
+    val sectionReminder get() = t("Reminder", "Recordatorio", "Lembrete", "Erinnerung", "Rappel")
+    val sectionPrivacy get() = t("Privacy", "Privacidad", "Privacidade", "Datenschutz", "Confidentialité")
+    val sectionCover get() = t("Cover", "Portada", "Capa", "Umschlag", "Couverture")
+    val sectionBackup get() = t("Backup", "Copia", "Cópia", "Sicherung", "Sauvegarde")
+    val sectionPro get() = t("Purl Pro", "Purl Pro", "Purl Pro", "Purl Pro", "Purl Pro")
+    val sectionMoreApps get() = t("More apps", "Más apps", "Mais apps", "Weitere Apps", "Plus d'apps")
+    val sectionAbout get() = t("About", "Acerca de", "Sobre", "Über", "À propos")
+    val reminderRow get() = t(
         "Daily reminder",
         "Recordatorio diario",
         "Lembrete diário",
         "Tägliche Erinnerung",
         "Rappel quotidien",
     )
-    val reminderOff = t("Off", "Apagado", "Desativado", "Aus", "Désactivé")
-    val reminderDenied = t(
+    val reminderOff get() = t("Off", "Apagado", "Desativado", "Aus", "Désactivé")
+    val reminderDenied get() = t(
         "Purl's notifications are turned off in the system.",
         "Las notificaciones de Purl están desactivadas en el sistema.",
         "As notificações do Purl estão desativadas no sistema.",
         "Die Benachrichtigungen von Purl sind im System deaktiviert.",
         "Les notifications de Purl sont désactivées dans le système.",
     )
-    val openSystemSettings = t(
+    val openSystemSettings get() = t(
         "Open settings",
         "Abrir ajustes",
         "Abrir ajustes",
         "Einstellungen öffnen",
         "Ouvrir les réglages",
     )
-    val lockRow = t(
+    val lockRow get() = t(
         "Lock the diary",
         "Bloquear el diario",
         "Bloquear o diário",
         "Tagebuch sperren",
         "Verrouiller le journal",
     )
-    val lockSubtitle = t(
+    val lockSubtitle get() = t(
         "Asks for your face, your fingerprint or your phone code",
         "Pide tu cara, tu huella o el código del teléfono",
         "Pede seu rosto, sua digital ou o código do telefone",
         "Fragt nach deinem Gesicht, deinem Fingerabdruck oder dem Code des Handys",
         "Demande ton visage, ton empreinte ou le code du téléphone",
     )
-    val lockUnavailable = t(
+    val lockUnavailable get() = t(
         "Set a screen lock on your phone to use this.",
         "Pon un bloqueo de pantalla en el teléfono para usarlo.",
         "Configure um bloqueio de tela no telefone para usar isso.",
         "Richte eine Bildschirmsperre auf dem Handy ein, um das zu nutzen.",
         "Active un verrouillage d'écran sur ton téléphone pour l'utiliser.",
     )
-    val coverProHint = t(
+    val coverProHint get() = t(
         "Sage is free. The rest come with Purl Pro.",
         "Salvia es gratis; las demás, con Purl Pro.",
         "Sálvia é grátis. As demais vêm com o Purl Pro.",
         "Salbei ist kostenlos. Die anderen mit Purl Pro.",
         "Sauge est gratuite. Les autres sont avec Purl Pro.",
     )
-    val exportRow = t(
+    val exportRow get() = t(
         "Export backup",
         "Exportar copia",
         "Exportar cópia",
         "Kopie exportieren",
         "Exporter une copie",
     )
-    val lastBackupNever = t(
+    val lastBackupNever get() = t(
         "No backup yet",
         "Todavía ninguna copia",
         "Ainda nenhuma cópia",
         "Noch keine Sicherung",
         "Encore aucune copie",
     )
-    val exportNothing = t(
+    val exportNothing get() = t(
         "There's nothing to back up yet.",
         "Aún no hay nada que copiar.",
         "Ainda não há nada para copiar.",
         "Es gibt noch nichts zu sichern.",
         "Il n'y a encore rien à copier.",
     )
-    val importRow = t(
+    val importRow get() = t(
         "Import backup",
         "Importar copia",
         "Importar cópia",
         "Kopie importieren",
         "Importer une copie",
     )
-    val importSubtitle = t(
+    val importSubtitle get() = t(
         "Joins your diary, nothing gets deleted",
         "Se junta con tu diario, sin borrar nada",
         "Se junta ao seu diário, sem apagar nada",
         "Wird mit deinem Tagebuch zusammengeführt, nichts wird gelöscht",
         "Se joint à ton journal, rien n'est supprimé",
     )
-    val proRow = t("Purl Pro", "Purl Pro", "Purl Pro", "Purl Pro", "Purl Pro")
-    val proSubtitle = t(
+    val proRow get() = t("Purl Pro", "Purl Pro", "Purl Pro", "Purl Pro", "Purl Pro")
+    val proSubtitle get() = t(
         "Photos, covers and widgets. One-time payment",
         "Fotos, portadas y widgets. Pago único",
         "Fotos, capas e widgets. Pagamento único",
         "Fotos, Umschläge und Widgets. Einmalzahlung",
         "Photos, couvertures et widgets. Paiement unique",
     )
-    val proOwned = t(
+    val proOwned get() = t(
         "Purchased. Thank you.",
         "Comprado. Gracias.",
         "Comprado. Obrigado.",
         "Gekauft. Danke.",
         "Acheté. Merci.",
     )
-    val restoreRow = t(
+    val restoreRow get() = t(
         "Restore purchase",
         "Restaurar compra",
         "Restaurar compra",
         "Kauf wiederherstellen",
         "Restaurer l'achat",
     )
-    val restoreDone = t(
+    val restoreDone get() = t(
         "Purchase restored.",
         "Compra restaurada.",
         "Compra restaurada.",
         "Kauf wiederhergestellt.",
         "Achat restauré.",
     )
-    val restoreNothing = t(
+    val restoreNothing get() = t(
         "There's no purchase to restore.",
         "No hay ninguna compra que restaurar.",
         "Não há nenhuma compra para restaurar.",
         "Es gibt keinen Kauf zum Wiederherstellen.",
         "Il n'y a aucun achat à restaurer.",
     )
-    val siblingQuilt = t(
+    val siblingQuilt get() = t(
         "Your habits, a year at a glance",
         "Tus hábitos, un año a la vista",
         "Seus hábitos, um ano à vista",
         "Deine Gewohnheiten, ein Jahr im Blick",
         "Tes habitudes, une année en un coup d'oeil",
     )
-    val siblingMood = t(
+    val siblingMood get() = t(
         "How each day went, in colour",
         "Cómo te ha ido cada día, en color",
         "Como foi cada dia, em cores",
         "Wie jeder Tag war, in Farbe",
         "Comment chaque jour s'est passé, en couleur",
     )
-    val privacyRow = t(
+    val privacyRow get() = t(
         "Privacy policy",
         "Política de privacidad",
         "Política de privacidade",
@@ -347,9 +353,9 @@ object S {
     )
 
     // 6. Lock
-    val unlock = t("Unlock", "Desbloquear", "Desbloquear", "Entsperren", "Déverrouiller")
-    val lockPromptTitle = t("Open Purl", "Abrir Purl", "Abrir Purl", "Purl öffnen", "Ouvrir Purl")
-    val lockPromptSubtitle = t(
+    val unlock get() = t("Unlock", "Desbloquear", "Desbloquear", "Entsperren", "Déverrouiller")
+    val lockPromptTitle get() = t("Open Purl", "Abrir Purl", "Abrir Purl", "Purl öffnen", "Ouvrir Purl")
+    val lockPromptSubtitle get() = t(
         "Your diary is locked",
         "Tu diario está bloqueado",
         "Seu diário está bloqueado",
@@ -358,76 +364,76 @@ object S {
     )
 
     // 7. Dialogs and notices
-    val ok = t("OK", "Vale", "OK", "OK", "OK")
-    val cancel = t("Cancel", "Cancelar", "Cancelar", "Abbrechen", "Annuler")
-    val yes = t("Yes", "Sí", "Sim", "Ja", "Oui")
-    val notNow = t("Not now", "Ahora no", "Agora não", "Jetzt nicht", "Pas maintenant")
-    val working = t("One moment...", "Un momento...", "Um momento...", "Einen Moment...", "Un instant...")
-    val importTitle = t(
+    val ok get() = t("OK", "Vale", "OK", "OK", "OK")
+    val cancel get() = t("Cancel", "Cancelar", "Cancelar", "Abbrechen", "Annuler")
+    val yes get() = t("Yes", "Sí", "Sim", "Ja", "Oui")
+    val notNow get() = t("Not now", "Ahora no", "Agora não", "Jetzt nicht", "Pas maintenant")
+    val working get() = t("One moment...", "Un momento...", "Um momento...", "Einen Moment...", "Un instant...")
+    val importTitle get() = t(
         "Import backup",
         "Importar copia",
         "Importar cópia",
         "Kopie importieren",
         "Importer une copie",
     )
-    val importAction = t("Import", "Importar", "Importar", "Importieren", "Importer")
-    val importFailedTitle = t(
+    val importAction get() = t("Import", "Importar", "Importar", "Importieren", "Importer")
+    val importFailedTitle get() = t(
         "Couldn't import",
         "No se ha podido importar",
         "Não foi possível importar",
         "Import fehlgeschlagen",
         "Échec de l'import",
     )
-    val importNotBackup = t(
+    val importNotBackup get() = t(
         "That file is not a backup from Purl.",
         "Ese fichero no es una copia de Purl.",
         "Esse arquivo não é uma cópia do Purl.",
         "Diese Datei ist keine Sicherung von Purl.",
         "Ce fichier n'est pas une copie de Purl.",
     )
-    val importDamaged = t(
+    val importDamaged get() = t(
         "The backup is incomplete or damaged. Your diary wasn't touched.",
         "La copia está incompleta o dañada. Tu diario no se ha tocado.",
         "A cópia está incompleta ou danificada. Seu diário não foi alterado.",
         "Die Sicherung ist unvollständig oder beschädigt. Dein Tagebuch wurde nicht verändert.",
         "La copie est incomplète ou endommagée. Ton journal n'a pas été touché.",
     )
-    val importTooNew = t(
+    val importTooNew get() = t(
         "This backup is from a newer version of Purl. Update the app and try again.",
         "Esta copia es de una versión más nueva de Purl. Actualiza la app y vuelve a probar.",
         "Esta cópia é de uma versão mais nova do Purl. Atualize o app e tente de novo.",
         "Diese Sicherung stammt aus einer neueren Version von Purl. Aktualisiere die App und versuch es erneut.",
         "Cette copie vient d'une version plus récente de Purl. Mets à jour l'app et réessaie.",
     )
-    val importEmpty = t(
+    val importEmpty get() = t(
         "The backup has no lines.",
         "La copia no tiene ninguna línea.",
         "A cópia não tem nenhuma linha.",
         "Die Sicherung enthält keine Zeile.",
         "La copie ne contient aucune ligne.",
     )
-    val importIsMoodTraker = t(
+    val importIsMoodTraker get() = t(
         "This is a backup from MoodTraker. Bring its notes in with Import from MoodTraker.",
         "Es una copia de MoodTraker. Trae sus notas con Importar de MoodTraker.",
         "Isso é uma cópia do MoodTraker. Traga as notas dele com Importar do MoodTraker.",
         "Das ist eine Sicherung von MoodTraker. Ihre Notizen holst du mit \"Von MoodTraker importieren\".",
         "C'est une copie de MoodTraker. Récupère ses notes avec Importer depuis MoodTraker.",
     )
-    val importMoodRow = t(
+    val importMoodRow get() = t(
         "Import from MoodTraker",
         "Importar de MoodTraker",
         "Importar do MoodTraker",
         "Von MoodTraker importieren",
         "Importer depuis MoodTraker",
     )
-    val importMoodNotBackup = t(
+    val importMoodNotBackup get() = t(
         "That file is not a backup from MoodTraker.",
         "Ese fichero no es una copia de MoodTraker.",
         "Esse arquivo não é uma cópia do MoodTraker.",
         "Diese Datei ist keine Sicherung von MoodTraker.",
         "Ce fichier n'est pas une copie de MoodTraker.",
     )
-    val exportFailed = t(
+    val exportFailed get() = t(
         "Couldn't save the backup.",
         "No se ha podido guardar la copia.",
         "Não foi possível salvar a cópia.",
@@ -436,73 +442,73 @@ object S {
     )
 
     // 8. Purl Pro
-    val proTitle = t("Purl Pro", "Purl Pro", "Purl Pro", "Purl Pro", "Purl Pro")
-    val proPhotos = t(
+    val proTitle get() = t("Purl Pro", "Purl Pro", "Purl Pro", "Purl Pro", "Purl Pro")
+    val proPhotos get() = t(
         "Photos in every entry",
         "Fotos en todas tus entradas",
         "Fotos em todas as suas entradas",
         "Fotos in jedem Eintrag",
         "Photos dans toutes tes entrées",
     )
-    val proCovers = t(
+    val proCovers get() = t(
         "Seven more covers",
         "Siete portadas más",
         "Mais sete capas",
         "Sieben weitere Umschläge",
         "Sept couvertures de plus",
     )
-    val proYearWidget = t(
+    val proYearWidget get() = t(
         "The year widget",
         "El widget del año",
         "O widget do ano",
         "Das Jahres-Widget",
         "Le widget de l'année",
     )
-    val proLockWidget = t(
+    val proLockWidget get() = t(
         "The lock screen widget",
         "El widget de la pantalla de bloqueo",
         "O widget da tela de bloqueio",
         "Das Sperrbildschirm-Widget",
         "Le widget de l'écran verrouillé",
     )
-    val proBook = t(
+    val proBook get() = t(
         "The book, laid out as a PDF",
         "El libro en PDF, maquetado",
         "O livro em PDF, diagramado",
         "Das Buch als gestaltetes PDF",
         "Le livre en PDF, mis en page",
     )
-    val bookRow = t("Book as PDF", "Libro en PDF", "Livro em PDF", "Buch als PDF", "Livre en PDF")
-    val bookSubtitle = t(
+    val bookRow get() = t("Book as PDF", "Libro en PDF", "Livro em PDF", "Buch als PDF", "Livre en PDF")
+    val bookSubtitle get() = t(
         "Your diary laid out, one day per page",
         "Tu diario maquetado, un día por página",
         "Seu diário diagramado, um dia por página",
         "Dein Tagebuch gestaltet, ein Tag pro Seite",
         "Ton journal mis en page, un jour par page",
     )
-    val bookFailed = t(
+    val bookFailed get() = t(
         "Couldn't create the book.",
         "No se ha podido crear el libro.",
         "Não foi possível criar o livro.",
         "Das Buch konnte nicht erstellt werden.",
         "Impossible de créer le livre.",
     )
-    val proOnce = t(
+    val proOnce get() = t(
         "One-time payment, no subscription.",
         "Pago único, sin suscripción.",
         "Pagamento único, sem assinatura.",
         "Einmalzahlung, kein Abo.",
         "Paiement unique, sans abonnement.",
     )
-    val restore = t("Restore", "Restaurar", "Restaurar", "Wiederherstellen", "Restaurer")
-    val storeUnavailable = t(
+    val restore get() = t("Restore", "Restaurar", "Restaurar", "Wiederherstellen", "Restaurer")
+    val storeUnavailable get() = t(
         "The store is not available right now.",
         "La tienda no está disponible ahora.",
         "A loja não está disponível agora.",
         "Der Store ist gerade nicht verfügbar.",
         "La boutique n'est pas disponible pour le moment.",
     )
-    val buyFailed = t(
+    val buyFailed get() = t(
         "The purchase could not be completed.",
         "No se ha podido completar la compra.",
         "Não foi possível concluir a compra.",
@@ -511,29 +517,29 @@ object S {
     )
 
     // 9. Sharing
-    val share = t("Share", "Compartir", "Compartilhar", "Teilen", "Partager")
-    val saveToPhotos = t(
+    val share get() = t("Share", "Compartir", "Compartilhar", "Teilen", "Partager")
+    val saveToPhotos get() = t(
         "Save to Photos",
         "Guardar en fotos",
         "Salvar nas fotos",
         "In Fotos speichern",
         "Enregistrer la photo",
     )
-    val saved = t(
+    val saved get() = t(
         "Saved to your photos.",
         "Guardada en tus fotos.",
         "Salva nas suas fotos.",
         "In deinen Fotos gespeichert.",
         "Enregistrée dans tes photos.",
     )
-    val saveFailed = t(
+    val saveFailed get() = t(
         "Couldn't save.",
         "No se ha podido guardar.",
         "Não foi possível salvar.",
         "Konnte nicht gespeichert werden.",
         "Impossible d'enregistrer.",
     )
-    val cardTagline = t(
+    val cardTagline get() = t(
         "one line a day",
         "una línea al día",
         "uma linha por dia",
@@ -542,21 +548,21 @@ object S {
     )
 
     // 10. Notification
-    val reminderTitle = t(
+    val reminderTitle get() = t(
         "A moment for today's line",
         "Un momento para tu línea de hoy",
         "Um momento para sua linha de hoje",
         "Ein Moment für deine Zeile heute",
         "Un moment pour ta ligne du jour",
     )
-    val reminderMemoryTitle = t(
+    val reminderMemoryTitle get() = t(
         "A year ago, today",
         "Hace un año, hoy",
         "Há um ano, hoje",
         "Vor einem Jahr, heute",
         "Il y a un an, aujourd'hui",
     )
-    val reminderChannel = t(
+    val reminderChannel get() = t(
         "Daily reminder",
         "Recordatorio diario",
         "Lembrete diário",
@@ -565,38 +571,38 @@ object S {
     )
 
     // 11. Widgets
-    val widgetWritten = t("Written", "Escrita", "Escrita", "Geschrieben", "Écrite")
-    val widgetNotWritten = t(
+    val widgetWritten get() = t("Written", "Escrita", "Escrita", "Geschrieben", "Écrite")
+    val widgetNotWritten get() = t(
         "Not written yet",
         "Por escribir",
         "Por escrever",
         "Noch nicht geschrieben",
         "À écrire",
     )
-    val widgetMemory = t(
+    val widgetMemory get() = t(
         "There's a memory",
         "Hay recuerdo",
         "Há uma lembrança",
         "Es gibt eine Erinnerung",
         "Il y a un souvenir",
     )
-    val widgetUnlock = t(
+    val widgetUnlock get() = t(
         "Tap to turn it on",
         "Toca para activarlo",
         "Toque para ativar",
         "Tippen zum Aktivieren",
         "Touche pour l'activer",
     )
-    val widgetTodayName = t("Today", "Hoy", "Hoje", "Heute", "Aujourd'hui")
-    val widgetTodayDescription = t(
+    val widgetTodayName get() = t("Today", "Hoy", "Hoje", "Heute", "Aujourd'hui")
+    val widgetTodayDescription get() = t(
         "Whether today has a line and whether there's a memory",
         "Si hoy ya tiene línea y si hay recuerdo",
         "Se hoje já tem linha e se há lembrança",
         "Ob heute schon eine Zeile hat und ob es eine Erinnerung gibt",
         "Si aujourd'hui a déjà une ligne et s'il y a un souvenir",
     )
-    val widgetYearName = t("The year", "El año", "O ano", "Das Jahr", "L'année")
-    val widgetYearDescription = t(
+    val widgetYearName get() = t("The year", "El año", "O ano", "Das Jahr", "L'année")
+    val widgetYearDescription get() = t(
         "Your year, day by day",
         "Tu año, día a día",
         "Seu ano, dia a dia",
@@ -605,29 +611,29 @@ object S {
     )
 
     // 12. Accessibility
-    val a11yBack = t("Back", "Volver", "Voltar", "Zurück", "Retour")
-    val a11yPreviousYear = t(
+    val a11yBack get() = t("Back", "Volver", "Voltar", "Zurück", "Retour")
+    val a11yPreviousYear get() = t(
         "Previous year",
         "Año anterior",
         "Ano anterior",
         "Vorheriges Jahr",
         "Année précédente",
     )
-    val a11yNextYear = t("Next year", "Año siguiente", "Próximo ano", "Nächstes Jahr", "Année suivante")
-    val a11yShare = t("Share", "Compartir", "Compartilhar", "Teilen", "Partager")
-    val a11ySettings = t("Settings", "Ajustes", "Ajustes", "Einstellungen", "Réglages")
-    val a11yYear = t("The year", "El año", "O ano", "Das Jahr", "L'année")
-    val a11yClose = t("Close", "Cerrar", "Fechar", "Schließen", "Fermer")
-    val a11yPhoto = t("Add photo", "Añadir foto", "Adicionar foto", "Foto hinzufügen", "Ajouter une photo")
-    val a11yDelete = t(
+    val a11yNextYear get() = t("Next year", "Año siguiente", "Próximo ano", "Nächstes Jahr", "Année suivante")
+    val a11yShare get() = t("Share", "Compartir", "Compartilhar", "Teilen", "Partager")
+    val a11ySettings get() = t("Settings", "Ajustes", "Ajustes", "Einstellungen", "Réglages")
+    val a11yYear get() = t("The year", "El año", "O ano", "Das Jahr", "L'année")
+    val a11yClose get() = t("Close", "Cerrar", "Fechar", "Schließen", "Fermer")
+    val a11yPhoto get() = t("Add photo", "Añadir foto", "Adicionar foto", "Foto hinzufügen", "Ajouter une photo")
+    val a11yDelete get() = t(
         "Delete this day",
         "Borrar este día",
         "Excluir este dia",
         "Diesen Tag löschen",
         "Supprimer ce jour",
     )
-    val a11ySelected = t("selected", "elegida", "selecionada", "ausgewählt", "sélectionnée")
-    val a11yOpenDay = t(
+    val a11ySelected get() = t("selected", "elegida", "selecionada", "ausgewählt", "sélectionnée")
+    val a11yOpenDay get() = t(
         "Open this day",
         "Abrir este día",
         "Abrir este dia",
@@ -845,8 +851,8 @@ object S {
         t("Buy for $price", "Comprar por $price", "Comprar por $price", "Für $price kaufen", "Acheter pour $price")
 
     // 15. Writing (v1.1)
-    val sectionWriting = t("Writing", "Escritura", "Escrita", "Schreiben", "Écriture")
-    val questionsRow = t(
+    val sectionWriting get() = t("Writing", "Escritura", "Escrita", "Schreiben", "Écriture")
+    val questionsRow get() = t(
         "A question when the day is blank",
         "Una pregunta cuando el día está en blanco",
         "Uma pergunta quando o dia está em branco",
@@ -854,43 +860,43 @@ object S {
         "Une question quand la page est vide",
     )
 
-    val proSiri = t(
+    val proSiri get() = t(
         "Dictate the line with Siri",
         "Dictar la línea con Siri",
         "Ditar a linha com a Siri",
         "Die Zeile mit Siri diktieren",
         "Dicter la ligne avec Siri",
     )
-    val proMemoryWidget = t(
+    val proMemoryWidget get() = t(
         "The memory widget",
         "El widget del recuerdo",
         "O widget da lembrança",
         "Das Erinnerungs-Widget",
         "Le widget du souvenir",
     )
-    val widgetNoMemory = t(
+    val widgetNoMemory get() = t(
         "There's no memory from a year ago today.",
         "Hoy no hay recuerdo de hace un año.",
         "Hoje não há lembrança de um ano atrás.",
         "Heute gibt es keine Erinnerung von vor einem Jahr.",
         "Aujourd'hui, il n'y a pas de souvenir d'il y a un an.",
     )
-    val widgetLocked = t("Diary locked.", "Diario bloqueado.", "Diário bloqueado.", "Tagebuch gesperrt.", "Journal verrouillé.")
+    val widgetLocked get() = t("Diary locked.", "Diario bloqueado.", "Diário bloqueado.", "Tagebuch gesperrt.", "Journal verrouillé.")
 
     fun widgetMemoryLabel(year: Int) =
         t("A year ago, $year", "Hace un año, $year", "Há um ano, $year", "Vor einem Jahr, $year", "Il y a un an, $year")
 
-    val tileLabel = t("Today's line", "Línea de hoy", "Linha de hoje", "Heutige Zeile", "Ligne du jour")
-    val tileWritten = t("Written", "Escrita", "Escrita", "Geschrieben", "Écrite")
-    val tileNotWritten = t("Not written yet", "Por escribir", "Por escrever", "Noch nicht geschrieben", "À écrire")
-    val proTile = t(
+    val tileLabel get() = t("Today's line", "Línea de hoy", "Linha de hoje", "Heutige Zeile", "Ligne du jour")
+    val tileWritten get() = t("Written", "Escrita", "Escrita", "Geschrieben", "Écrite")
+    val tileNotWritten get() = t("Not written yet", "Por escribir", "Por escrever", "Noch nicht geschrieben", "À écrire")
+    val proTile get() = t(
         "Access from Quick Settings",
         "El acceso desde Ajustes rápidos",
         "O acesso pelas Configurações rápidas",
         "Der Zugriff über die Schnelleinstellungen",
         "L'accès depuis les réglages rapides",
     )
-    val addTag = t("+ tag", "+ etiqueta", "+ etiqueta", "+ Etikett", "+ étiquette")
+    val addTag get() = t("+ tag", "+ etiqueta", "+ etiqueta", "+ Etikett", "+ étiquette")
 
     fun a11yRemoveTag(tag: String) =
         t("Remove #$tag", "Quitar #$tag", "Remover #$tag", "#$tag entfernen", "Retirer #$tag")
